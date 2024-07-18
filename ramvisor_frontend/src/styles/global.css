@@ -1,0 +1,16 @@
+@import url('https://cdn.syncfusion.com/ej2/26.1.35/ej2-react-schedule/styles/material.css');
+@import url('https://cdn.syncfusion.com/ej2/26.1.35/ej2-base/styles/material.css');
+@import url('https://cdn.syncfusion.com/ej2/26.1.35/ej2-react-buttons/styles/material.css');
+@import url('https://cdn.syncfusion.com/ej2/26.1.35/ej2-react-calendars/styles/material.css');
+@import url('https://cdn.syncfusion.com/ej2/26.1.35/ej2-react-dropdowns/styles/material.css');
+@import url('https://cdn.syncfusion.com/ej2/26.1.35/ej2-react-inputs/styles/material.css');
+@import url('https://cdn.syncfusion.com/ej2/26.1.35/ej2-react-navigations/styles/material.css');
+@import url('https://cdn.syncfusion.com/ej2/26.1.35/ej2-react-popups/styles/material.css');
+
+.custom-schedule-cell .e-schedule-table-cell {
+    border: 0rem !important;
+  }
+
+.schedule-cell-customization.e-schedule .e-month-view .e-work-cells:not(.e-work-days) {
+background-color: #f08080;
+}
