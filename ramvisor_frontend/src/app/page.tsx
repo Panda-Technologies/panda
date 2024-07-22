@@ -2,11 +2,16 @@
 
 import React from "react";
 import { Layout as AntLayout, Row, Col } from "antd";
-import { UserOutlined, BookOutlined, ClockCircleOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  BookOutlined,
+  ClockCircleOutlined,
+} from "@ant-design/icons";
 import TrendChart from "@components/home/total-count-card";
 import Calendar from "@components/home/calendar";
 import { registerLicense } from "@syncfusion/ej2-base";
 import UpcomingEvents from "@components/home/upcoming-events";
+import Checklist from "@components/home/checklist";
 
 // Register Syncfusion license
 registerLicense(
@@ -61,7 +66,9 @@ const timeOnSiteData = [
 
 const IndexPage: React.FC = () => {
   return (
-    <AntLayout style={{ minHeight: '80vh', padding: '24px', maxHeight: '80vh' }}>
+    <AntLayout
+      style={{ minHeight: "80vh", padding: "24px", maxHeight: "80vh" }}
+    >
       <Row gutter={[32, 32]}>
         <Col xs={24} sm={24} md={8} lg={8} xl={8}>
           <TrendChart
@@ -98,15 +105,18 @@ const IndexPage: React.FC = () => {
         </Col>
       </Row>
       <Row gutter={[32, 32]} style={{ marginTop: "25px" }}>
-        <Col xs={24} sm={15} xl={8} style={{ height: '1px' }} >
+        <Col xs={24} sm={15} xl={8} style={{ height: "1px" }}>
           <UpcomingEvents />
         </Col>
       </Row>
       <Row gutter={[32, 32]} style={{ marginTop: "25px", flex: 1 }}>
-        <Col xs={24} md={24} lg={24} xl={24} style={{ height: '618px' }}>
+        <Col xs={24} md={24} lg={24} xl={24} style={{ height: "618px" }}>
           <Calendar title="Spring 2024" credits={12} />
         </Col>
       </Row>
+      <Col xs={24} sm={24} md={8} lg={8} xl={8} style={{ maxHeight: '1px'}}>
+        <Checklist />
+      </Col>
     </AntLayout>
   );
 };

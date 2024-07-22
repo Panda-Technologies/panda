@@ -4,6 +4,7 @@ import {
   CameraOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
+  ExclamationCircleOutlined,
   FileOutlined,
 } from "@ant-design/icons";
 import { Badge, Card, List } from "antd";
@@ -34,7 +35,7 @@ const listData = [
     color: "yellow",
     title: "Academic Progress",
     description:
-      "On track to complete General Education requirements.",
+      "On track to complete General Education requirements",
     link: '/academics'
   },
   {
@@ -42,7 +43,7 @@ const listData = [
     badge: <CheckCircleOutlined />,
     color: "purple",
     title: "Assignment Progress",
-    description: "3 assignments due this week that are not started.",
+    description: "3 assignments due this week that are not started",
     link: '/assignments'
   },
   {
@@ -50,7 +51,7 @@ const listData = [
     badge: <CalendarOutlined />,
     color: "orange",
     title: "Campus Life Events",
-    description: "14 opportunities for CLE credit on campus this week.",
+    description: "14 opportunities for CLE credit on campus this week",
     link: '/events'
   },
   {
@@ -58,7 +59,7 @@ const listData = [
     badge: <ClockCircleOutlined />,
     color: "red",
     title: "Upcoming Deadlines",
-    description: "Next assignment is due in: 3h 53m! Status: In Progress.",
+    description: "Next assignment is due in: 3h 53m! Status: In Progress",
     link: '/calendar'
   },
 ];
@@ -81,7 +82,7 @@ const UpcomingEvents = ({ isLoading }: Props) => {
       }}
       title={
         <div style={{ display: "flex", alignItems: "center" }}>
-          <CheckCircleOutlined style={{ fontSize: "24px", color: "#28b34e" }} />{" "}
+          <ExclamationCircleOutlined style={{ fontSize: "24px", color: "red" }} />{" "}
           <Text
             style={{
               marginLeft: "12px",
@@ -136,7 +137,7 @@ const UpcomingEvents = ({ isLoading }: Props) => {
                     </Text>
                   }
                   description={
-                    <Text ellipsis={{ tooltip: true }} strong size="md" style={{ color: "#333" }}>
+                    <Text ellipsis={{ tooltip: true }} size="md" style={{ color: "#333" }}>
                       {item.description}
                     </Text>
                   }

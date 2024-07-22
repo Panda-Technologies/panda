@@ -77,7 +77,6 @@ const Calendar: React.FC<CalendarProps> = ({ width, height, title, credits }) =>
           timeScale={{ enable: true, interval: 60, slotCount: 2 }}
           startHour='08:00'
           endHour='17:00'
-          cssClass='custom-schedule'
         >
           <ViewsDirective>
             <ViewDirective option='Day' />
