@@ -43,14 +43,15 @@ const TrendChart: React.FC<TrendChartProps> = ({ title, data, color, icon, isLoa
       style={{
         height: "140px",
         padding: 0,
-        width: '28%',
+        width: '100%',
         borderRadius: '12px',
+        minWidth: '250px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         background: `linear-gradient(to bottom right, ${color}10, ${color}05)`,
         border: 'none',
       }}
       bodyStyle={{
-        padding: "20px",
+        padding: "8px 8px 8px 12px",
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -58,7 +59,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ title, data, color, icon, isLoa
       }}
       size="small"
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", whiteSpace: 'nowrap' }}>
         {React.cloneElement(icon as React.ReactElement, { style: { fontSize: '24px', color: color } })}
         <Text size="md" style={{ color: '#555', fontWeight: 500 }}>{title}</Text>
       </div>
@@ -85,6 +86,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ title, data, color, icon, isLoa
             tooltip={{ enable: false }}
             height="100%"
             background="transparent"
+            style = {{ width: '100%' }}
           >
             <Inject services={[SplineAreaSeries, DateTime]} />
             <SeriesCollectionDirective>

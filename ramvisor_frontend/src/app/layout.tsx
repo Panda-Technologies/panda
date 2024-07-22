@@ -14,6 +14,7 @@ import { authProvider } from "@providers/auth-provider";
 import { dataProvider, liveProvider } from "@providers/data-provider";
 import "@refinedev/antd/dist/reset.css";
 import "@styles/global.css";
+import Layout from "@components/layout";
 
 export default function RootLayout({
   children,
@@ -37,10 +38,10 @@ export default function RootLayout({
     <link href="https://cdn.syncfusion.com/ej2/26.1.35/ej2-react-schedule/styles/material.css" rel="stylesheet" />
       </Head>
       <body>
-          <GitHubBanner />
           <RefineKbarProvider>
             <AntdRegistry>
               <ColorModeContextProvider defaultMode={defaultMode}>
+              
                   <Refine
                     routerProvider={routerProvider}
                     dataProvider={dataProvider}
@@ -55,7 +56,9 @@ export default function RootLayout({
                       liveMode: "auto",
                     }}
                   >
-                    {children}
+                    <Layout>
+                      {children}
+                    </Layout>
                     <RefineKbar />
                   </Refine>
               </ColorModeContextProvider>

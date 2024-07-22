@@ -23,6 +23,7 @@ type ColorModeContextProviderProps = {
   defaultMode?: string;
 };
 
+
 export const ColorModeContextProvider: React.FC<
   PropsWithChildren<ColorModeContextProviderProps>
 > = ({ children, defaultMode }) => {
@@ -42,13 +43,26 @@ export const ColorModeContextProvider: React.FC<
 
   const setColorMode = () => {
     if (mode === "light") {
+      setTheme("material3-dark");
       setMode("dark");
       Cookies.set("theme", "dark");
+      document.documentElement.setAttribute("data-theme", "dark");
     } else {
       setMode("light");
+      setTheme("material3");
       Cookies.set("theme", "light");
+      document.documentElement.setAttribute("data-theme", "light");
     }
   };
+
+ const setTheme = (selectedTheme: string) => {
+    const inputElement = document.getElementById(selectedTheme) as HTMLInputElement;
+    if (inputElement) inputElement.disabled = false;
+    const otherTheme = selectedTheme == "material3" ? "material3-dark" : "material3";
+    const otherElement = document.getElementById(otherTheme) as HTMLInputElement;
+    if (otherElement) otherElement.disabled = true;
+  };
+
 
   const { darkAlgorithm, defaultAlgorithm } = theme;
 
