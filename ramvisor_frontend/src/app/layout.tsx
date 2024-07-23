@@ -15,6 +15,7 @@ import { dataProvider, liveProvider } from "@providers/data-provider";
 import "@refinedev/antd/dist/reset.css";
 import "@styles/global.css";
 import Layout from "@components/layout";
+import { CalendarOutlined, DashboardOutlined, ProjectOutlined } from "@ant-design/icons";
 
 export default function RootLayout({
   children,
@@ -48,6 +49,41 @@ export default function RootLayout({
                     liveProvider={liveProvider}
                     notificationProvider={useNotificationProvider}
                     authProvider={authProvider}
+                    resources = {[ // Path definitions that will help refine the available actions for our resources at specific paths. Actions are basically paths that u can use to perform crud operations under a single name
+                      {
+                          name: 'Dashboard',
+                          list: '/',
+                          meta: {
+                              label: 'Dashboard',
+                              icon: <DashboardOutlined />
+                          } // Store additional meta information about the resource
+                      },
+                  
+                      {
+                          name: 'degree planner',
+                          list: '/degree-planner',
+                          show: 'degree-planner/:id',
+                          create: 'degree-planner/new',
+                          edit: '/degree-planner/edit/:id',
+                          meta: {
+                              label: 'Degree Planner',
+                              icon: <CalendarOutlined />
+                          }
+                      },
+                  
+                      {
+                          name: 'tasks',
+                          list: '/tasks',
+                          show: 'tasks/:id',
+                          create: 'tasks/new',
+                          edit: '/tasks/edit/:id',
+                          meta: {
+                              label: 'Tasks',
+                              icon: <ProjectOutlined />
+                          }
+                      },
+    
+                  ]}
                     options={{
                       syncWithLocation: true,
                       warnWhenUnsavedChanges: true,

@@ -27,14 +27,21 @@ interface Stage {
 
 const customData: { stages: Stage[]; tasks: Task[] } = {
   stages: [
-    { id: '1', title: 'NOT STARTED', createdAt: '2024-01-01' },
-    { id: '2', title: 'IN PROGRESS', createdAt: '2024-01-02' },
-    { id: '4', title: 'DONE', createdAt: '2024-01-04' },
+    { id: '1', title: 'NOT STARTED', createdAt: '2024-07-21' },
+    { id: '2', title: 'IN PROGRESS', createdAt: '2024-07-22' },
+    { id: '3', title: 'DONE', createdAt: '2024-07-23' },
   ],
   tasks: [
-    { id: '1', title: 'Task 1', stageId: '1', dueDate: '2024-02-01', classes: { code: 'P1', color: '#ff4d4f' }, updatedAt: '2024-01-15' },
-    { id: '2', title: 'Task 2', stageId: '2', dueDate: '2024-02-15', classes: { code: 'P2', color: '#faad14' }, updatedAt: '2024-01-16' },
-    { id: '3', title: 'Task 3', stageId: '3', dueDate: '2024-03-01', classes: { code: 'P3', color: '#52c41a' }, updatedAt: '2024-01-17' },
+    { id: '1', title: 'Biology Lab Report', stageId: '1', dueDate: '2024-07-25', classes: { code: 'BIOL101', color: '#ff4d4f' }, updatedAt: '2024-07-15' },
+    { id: '2', title: 'History Essay', stageId: '2', dueDate: '2024-07-28', classes: { code: 'HIST102', color: '#faad14' }, updatedAt: '2024-07-16' },
+    { id: '3', title: 'Calculus Homework', stageId: '3', dueDate: '2024-08-05', classes: { code: 'MATH231', color: '#52c41a' }, updatedAt: '2024-07-17' },
+    { id: '4', title: 'Chemistry Quiz Preparation', stageId: '1', dueDate: '2024-07-30', classes: { code: 'CHEM101', color: '#1890ff' }, updatedAt: '2024-07-18' },
+    { id: '5', title: 'English Literature Reading', stageId: '2', dueDate: '2024-07-23', classes: { code: 'ENGL105', color: '#2f54eb' }, updatedAt: '2024-07-19' },
+    { id: '6', title: 'Computer Science Project', stageId: '3', dueDate: '2024-07-27', classes: { code: 'COMP110', color: '#722ed1' }, updatedAt: '2024-07-20' },
+    { id: '7', title: 'Psychology Research Paper', stageId: '1', dueDate: '2024-08-15', classes: { code: 'PSYC101', color: '#13c2c2' }, updatedAt: '2024-07-21' },
+    { id: '8', title: 'Sociology Case Study', stageId: '2', dueDate: '2024-07-29', classes: { code: 'SOCI101', color: '#eb2f96' }, updatedAt: '2024-07-22' },
+    { id: '9', title: 'Art History Presentation', stageId: '3', dueDate: '2024-08-20', classes: { code: 'ARTS101', color: '#fa541c' }, updatedAt: '2024-07-23' },
+    { id: '10', title: 'Physics Lab Assignment', stageId: '1', dueDate: '2024-07-27', classes: { code: 'PHYS101', color: '#fa8c16' }, updatedAt: '2024-07-24' },
   ],
 };
 
