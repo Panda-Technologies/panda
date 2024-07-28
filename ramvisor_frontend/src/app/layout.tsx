@@ -15,7 +15,7 @@ import { dataProvider, liveProvider } from "@providers/data-provider";
 import "@refinedev/antd/dist/reset.css";
 import "@styles/global.css";
 import Layout from "@components/layout";
-import { CalendarOutlined, DashboardOutlined, ProjectOutlined } from "@ant-design/icons";
+import { BookOutlined, CalendarOutlined, DashboardOutlined, ProjectOutlined } from "@ant-design/icons";
 
 export default function RootLayout({
   children,
@@ -58,13 +58,19 @@ export default function RootLayout({
                               icon: <DashboardOutlined />
                           } // Store additional meta information about the resource
                       },
+
+                      {
+                          name: 'courses',
+                          list: '/course',
+                          meta: {
+                              label: 'Course Scheduler',
+                              icon: <BookOutlined />
+                          }
+                      },
                   
                       {
                           name: 'degree planner',
-                          list: '/degree-planner',
-                          show: 'degree-planner/:id',
-                          create: 'degree-planner/new',
-                          edit: '/degree-planner/edit/:id',
+                          list: '/degree',
                           meta: {
                               label: 'Degree Planner',
                               icon: <CalendarOutlined />

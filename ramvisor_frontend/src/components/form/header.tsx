@@ -8,7 +8,7 @@ import { UserTag } from "../tags/user-tag";
 import { Text } from "../text";
 import { getDateColor } from "@/utilities";
 
-import { Task } from "@/graphql/schema.types";
+// import { Task } from "@/graphql/schema.types";
 
 type DescriptionProps = {
   description?: Task["description"];

@@ -1,70 +1,28 @@
-import { useForm, useSelect } from "@refinedev/antd";
-import { HttpError } from "@refinedev/core";
-import {
-  GetFields,
-  GetFieldsFromList,
-  GetVariables,
-} from "@refinedev/nestjs-query";
-
-import { Button, Form, Select, Space } from "antd";
-
-// import {
-//   UpdateTaskMutation,
-//   UpdateTaskMutationVariables,
-//   UsersSelectQuery,
-// } from "@/graphql/types";
-
-// import { USERS_SELECT_QUERY } from "@/graphql/queries";
-// import { UPDATE_TASK_MUTATION } from "@/graphql/mutations";
+import React from 'react';
+import { Form, Select, Button, Space } from 'antd';
 
 type Props = {
   initialValues: {
     classId: { code: string; color: string };
   };
   cancelForm: () => void;
+  onSave: (values: { classId: string[] }) => void;
 };
 
-export const ClassesForm = ({ initialValues, cancelForm }: Props) => {
-  // use the useForm hook to manage the form to add users to a task (assign task to users)
-  const { formProps, saveButtonProps } = useForm<
-    // GetFields<UpdateTaskMutation>,
-    HttpError
-    /**
-     * Pick is a utility type from typescript that allows you to create a new type from an existing type by picking some properties from it.
-     * https://www.typescriptlang.org/docs/handbook/utility-types.html#picktype-keys
-     *
-     * Pick<Type, Keys>
-     * Type -> the type from which we want to pick the properties
-     * Keys -> the properties that we want to pick
-     */
-    // Pick<GetVariables<UpdateTaskMutationVariables>, "userIds">
-  >({
-    queryOptions: {
-      // disable the query to prevent fetching data on component mount
-      enabled: false,
-    },
-    redirect: false, // disable redirection
-    onMutationSuccess: () => {
-      // when the mutation is successful, call the cancelForm function to close the form
-      cancelForm();
-    },
-    // perform the mutation when the form is submitted
-    meta: {
-      // gqlMutation: UPDATE_TASK_MUTATION,
-    },
-  });
+// Mock data for classes
+const staticClasses = [
+  { id: '1', code: 'CS101', color: '#ff4d4f' },
+  { id: '2', code: 'MATH201', color: '#faad14' },
+  { id: '3', code: 'ENG301', color: '#52c41a' },
+];
 
-  // use the useSelect hook to fetch the list of users from the server and display them in a select component
-  const { selectProps } = useSelect({
-    // specify the resource from which we want to fetch the data
-    resource: "users",
-    // specify the query that should be performed
-    meta: {
-      // gqlQuery: USERS_SELECT_QUERY,
-    },
-    // specify the label for the select component
-    optionLabel: "name",
-  });
+export const ClassesForm = ({ initialValues, cancelForm, onSave }: Props) => {
+  const [form] = Form.useForm();
+
+  const handleSubmit = (values: { classId: string[] }) => {
+    onSave(values);
+    cancelForm();
+  };
 
   return (
     <div
@@ -76,17 +34,21 @@ export const ClassesForm = ({ initialValues, cancelForm }: Props) => {
       }}
     >
       <Form
-        {...formProps}
+        form={form}
         style={{ width: "100%" }}
         initialValues={initialValues}
+        onFinish={handleSubmit}
       >
-        <Form.Item noStyle name="userIds">
+        <Form.Item name="classId">
           <Select
-            {...selectProps}
             className="kanban-users-form-select"
             dropdownStyle={{ padding: "0px" }}
             style={{ width: "100%" }}
             mode="multiple"
+            options={staticClasses.map(cls => ({
+              value: cls.id,
+              label: cls.code,
+            }))}
           />
         </Form.Item>
       </Form>
@@ -94,7 +56,7 @@ export const ClassesForm = ({ initialValues, cancelForm }: Props) => {
         <Button type="default" onClick={cancelForm}>
           Cancel
         </Button>
-        <Button {...saveButtonProps} type="primary">
+        <Button type="primary" onClick={() => form.submit()}>
           Save
         </Button>
       </Space>

@@ -105,7 +105,7 @@ const List = ({ children }: React.PropsWithChildren) => {
             >
               {column.tasks.map((task) => (
                 <KanbanItem key={task.id} id={task.id} data={{ ...task, stageId: task.stageId }}>
-                  <ProjectCardMemo {...task} />
+                  <ProjectCardMemo {...task}/>
                 </KanbanItem>
               ))}
               {!column.tasks.length && (
