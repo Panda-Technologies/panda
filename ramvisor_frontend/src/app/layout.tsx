@@ -16,6 +16,7 @@ import "@refinedev/antd/dist/reset.css";
 import "@styles/global.css";
 import Layout from "@components/layout";
 import { BookOutlined, CalendarOutlined, DashboardOutlined, ProjectOutlined } from "@ant-design/icons";
+import ChatWindow from "@components/chat/window";
 
 export default function RootLayout({
   children,
@@ -100,6 +101,7 @@ export default function RootLayout({
                   >
                     <Layout>
                       {children}
+                      <ChatWindow />
                     </Layout>
                     <RefineKbar />
                   </Refine>
