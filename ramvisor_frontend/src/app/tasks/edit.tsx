@@ -1,12 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+
+import React, { useState } from "react";
+import { Modal, Button } from "antd";
 import {
   AlignLeftOutlined,
   FieldTimeOutlined,
   UsergroupAddOutlined,
 } from "@ant-design/icons";
-import { Modal, Button } from "antd";
 
 import { Accordion } from "@/components/accordion";
 import { DescriptionForm } from "@/components/form/description";
@@ -16,50 +16,43 @@ import { DueDateHeader } from "@/components/form/header";
 import { StageForm } from "@/components/form/stage";
 import { TitleForm } from "@/components/form/title";
 import { ClassesForm } from "@/components/form/classes";
-import { UsersHeader } from "@/components/form/header";
+import { ClassesHeader } from "@/components/form/header";
 
-// Dummy data for a task
-const dummyTask = {
-  id: "1",
-  title: "Sample Task",
-  description: "This is a sample task description.",
-  dueDate: "2023-12-31",
-  classes: { code: "CS101", color: "#ff4d4f" },
-  stage: "In Progress"
-};
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  dueDate: string;
+  classes: { code: string; color: string };
+  stage: string;
+}
 
-const TasksEditPage = ({ params }: { params: { id: string } }) => {
+interface TasksEditModalProps {
+  task: Task;
+  onClose: () => void;
+  onSave: (task: Task) => void;
+  onDelete: (taskId: string) => void;
+}
+
+const TasksEditModal: React.FC<TasksEditModalProps> = ({ task, onClose, onSave, onDelete }) => {
   const [activeKey, setActiveKey] = useState<string | undefined>();
-  const [task, setTask] = useState(dummyTask);
-  const [isModalVisible, setIsModalVisible] = useState(true);
-  const router = useRouter();
+  const [editedTask, setEditedTask] = useState<Task>(task);
 
-  useEffect(() => {
-    // In a real application, you would fetch the task data here
-    // For now, we're just using the dummy data
-    setTask({ ...dummyTask, id: params.id });
-  }, [params.id]);
-
-  const handleClose = () => {
-    setIsModalVisible(false);
-    router.push("/tasks");
+  const handleSave = (updatedData: Partial<Task>) => {
+    const newTask = { ...editedTask, ...updatedData };
+    setEditedTask(newTask);
+    onSave(newTask);
   };
 
   const handleDelete = () => {
-    // In a real application, you would delete the task here
-    console.log("Deleting task:", task.id);
-    handleClose();
-  };
-
-  const handleSave = (updatedData: Partial<typeof task>) => {
-    setTask(prevTask => ({ ...prevTask, ...updatedData }));
+    onDelete(task.id);
   };
 
   return (
     <Modal
-      open={isModalVisible}
-      onCancel={handleClose}
-      title={<TitleForm initialValues={{ title: task.title }} isLoading={false} onSave={(values) => handleSave({ title: values.title })} />}
+      open={true}
+      onCancel={onClose}
+      title={<TitleForm initialValues={{ title: editedTask.title }} isLoading={false} onSave={(values) => handleSave({ title: values.title })} />}
       width={586}
       footer={
         <Button type="link" danger onClick={handleDelete}>
@@ -69,7 +62,7 @@ const TasksEditPage = ({ params }: { params: { id: string } }) => {
     >
       <StageForm 
         isLoading={false} 
-        initialValues={{ stageId: task.stage, completed: false }}
+        initialValues={{ stageId: editedTask.stage, completed: false }}
         onSave={(values) => handleSave({ stage: values.stageId })}
       />
 
@@ -77,13 +70,13 @@ const TasksEditPage = ({ params }: { params: { id: string } }) => {
         accordionKey="description"
         activeKey={activeKey}
         setActive={setActiveKey}
-        fallback={<DescriptionHeader description={task.description} />}
+        fallback={<DescriptionHeader description={editedTask.description || ''} />}
         isLoading={false}
         icon={<AlignLeftOutlined />}
         label="Description"
       >
         <DescriptionForm
-          initialValues={{ description: task.description }}
+          initialValues={{ description: editedTask.description || '' }}
           cancelForm={() => setActiveKey(undefined)}
           onSave={(values) => handleSave({ description: values.description })}
         />
@@ -93,13 +86,13 @@ const TasksEditPage = ({ params }: { params: { id: string } }) => {
         accordionKey="due-date"
         activeKey={activeKey}
         setActive={setActiveKey}
-        fallback={<DueDateHeader dueData={task.dueDate} />}
+        fallback={<DueDateHeader dueData={editedTask.dueDate} />}
         isLoading={false}
         icon={<FieldTimeOutlined />}
         label="Due date"
       >
         <DueDateForm
-          initialValues={{ dueDate: task.dueDate }}
+          initialValues={{ dueDate: editedTask.dueDate }}
           cancelForm={() => setActiveKey(undefined)}
           onSave={(values) => handleSave({ dueDate: values.dueDate })}
         />
@@ -109,7 +102,7 @@ const TasksEditPage = ({ params }: { params: { id: string } }) => {
         accordionKey="classes"
         activeKey={activeKey}
         setActive={setActiveKey}
-        fallback={<UsersHeader users={task.classes} />}
+        fallback={<ClassesHeader users={editedTask.classes} />}
         isLoading={false}
         icon={<UsergroupAddOutlined />}
         label="Classes"
@@ -117,8 +110,8 @@ const TasksEditPage = ({ params }: { params: { id: string } }) => {
         <ClassesForm
           initialValues={{
             classId: {
-              code: task.classes.code,
-              color: task.classes.color,
+              code: editedTask.classes.code,
+              color: editedTask.classes.color,
             }
           }}
           cancelForm={() => setActiveKey(undefined)}
@@ -129,4 +122,4 @@ const TasksEditPage = ({ params }: { params: { id: string } }) => {
   );
 };
 
-export default TasksEditPage;
+export default TasksEditModal;

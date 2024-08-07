@@ -19,7 +19,7 @@ type DueDateProps = {
 };
 
 type UserProps = {
-  users?: Task["users"];
+  classes?: Task["classes"];
 };
 
 // display a task's descriptio if it exists, otherwise display a link to add one
@@ -71,18 +71,18 @@ export const DueDateHeader = ({ dueData }: DueDateProps) => {
   return <Typography.Link>Add due date</Typography.Link>;
 };
 
-// display a task's users if it exists, otherwise display a link to add one
-export const UsersHeader = ({ users = [] }: UserProps) => {
-  if (users.length > 0) {
+// display a task's classes if it exists, otherwise display a link to add one
+export const ClassesHeader = ({ classes = [] }: UserProps) => {
+  if (classes.length > 0) {
     return (
       <Space size={[0, 8]} wrap>
-        {users.map((user) => (
+        {classes.map((user) => (
           <UserTag key={user.id} user={user} />
         ))}
       </Space>
     );
   }
 
-  // if the task doesn't have users, display a link to add one
-  return <Typography.Link>Assign to users</Typography.Link>;
+  // if the task doesn't have classes, display a link to add one
+  return <Typography.Link>Assign to classes</Typography.Link>;
 };

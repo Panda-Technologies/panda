@@ -31,10 +31,11 @@ type ProjectCardProps = {
   classes: {
     code: string;
     color: string;
-  }
+  };
+  onClick?: () => void;
 };
 
-const ProjectCard = ({ id, title, dueDate, classes }: ProjectCardProps) => {
+const ProjectCard = ({ id, title, dueDate, classes, onClick }: ProjectCardProps) => {
   const { token } = theme.useToken();
 
   const { edit } = useNavigation();
@@ -47,8 +48,9 @@ const ProjectCard = ({ id, title, dueDate, classes }: ProjectCardProps) => {
         label: "View card",
         key: "1",
         icon: <EyeOutlined />,
-        onClick: () => {
-          edit("tasks", id, "replace");
+        onClick: (e) => {
+          e.domEvent.stopPropagation();
+          onClick ? onClick() : edit("tasks", id, "replace");
         },
       },
       {
@@ -56,7 +58,8 @@ const ProjectCard = ({ id, title, dueDate, classes }: ProjectCardProps) => {
         label: "Delete card",
         icon: <DeleteOutlined />,
         key: "2",
-        onClick: () => {
+        onClick: (e) => {
+          e.domEvent.stopPropagation();
           del({
             resource: "tasks",
             id,
@@ -69,7 +72,7 @@ const ProjectCard = ({ id, title, dueDate, classes }: ProjectCardProps) => {
     ];
 
     return dropdownItems;
-  }, []);
+  }, [onClick]);
 
   const dueDateOptions = useMemo(() => {
     if (!dueDate) return null;
@@ -100,7 +103,7 @@ const ProjectCard = ({ id, title, dueDate, classes }: ProjectCardProps) => {
         title={title.length > 35 ? (<Text ellipsis={{ tooltip: title }}>{title.slice(0, 35) + '...'}</Text>) : (
           <Text>{title}</Text>
         )}
-        onClick={() => edit("tasks", id, "replace")}
+        onClick={onClick || (() => edit("tasks", id, "replace"))}
         extra={
           <Dropdown
             trigger={["click"]}
@@ -188,6 +191,7 @@ export const ProjectCardMemo = memo(ProjectCard, (prev, next) => {
     prev.title === next.title &&
     prev.updatedAt === next.updatedAt &&
     prev.dueDate === next.dueDate &&
-    prev.classes === next.classes
+    prev.classes === next.classes &&
+    prev.onClick === next.onClick
   );
 });
