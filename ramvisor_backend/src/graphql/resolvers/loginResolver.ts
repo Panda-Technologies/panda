@@ -5,9 +5,8 @@ import { INVALID_CREDENTIALS, NOT_AUTHENTICATED, NOT_AUTHORIZED } from "../../co
 
 export const loginResolve = async (_: any, { ...userDetails }: Pick<User, 'email' | 'password'>, {prisma, session}: IMyContext) => {
     try {
-
         if (isAuthenticated(session)) {
-            return new Error(NOT_AUTHORIZED);
+            throw new Error(NOT_AUTHORIZED);
         }
 
         const user = await prisma.user.findUnique({
@@ -17,27 +16,27 @@ export const loginResolve = async (_: any, { ...userDetails }: Pick<User, 'email
         });
 
         if (!user) {
-            return new Error(INVALID_CREDENTIALS);
+            throw new Error(INVALID_CREDENTIALS);
         }
 
         const isCorrectPassword = await verifyPassword(userDetails.password, user.password);
 
         if (!isCorrectPassword) {
-            return new Error(INVALID_CREDENTIALS);
+            throw new Error(INVALID_CREDENTIALS);
         }
 
         session['userId'] = user.id;
 
-    return true;
+        return user.id;
     } catch (err: any) {
         const errorCaught = err as any
-        return new Error(errorCaught.message);
+        throw new Error(errorCaught.message);
     }
 }
 
 export const logoutResolve = (_: any, __: any, session: ISession) => {
     if (!isAuthenticated(session)) {
-        return new Error(NOT_AUTHENTICATED);
+        throw new Error(NOT_AUTHENTICATED);
     }
     session.destroy((err) => {
         console.log(`Error destroying session: ${err}`);
