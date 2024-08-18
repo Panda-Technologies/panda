@@ -18,12 +18,19 @@ type Class {
 }
 
 type ClassSchedule {
-  class: Class
-  classId: Int!
+  entries: [ClassScheduleEntry]
   id: Int!
   semesterId: Int!
   user: User
   userId: Int!
+}
+
+type ClassScheduleEntry {
+  class: Class
+  classId: Int!
+  classSchedule: ClassSchedule
+  classScheduleId: Int!
+  id: Int!
 }
 
 type Degree {
@@ -36,9 +43,9 @@ type Degree {
 }
 
 type DegreeSchedule {
-  courseId: Int!
   degree: Degree
   degreeId: Int!
+  entries: [DegreeScheduleEntry]
   id: Int!
   plannerId: Int!
   semesterId: Int!
@@ -46,11 +53,21 @@ type DegreeSchedule {
   userId: Int!
 }
 
+type DegreeScheduleEntry {
+  class: Class
+  classId: Int!
+  degreeSchedule: DegreeSchedule
+  degreeScheduleId: Int!
+  id: Int!
+}
+
 type Mutation {
+  addClassToClassSchedule(classId: Int!, classScheduleId: Int!): ClassScheduleEntry
+  addClassToDegreeSchedule(classId: Int!, degreeScheduleId: Int!): DegreeScheduleEntry
   createClass(classCode: String!, color: String!, coreDegreeId: Int!, courseType: String!, dayOfWeek: String!, endTime: String!, professor: String!, rateMyProfessorRating: Float!, startTime: String!, title: String!): Class
-  createClassSchedule(classId: Int!, semesterId: Int!, userId: Int!): ClassSchedule
+  createClassSchedule(semesterId: Int!, userId: Int!): ClassSchedule
   createDegree(name: String!, numberOfCores: Int!, numberOfElectives: Int!): Degree
-  createDegreeSchedule(courseId: Int!, degreeId: Int!, plannerId: Int!, semesterId: Int!, userId: Int!): DegreeSchedule
+  createDegreeSchedule(degreeId: Int!, plannerId: Int!, semesterId: Int!, userId: Int!): DegreeSchedule
   createTask(classCode: String!, description: String!, dueDate: String!, stageId: Int!, title: String!, userId: Int!): Task
   deleteClassSchedule(id: Int!): ClassSchedule
   deleteDegree(id: Int!): Degree
@@ -59,9 +76,11 @@ type Mutation {
   login(email: String!, password: String!): Boolean
   logout: Boolean
   register(email: String!, password: String!): Boolean
-  updateClassSchedule(classId: Int, id: Int!, semesterId: Int): ClassSchedule
+  removeClassFromClassSchedule(id: Int!): ClassScheduleEntry
+  removeClassFromDegreeSchedule(id: Int!): DegreeScheduleEntry
+  updateClassSchedule(id: Int!, semesterId: Int): ClassSchedule
   updateDegree(id: Int!, name: String, numberOfCores: Int, numberOfElectives: Int): Degree
-  updateDegreeSchedule(courseId: Int, id: Int!, plannerId: Int, semesterId: Int): DegreeSchedule
+  updateDegreeSchedule(id: Int!, plannerId: Int, semesterId: Int): DegreeSchedule
   updateTask(description: String, dueDate: String, id: Int!, stageId: Int, title: String): Task
   updateUserAcademicInfo(assignmentCompletionPercentage: Float, attendancePercentage: Float, gpa: Float, id: Int!): User
   updateUserProfile(degreeId: Int!, id: Int!, university: String!, yearInUniversity: Int!): User
@@ -70,10 +89,11 @@ type Mutation {
 type Query {
   getAllDegrees: [Degree]
   getClass(id: Int!): Class
-  getClassSchedule(id: Int!): ClassSchedule
+  getClassScheduleEntries(classScheduleId: Int!): [ClassScheduleEntry]
   getClassSchedules(userId: Int!): [ClassSchedule]
   getClasses: [Class]
   getDegree(id: Int!): Degree
+  getDegreeScheduleEntries(degreeScheduleId: Int!): [DegreeScheduleEntry]
   getDegreeSchedules(userId: Int!): [DegreeSchedule]
   getTasks(userId: Int!): [Task]
   getUser(id: Int!): User
