@@ -1,120 +1,161 @@
-import { extendType, nonNull, intArg, objectType, list } from "nexus";
+import {
+  extendType,
+  nonNull,
+  intArg,
+  objectType,
+  list,
+  inputObjectType,
+} from "nexus";
 
 export const DegreeSchedule = objectType({
-  name: 'DegreeSchedule',
+  name: "DegreeSchedule",
   definition(t) {
-    t.nonNull.int('id');
-    t.nonNull.int('userId');
-    t.nonNull.int('plannerId');
-    t.nonNull.int('degreeId');
-    t.nonNull.int('semesterId');
-    t.field('user', { type: 'User' });
-    t.field('degree', { type: 'Degree' });
-    t.list.field('entries', { type: 'DegreeScheduleEntry' });
+    t.nonNull.int("id");
+    t.nonNull.int("userId");
+    t.nonNull.int("plannerId");
+    t.nonNull.int("degreeId");
+    t.nonNull.int("semesterId");
+    t.field("user", { type: "User" });
+    t.field("degree", { type: "Degree" });
+    t.list.field("entries", { type: "DegreeScheduleEntry" });
   },
 });
 
 export const DegreeScheduleEntry = objectType({
-  name: 'DegreeScheduleEntry',
+  name: "DegreeScheduleEntry",
   definition(t) {
-    t.nonNull.int('id');
-    t.nonNull.int('degreeScheduleId');
-    t.nonNull.int('classId');
-    t.field('degreeSchedule', { type: 'DegreeSchedule' });
-    t.field('class', { type: 'Class' });
+    t.nonNull.int("id");
+    t.nonNull.int("degreeScheduleId");
+    t.nonNull.int("classId");
+    t.field("degreeSchedule", { type: "DegreeSchedule" });
+    t.field("class", { type: "Class" });
+  },
+});
+
+export const CreateDegreeScheduleInput = inputObjectType({
+  name: "CreateDegreeScheduleInput",
+  definition(t) {
+    t.nonNull.int("userId");
+    t.nonNull.int("plannerId");
+    t.nonNull.int("degreeId");
+    t.nonNull.int("semesterId");
+  },
+});
+
+export const UpdateDegreeScheduleInput = inputObjectType({
+  name: "UpdateDegreeScheduleInput",
+  definition(t) {
+    t.nonNull.int("id");
+    t.int("plannerId");
+    t.int("semesterId");
+  },
+});
+
+export const AddClassToDegreeScheduleInput = inputObjectType({
+  name: "AddClassToDegreeScheduleInput",
+  definition(t) {
+    t.nonNull.int("degreeScheduleId");
+    t.nonNull.int("classId");
+  },
+});
+
+export const RemoveClassFromDegreeScheduleInput = inputObjectType({
+  name: "RemoveClassFromDegreeScheduleInput",
+  definition(t) {
+    t.nonNull.int("id");
   },
 });
 
 export const DegreeScheduleQuery = extendType({
-  type: 'Query',
+  type: "Query",
   definition(t) {
-    t.list.field('getDegreeSchedules', {
-      type: 'DegreeSchedule',
+    t.list.field("getDegreeSchedules", {
+      type: "DegreeSchedule",
       args: {
-        userId: nonNull(intArg())
+        userId: nonNull(intArg()),
       },
-      resolve: (_, { userId }, { prisma }) => prisma.degreeSchedule.findMany({ 
-        where: { userId },
-        include: { entries: { include: { class: true } } }
-      })
+      resolve: (_, { userId }, { prisma }) =>
+        prisma.degreeSchedule.findMany({
+          where: { userId },
+          include: { entries: { include: { class: true } } },
+        }),
     });
 
-    t.field('getDegreeScheduleEntries', {
-      type: list('DegreeScheduleEntry'),
+    t.field("getDegreeScheduleEntries", {
+      type: list("DegreeScheduleEntry"),
       args: {
-        degreeScheduleId: nonNull(intArg())
+        degreeScheduleId: nonNull(intArg()),
       },
-      resolve: (_, { degreeScheduleId }, { prisma }) => prisma.degreeScheduleEntry.findMany({
-        where: { degreeScheduleId },
-        include: { class: true }
-      })
+      resolve: (_, { degreeScheduleId }, { prisma }) =>
+        prisma.degreeScheduleEntry.findMany({
+          where: { degreeScheduleId },
+          include: { class: true },
+        }),
     });
-  }
+  },
 });
 
 export const DegreeScheduleMutation = extendType({
-  type: 'Mutation',
+  type: "Mutation",
   definition(t) {
-    t.field('createDegreeSchedule', {
-      type: 'DegreeSchedule',
+    t.field("createDegreeSchedule", {
+      type: "DegreeSchedule",
       args: {
-        userId: nonNull(intArg()),
-        plannerId: nonNull(intArg()),
-        degreeId: nonNull(intArg()),
-        semesterId: nonNull(intArg())
+        input: nonNull(CreateDegreeScheduleInput),
       },
-      resolve: (_, args, { prisma }) => prisma.degreeSchedule.create({ 
-        data: args,
-        include: { entries: true }
-      })
+      resolve: (_, { input }, { prisma }) =>
+        prisma.degreeSchedule.create({
+          data: input,
+          include: { entries: true },
+        }),
     });
 
-    t.field('updateDegreeSchedule', {
-      type: 'DegreeSchedule',
+    t.field("updateDegreeSchedule", {
+      type: "DegreeSchedule",
+      args: {
+        input: nonNull(UpdateDegreeScheduleInput),
+      },
+      resolve: (_, { input }, { prisma }) =>
+        prisma.degreeSchedule.update({
+          where: { id: input.id },
+          data: input,
+          include: { entries: true },
+        }),
+    });
+
+    t.field("deleteDegreeSchedule", {
+      type: "DegreeSchedule",
       args: {
         id: nonNull(intArg()),
-        plannerId: intArg(),
-        semesterId: intArg()
       },
-      resolve: (_, args, { prisma }) => prisma.degreeSchedule.update({
-        where: { id: args.id },
-        data: args,
-        include: { entries: true }
-      })
+      resolve: (_, { id }, { prisma }) =>
+        prisma.degreeSchedule.delete({
+          where: { id },
+          include: { entries: true },
+        }),
     });
 
-    t.field('deleteDegreeSchedule', {
-      type: 'DegreeSchedule',
+    t.field("addClassToDegreeSchedule", {
+      type: "DegreeScheduleEntry",
       args: {
-        id: nonNull(intArg())
+        input: nonNull(AddClassToDegreeScheduleInput),
       },
-      resolve: (_, { id }, { prisma }) => prisma.degreeSchedule.delete({ 
-        where: { id },
-        include: { entries: true }
-      })
-    });
-
-    t.field('addClassToDegreeSchedule', {
-      type: 'DegreeScheduleEntry',
-      args: {
-        degreeScheduleId: nonNull(intArg()),
-        classId: nonNull(intArg())
-      },
-      resolve: (_, args, { prisma }) => prisma.degreeScheduleEntry.create({
-        data: args,
-        include: { class: true }
-      })
+      resolve: (_, { input }, { prisma }) =>
+        prisma.degreeScheduleEntry.create({
+          data: input,
+          include: { class: true },
+        }),
     });
 
     t.field('removeClassFromDegreeSchedule', {
       type: 'DegreeScheduleEntry',
       args: {
-        id: nonNull(intArg())
+        input: nonNull(RemoveClassFromDegreeScheduleInput),
       },
-      resolve: (_, { id }, { prisma }) => prisma.degreeScheduleEntry.delete({
-        where: { id },
+      resolve: (_, { input }, { prisma }) => prisma.degreeScheduleEntry.delete({
+        where: { id: input.id },
         include: { class: true }
       })
     });
-  }
+  },
 });

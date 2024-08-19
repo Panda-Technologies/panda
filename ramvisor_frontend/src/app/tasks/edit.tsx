@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
 import React, { useState } from "react";
 import { Modal, Button } from "antd";
 import {
   AlignLeftOutlined,
   FieldTimeOutlined,
-  UsergroupAddOutlined,
+  BookOutlined,
 } from "@ant-design/icons";
 
 import { Accordion } from "@/components/accordion";
@@ -15,7 +15,7 @@ import { DueDateForm } from "@/components/form/due-date";
 import { DueDateHeader } from "@/components/form/header";
 import { StageForm } from "@/components/form/stage";
 import { TitleForm } from "@/components/form/title";
-import { ClassesForm } from "@/components/form/classes";
+import { ClassesForm } from "@components/form/classes";
 import { ClassesHeader } from "@/components/form/header";
 
 interface Task {
@@ -24,7 +24,7 @@ interface Task {
   description?: string;
   dueDate: string;
   classes: { code: string; color: string };
-  stage: string;
+  stageId: string | null;
 }
 
 interface TasksEditModalProps {
@@ -62,8 +62,8 @@ const TasksEditModal: React.FC<TasksEditModalProps> = ({ task, onClose, onSave, 
     >
       <StageForm 
         isLoading={false} 
-        initialValues={{ stageId: editedTask.stage, completed: false }}
-        onSave={(values) => handleSave({ stage: values.stageId })}
+        initialValues={{ stageId: editedTask.stageId, completed: false }}
+        onSave={(values) => handleSave({ stageId: values.stageId })}
       />
 
       <Accordion
@@ -94,28 +94,35 @@ const TasksEditModal: React.FC<TasksEditModalProps> = ({ task, onClose, onSave, 
         <DueDateForm
           initialValues={{ dueDate: editedTask.dueDate }}
           cancelForm={() => setActiveKey(undefined)}
-          onSave={(values) => handleSave({ dueDate: values.dueDate })}
+          onSave={(values) => handleSave({ dueDate: values.dueDate || editedTask.dueDate })}
         />
       </Accordion>
 
       <Accordion
-        accordionKey="classes"
+        accordionKey="class-code"
         activeKey={activeKey}
         setActive={setActiveKey}
-        fallback={<ClassesHeader users={editedTask.classes} />}
+        fallback={<ClassesHeader classCodes={[editedTask.classes]} />}
         isLoading={false}
-        icon={<UsergroupAddOutlined />}
-        label="Classes"
+        icon={<BookOutlined />}
+        label="Class Code"
       >
         <ClassesForm
           initialValues={{
-            classId: {
-              code: editedTask.classes.code,
-              color: editedTask.classes.color,
-            }
+            classId: editedTask.classes
           }}
           cancelForm={() => setActiveKey(undefined)}
-          onSave={(values) => handleSave({ classes: values.classId })}
+          onSave={(values) => {
+            const newClasses = Array.isArray(values.classId) 
+              ? values.classId[0] 
+              : values.classId;
+            
+            if (typeof newClasses === 'object' && 'code' in newClasses && 'color' in newClasses) {
+              handleSave({ classes: newClasses });
+            } else {
+              console.error('Invalid classes data:', newClasses);
+            }
+          }}
         />
       </Accordion>
     </Modal>

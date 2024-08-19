@@ -1,0 +1,381 @@
+import type * as Types from "./schema.types";
+
+export type RegisterMutationVariables = Types.Exact<{
+  input: Types.RegisterInput;
+}>;
+
+export type RegisterMutation = Pick<Types.Mutation, "register">;
+
+export type LoginMutationVariables = Types.Exact<{
+  input: Types.LoginInput;
+}>;
+
+export type LoginMutation = Pick<Types.Mutation, "login">;
+
+export type LogoutMutationVariables = Types.Exact<{ [key: string]: never }>;
+
+export type LogoutMutation = Pick<Types.Mutation, "logout">;
+
+export type UpdateUserProfileMutationVariables = Types.Exact<{
+  input: Types.UpdateUserProfileInput;
+}>;
+
+export type UpdateUserProfileMutation = {
+  updateUserProfile?: Types.Maybe<
+    Pick<Types.User, "id" | "university" | "yearInUniversity" | "degreeId">
+  >;
+};
+
+export type UpdateUserAcademicInfoMutationVariables = Types.Exact<{
+  input: Types.UpdateUserAcademicInfoInput;
+}>;
+
+export type UpdateUserAcademicInfoMutation = {
+  updateUserAcademicInfo?: Types.Maybe<
+    Pick<
+      Types.User,
+      "id" | "gpa" | "attendancePercentage" | "assignmentCompletionPercentage"
+    >
+  >;
+};
+
+export type CreateClassMutationVariables = Types.Exact<{
+  input: Types.CreateClassInput;
+}>;
+
+export type CreateClassMutation = {
+  createClass?: Types.Maybe<
+    Pick<
+      Types.Class,
+      | "id"
+      | "classCode"
+      | "courseType"
+      | "title"
+      | "dayOfWeek"
+      | "startTime"
+      | "endTime"
+      | "color"
+      | "professor"
+      | "rateMyProfessorRating"
+      | "coreDegreeId"
+    >
+  >;
+};
+
+export type CreateClassScheduleMutationVariables = Types.Exact<{
+  input: Types.CreateClassScheduleInput;
+}>;
+
+export type CreateClassScheduleMutation = {
+  createClassSchedule?: Types.Maybe<
+    Pick<Types.ClassSchedule, "id" | "userId" | "semesterId">
+  >;
+};
+
+export type AddClassToClassScheduleMutationVariables = Types.Exact<{
+  input: Types.AddClassToScheduleInput;
+}>;
+
+export type AddClassToClassScheduleMutation = {
+  addClassToClassSchedule?: Types.Maybe<
+    Pick<Types.ClassScheduleEntry, "id" | "classScheduleId" | "classId">
+  >;
+};
+
+export type RemoveClassFromClassScheduleMutationVariables = Types.Exact<{
+  input: Types.RemoveClassFromScheduleInput;
+}>;
+
+export type RemoveClassFromClassScheduleMutation = {
+  removeClassFromClassSchedule?: Types.Maybe<
+    Pick<Types.ClassScheduleEntry, "id" | "classScheduleId" | "classId">
+  >;
+};
+
+export type CreateDegreeScheduleMutationVariables = Types.Exact<{
+  input: Types.CreateDegreeScheduleInput;
+}>;
+
+export type CreateDegreeScheduleMutation = {
+  createDegreeSchedule?: Types.Maybe<
+    Pick<
+      Types.DegreeSchedule,
+      "id" | "userId" | "plannerId" | "degreeId" | "semesterId"
+    >
+  >;
+};
+
+export type AddClassToDegreeScheduleMutationVariables = Types.Exact<{
+  input: Types.AddClassToDegreeScheduleInput;
+}>;
+
+export type AddClassToDegreeScheduleMutation = {
+  addClassToDegreeSchedule?: Types.Maybe<
+    Pick<Types.DegreeScheduleEntry, "id" | "degreeScheduleId" | "classId">
+  >;
+};
+
+export type RemoveClassFromDegreeScheduleMutationVariables = Types.Exact<{
+  input: Types.RemoveClassFromDegreeScheduleInput;
+}>;
+
+export type RemoveClassFromDegreeScheduleMutation = {
+  removeClassFromDegreeSchedule?: Types.Maybe<
+    Pick<Types.DegreeScheduleEntry, "id" | "degreeScheduleId" | "classId">
+  >;
+};
+
+export type CreateTaskMutationVariables = Types.Exact<{
+  input: Types.CreateTaskInput;
+}>;
+
+export type CreateTaskMutation = {
+  createTask?: Types.Maybe<
+    Pick<
+      Types.Task,
+      | "id"
+      | "userId"
+      | "dueDate"
+      | "stageId"
+      | "classCode"
+      | "description"
+      | "title"
+    >
+  >;
+};
+
+export type UpdateTaskMutationVariables = Types.Exact<{
+  input: Types.UpdateTaskInput;
+}>;
+
+export type UpdateTaskMutation = {
+  updateTask?: Types.Maybe<
+    Pick<Types.Task, "id" | "dueDate" | "stageId" | "description" | "title">
+  >;
+};
+
+export type DeleteTaskMutationVariables = Types.Exact<{
+  input: Types.DeleteTaskInput;
+}>;
+
+export type DeleteTaskMutation = {
+  deleteTask?: Types.Maybe<Pick<Types.Task, "id">>;
+};
+
+export type GetUserQueryVariables = Types.Exact<{
+  id: Types.Scalars["Int"]["input"];
+}>;
+
+export type GetUserQuery = {
+  getUser?: Types.Maybe<
+    Pick<
+      Types.User,
+      | "id"
+      | "email"
+      | "university"
+      | "yearInUniversity"
+      | "gpa"
+      | "attendancePercentage"
+      | "assignmentCompletionPercentage"
+      | "degreeId"
+    > & {
+      tasks?: Types.Maybe<
+        Array<
+          Types.Maybe<
+            Pick<
+              Types.Task,
+              | "id"
+              | "title"
+              | "dueDate"
+              | "stageId"
+              | "classCode"
+              | "description"
+            >
+          >
+        >
+      >;
+      classSchedules?: Types.Maybe<
+        Array<
+          Types.Maybe<
+            Pick<Types.ClassSchedule, "id" | "semesterId"> & {
+              entries?: Types.Maybe<
+                Array<
+                  Types.Maybe<
+                    Pick<Types.ClassScheduleEntry, "id" | "classId"> & {
+                      class?: Types.Maybe<
+                        Pick<
+                          Types.Class,
+                          | "id"
+                          | "classCode"
+                          | "title"
+                          | "dayOfWeek"
+                          | "startTime"
+                          | "endTime"
+                          | "color"
+                          | "professor"
+                        >
+                      >;
+                    }
+                  >
+                >
+              >;
+            }
+          >
+        >
+      >;
+      degreeSchedules?: Types.Maybe<
+        Array<
+          Types.Maybe<
+            Pick<Types.DegreeSchedule, "id" | "plannerId" | "semesterId"> & {
+              entries?: Types.Maybe<
+                Array<
+                  Types.Maybe<
+                    Pick<Types.DegreeScheduleEntry, "id" | "classId"> & {
+                      class?: Types.Maybe<
+                        Pick<Types.Class, "id" | "classCode" | "title">
+                      >;
+                    }
+                  >
+                >
+              >;
+            }
+          >
+        >
+      >;
+      degree?: Types.Maybe<
+        Pick<
+          Types.Degree,
+          "id" | "name" | "numberOfCores" | "numberOfElectives"
+        >
+      >;
+    }
+  >;
+};
+
+export type GetClassesQueryVariables = Types.Exact<{ [key: string]: never }>;
+
+export type GetClassesQuery = {
+  getClasses?: Types.Maybe<
+    Array<
+      Types.Maybe<
+        Pick<
+          Types.Class,
+          | "id"
+          | "classCode"
+          | "courseType"
+          | "title"
+          | "dayOfWeek"
+          | "startTime"
+          | "endTime"
+          | "color"
+          | "professor"
+          | "rateMyProfessorRating"
+          | "coreDegreeId"
+        >
+      >
+    >
+  >;
+};
+
+export type GetClassSchedulesQueryVariables = Types.Exact<{
+  userId: Types.Scalars["Int"]["input"];
+}>;
+
+export type GetClassSchedulesQuery = {
+  getClassSchedules?: Types.Maybe<
+    Array<
+      Types.Maybe<
+        Pick<Types.ClassSchedule, "id" | "userId" | "semesterId"> & {
+          entries?: Types.Maybe<
+            Array<
+              Types.Maybe<
+                Pick<Types.ClassScheduleEntry, "id" | "classId"> & {
+                  class?: Types.Maybe<
+                    Pick<
+                      Types.Class,
+                      | "id"
+                      | "classCode"
+                      | "title"
+                      | "dayOfWeek"
+                      | "startTime"
+                      | "endTime"
+                      | "color"
+                      | "professor"
+                    >
+                  >;
+                }
+              >
+            >
+          >;
+        }
+      >
+    >
+  >;
+};
+
+export type GetDegreeSchedulesQueryVariables = Types.Exact<{
+  userId: Types.Scalars["Int"]["input"];
+}>;
+
+export type GetDegreeSchedulesQuery = {
+  getDegreeSchedules?: Types.Maybe<
+    Array<
+      Types.Maybe<
+        Pick<
+          Types.DegreeSchedule,
+          "id" | "userId" | "plannerId" | "degreeId" | "semesterId"
+        > & {
+          entries?: Types.Maybe<
+            Array<
+              Types.Maybe<
+                Pick<Types.DegreeScheduleEntry, "id" | "classId"> & {
+                  class?: Types.Maybe<
+                    Pick<Types.Class, "id" | "classCode" | "title">
+                  >;
+                }
+              >
+            >
+          >;
+        }
+      >
+    >
+  >;
+};
+
+export type GetAllDegreesQueryVariables = Types.Exact<{ [key: string]: never }>;
+
+export type GetAllDegreesQuery = {
+  getAllDegrees?: Types.Maybe<
+    Array<
+      Types.Maybe<
+        Pick<
+          Types.Degree,
+          "id" | "name" | "numberOfCores" | "numberOfElectives"
+        >
+      >
+    >
+  >;
+};
+
+export type GetTasksQueryVariables = Types.Exact<{
+  userId: Types.Scalars["Int"]["input"];
+}>;
+
+export type GetTasksQuery = {
+  getTasks?: Types.Maybe<
+    Array<
+      Types.Maybe<
+        Pick<
+          Types.Task,
+          | "id"
+          | "userId"
+          | "dueDate"
+          | "stageId"
+          | "classCode"
+          | "description"
+          | "title"
+        >
+      >
+    >
+  >;
+};

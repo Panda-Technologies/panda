@@ -1,34 +1,68 @@
-import { extendType, nonNull, intArg, stringArg, objectType } from "nexus";
+import {
+  extendType,
+  nonNull,
+  intArg,
+  objectType,
+  inputObjectType,
+} from "nexus";
 
 export const Degree = objectType({
-    name: 'Degree',
-    definition(t) {
-      t.nonNull.int('id');
-      t.nonNull.string('name');
-      t.nonNull.int('numberOfCores');
-      t.nonNull.int('numberOfElectives');
-      t.list.field('degreeSchedules', { type: 'DegreeSchedule' });
-      t.list.field('users', { type: 'User' });
-    },
-  });
+  name: "Degree",
+  definition(t) {
+    t.nonNull.int("id");
+    t.nonNull.string("name");
+    t.nonNull.int("numberOfCores");
+    t.nonNull.int("numberOfElectives");
+    t.list.field("degreeSchedules", { type: "DegreeSchedule" });
+    t.list.field("users", { type: "User" });
+  },
+});
+
+export const CreateDegreeInput = inputObjectType({
+  name: "CreateDegreeInput",
+  definition(t) {
+    t.nonNull.string("name");
+    t.nonNull.int("numberOfCores");
+    t.nonNull.int("numberOfElectives");
+  },
+});
+
+export const UpdateDegreeInput = inputObjectType({
+  name: "UpdateDegreeInput",
+  definition(t) {
+    t.nonNull.int("id");
+    t.string("name");
+    t.int("numberOfCores");
+    t.int("numberOfElectives");
+  },
+});
+
+export const DeleteDegreeInput = inputObjectType({
+  name: 'DeleteDegreeInput',
+  definition(t) {
+    t.nonNull.int('id');
+  },
+});
 
 export const DegreeQuery = extendType({
-  type: 'Query',
+  type: "Query",
   definition(t) {
-    t.list.field('getAllDegrees', {
-      type: 'Degree',
-      resolve: (_, __, { prisma }) => prisma.degree.findMany()
-    })
+    t.list.field("getAllDegrees", {
+      type: "Degree",
+      resolve: (_, __, { prisma }) => prisma.degree.findMany(),
+    });
 
-    t.field('getDegree', {
-      type: 'Degree',
+    t.field("getDegree", {
+      type: "Degree",
       args: {
-        id: nonNull(intArg())
+        id: nonNull(intArg()),
       },
-      resolve: (_, { id }, { prisma }) => prisma.degree.findUnique({ where: { id } })
-    })
-  }
-})
+      resolve: (_, { id }, { prisma }) =>
+        prisma.degree.findUnique({ where: { id } }),
+    });
+  },
+});
+
 
 export const DegreeMutation = extendType({
   type: 'Mutation',
@@ -36,33 +70,28 @@ export const DegreeMutation = extendType({
     t.field('createDegree', {
       type: 'Degree',
       args: {
-        name: nonNull(stringArg()),
-        numberOfCores: nonNull(intArg()),
-        numberOfElectives: nonNull(intArg())
+        input: nonNull(CreateDegreeInput),
       },
-      resolve: (_, args, { prisma }) => prisma.degree.create({ data: args })
-    })
+      resolve: (_, { input }, { prisma }) => prisma.degree.create({ data: input })
+    });
 
     t.field('updateDegree', {
       type: 'Degree',
       args: {
-        id: nonNull(intArg()),
-        name: stringArg(),
-        numberOfCores: intArg(),
-        numberOfElectives: intArg()
+        input: nonNull(UpdateDegreeInput),
       },
-      resolve: (_, args, { prisma }) => prisma.degree.update({
-        where: { id: args.id },
-        data: args
+      resolve: (_, { input }, { prisma }) => prisma.degree.update({
+        where: { id: input.id },
+        data: input
       })
-    })
+    });
 
     t.field('deleteDegree', {
       type: 'Degree',
       args: {
-        id: nonNull(intArg())
+        input: nonNull(DeleteDegreeInput),
       },
-      resolve: (_, { id }, { prisma }) => prisma.degree.delete({ where: { id } })
-    })
+      resolve: (_, { input }, { prisma }) => prisma.degree.delete({ where: { id: input.id } })
+    });
   }
-})
+});

@@ -4,3 +4,6 @@ export * from './class';
 export * from './classSchedule';
 export * from './degreeSchedule';
 export * from './degree';
+export * from './login'
+export * from './register'
+export * from './logout'

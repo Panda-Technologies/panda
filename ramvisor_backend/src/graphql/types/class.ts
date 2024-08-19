@@ -1,4 +1,4 @@
-import { objectType, extendType, nonNull, intArg, stringArg, floatArg } from "nexus";
+import { objectType, extendType, nonNull, intArg, inputObjectType } from "nexus";
 
 export const Class = objectType({
   name: 'Class',
@@ -18,6 +18,46 @@ export const Class = objectType({
   },
 });
 
+export const CreateClassInput = inputObjectType({
+  name: 'CreateClassInput',
+  definition(t) {
+    t.nonNull.string('classCode');
+    t.nonNull.string('courseType');
+    t.nonNull.string('title');
+    t.nonNull.string('dayOfWeek');
+    t.nonNull.string('startTime');
+    t.nonNull.string('endTime');
+    t.nonNull.string('color');
+    t.nonNull.string('professor');
+    t.nonNull.float('rateMyProfessorRating');
+    t.nonNull.int('coreDegreeId');
+  },
+});
+
+export const UpdateClassInput = inputObjectType({
+  name: 'UpdateClassInput',
+  definition(t) {
+    t.nonNull.int('id');
+    t.string('classCode');
+    t.string('courseType');
+    t.string('title');
+    t.string('dayOfWeek');
+    t.string('startTime');
+    t.string('endTime');
+    t.string('color');
+    t.string('professor');
+    t.float('rateMyProfessorRating');
+    t.int('coreDegreeId');
+  },
+});
+
+export const DeleteClassInput = inputObjectType({
+  name: 'DeleteClassInput',
+  definition(t) {
+    t.nonNull.int('id');
+  },
+});
+
 export const ClassQuery = extendType({
   type: 'Query',
   definition(t) {
@@ -34,26 +74,35 @@ export const ClassQuery = extendType({
   },
 });
 
+
 export const ClassMutation = extendType({
   type: 'Mutation',
   definition(t) {
     t.field('createClass', {
       type: 'Class',
       args: {
-        classCode: nonNull(stringArg()),
-        courseType: nonNull(stringArg()),
-        title: nonNull(stringArg()),
-        dayOfWeek: nonNull(stringArg()),
-        startTime: nonNull(stringArg()),
-        endTime: nonNull(stringArg()),
-        color: nonNull(stringArg()),
-        professor: nonNull(stringArg()),
-        rateMyProfessorRating: nonNull(floatArg()),
-        coreDegreeId: nonNull(intArg())
+        input: nonNull(CreateClassInput),
       },
-      resolve: (_, args, { prisma }) => prisma.class.create({ data: args })
+      resolve: (_, { input }, { prisma }) => prisma.class.create({ data: input })
     });
 
-    // Add update and delete mutations here
+    t.field('updateClass', {
+      type: 'Class',
+      args: {
+        input: nonNull(UpdateClassInput),
+      },
+      resolve: (_, { input }, { prisma }) => prisma.class.update({
+        where: { id: input.id },
+        data: input,
+      })
+    });
+
+    t.field('deleteClass', {
+      type: 'Class',
+      args: {
+        input: nonNull(DeleteClassInput),
+      },
+      resolve: (_, { input }, { prisma }) => prisma.class.delete({ where: { id: input.id } })
+    });
   },
 });

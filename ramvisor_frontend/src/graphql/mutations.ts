@@ -69,7 +69,7 @@ export const CREATE_CLASS_SCHEDULE_MUTATION = gql`
 `;
 
 export const ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION = gql`
-  mutation AddClassToClassSchedule($input: AddClassToClassScheduleInput!) {
+  mutation AddClassToClassSchedule($input: AddClassToScheduleInput!) {
     addClassToClassSchedule(input: $input) {
       id
       classScheduleId
@@ -79,7 +79,7 @@ export const ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION = gql`
 `;
 
 export const REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION = gql`
-  mutation RemoveClassFromClassSchedule($input: RemoveClassFromClassScheduleInput!) {
+  mutation RemoveClassFromClassSchedule($input: RemoveClassFromScheduleInput!) {
     removeClassFromClassSchedule(input: $input) {
       id
       classScheduleId

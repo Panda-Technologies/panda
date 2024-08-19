@@ -3,27 +3,64 @@ import { ScheduleComponent, Day, Week, Inject, ViewsDirective, ViewDirective, Ev
 import { Card } from 'antd';
 import { CalendarOutlined } from '@ant-design/icons';
 import { extend } from '@syncfusion/ej2-base';
+import { useOne } from '@refinedev/core';
+import { GET_CLASS_SCHEDULES_QUERY } from '../../graphql/queries';
 
 interface CalendarProps {
   width?: string;
   height?: string;
   title?: string;
   credits?: number;
+  userId: string;
 }
 
-const Calendar: React.FC<CalendarProps> = ({ width, height, title, credits }) => {
+interface ClassSchedule {
+  id: string;
+  entries: {
+    id: string;
+    class: {
+      id: string;
+      classCode: string;
+      title: string;
+      dayOfWeek: string;
+      startTime: string;
+      endTime: string;
+      color: string;
+      professor: string;
+    };
+  }[];
+}
+
+const Calendar: React.FC<CalendarProps> = ({ width, height, title, credits, userId }) => {
   const scheduleObj = useRef<ScheduleComponent>(null);
 
-  const dataSource = {classEvents: [
-    { Id: 1, Subject: 'BUSI 407-001', StartTime: new Date(2024, 2, 18, 8, 30), EndTime: new Date(2024, 2, 18, 10, 0), RecurrenceRule: 'FREQ=WEEKLY;BYDAY=MO,TH', CategoryColor: '#FFB6C1' },
-    { Id: 2, Subject: 'COMP 110-001', StartTime: new Date(2024, 2, 18, 10, 0), EndTime: new Date(2024, 2, 18, 11, 30), RecurrenceRule: 'FREQ=WEEKLY;BYDAY=MO,WE,FR', CategoryColor: '#90EE90' },
-    { Id: 3, Subject: 'ECON 325-001', StartTime: new Date(2024, 2, 18, 11, 0), EndTime: new Date(2024, 2, 18, 12, 0), RecurrenceRule: 'FREQ=WEEKLY;BYDAY=TU,TH', CategoryColor: '#FFFFE0' },
-    { Id: 4, Subject: 'MATH 233-002', StartTime: new Date(2024, 2, 18, 12, 0), EndTime: new Date(2024, 2, 18, 13, 30), RecurrenceRule: 'FREQ=WEEKLY;BYDAY=MO,WE,FR', CategoryColor: '#FFE4B5' },
-    { Id: 5, Subject: 'HIST 128-006', StartTime: new Date(2024, 2, 18, 14, 0), EndTime: new Date(2024, 2, 18, 15, 30), RecurrenceRule: 'FREQ=WEEKLY;BYDAY=MO,WE', CategoryColor: '#DDA0DD' },
-    { Id: 6, Subject: 'ECON 327-003', StartTime: new Date(2024, 2, 18, 14, 0), EndTime: new Date(2024, 2, 18, 15, 0), RecurrenceRule: 'FREQ=WEEKLY;BYDAY=TU,TH', CategoryColor: '#ADD8E6' },
-  ]};
+  const { data, isLoading } = useOne<ClassSchedule>({
+    resource: 'classSchedules',
+    id: userId,
+    meta: {
+      gqlQuery: GET_CLASS_SCHEDULES_QUERY
+    }
+  });
 
-  const data: Record<string, any>[] = extend([], dataSource.classEvents, {}, true) as Record<string, any>[];
+  const mapDayOfWeek = (day: string): number => {
+    const days = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+    return days.indexOf(day);
+  };
+
+  const classEvents = data?.data?.entries.map((entry) => ({
+    Id: entry.id,
+    Subject: `${entry.class.classCode} - ${entry.class.title}`,
+    StartTime: new Date(2024, 2, 18 + mapDayOfWeek(entry.class.dayOfWeek), 
+                        parseInt(entry.class.startTime.split(':')[0]), 
+                        parseInt(entry.class.startTime.split(':')[1])),
+    EndTime: new Date(2024, 2, 18 + mapDayOfWeek(entry.class.dayOfWeek), 
+                      parseInt(entry.class.endTime.split(':')[0]), 
+                      parseInt(entry.class.endTime.split(':')[1])),
+    RecurrenceRule: `FREQ=WEEKLY;BYDAY=${entry.class.dayOfWeek}`,
+    CategoryColor: entry.class.color || '#4285F4',
+  })) || [];
+
+  const eventData: Record<string, any>[] = extend([], classEvents, {}, true) as Record<string, any>[];
 
   const onEventRendered = (args: EventRenderedArgs): void => {
     const categoryColor: string = args.data.CategoryColor as string;
@@ -71,7 +108,7 @@ const Calendar: React.FC<CalendarProps> = ({ width, height, title, credits }) =>
           width='100%'
           selectedDate={new Date(2024, 2, 18)}
           ref={scheduleObj}
-          eventSettings={{ dataSource: data }}
+          eventSettings={{ dataSource: eventData }}
           eventRendered={onEventRendered}
           readonly={true}
           timeScale={{ enable: true, interval: 60, slotCount: 2 }}

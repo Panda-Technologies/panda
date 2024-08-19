@@ -6,8 +6,8 @@ import dataProviderNestjsQuery, {
 } from "@refinedev/nestjs-query";
 import { createClient } from "graphql-ws";
 
-export const API_URL = "http://localhost:5000/graphql";
-const WS_URL = "ws://localhost:5000/graphql";
+export const API_URL = "http://localhost:5001/graphql";
+const WS_URL = "ws://localhost:5001/graphql";
 
 const gqlClient = new GraphQLClient(API_URL);
 const wsClient = createClient({ url: WS_URL });

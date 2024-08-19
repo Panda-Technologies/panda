@@ -1,5 +1,13 @@
-import { extendType, stringArg, nonNull } from "nexus";
+import { extendType, nonNull, inputObjectType } from "nexus";
 import { loginResolve } from "../resolvers/loginResolver";
+
+export const LoginInput = inputObjectType({
+  name: 'LoginInput',
+  definition(t) {
+    t.nonNull.string('email');
+    t.nonNull.string('password');
+  },
+});
 
 export const LoginMutation = extendType({
   type: 'Mutation',
@@ -7,8 +15,7 @@ export const LoginMutation = extendType({
     t.field('login', {
       type: 'Boolean',
       args: {
-        email: nonNull(stringArg()),
-        password: nonNull(stringArg()),
+        input: nonNull(LoginInput),
       },
       resolve: loginResolve
     })

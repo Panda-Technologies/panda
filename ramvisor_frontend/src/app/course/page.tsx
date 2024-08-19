@@ -50,7 +50,7 @@ const Page: React.FC = () => {
         resource: "classScheduleEntries",
         values: {
           classScheduleId: classSchedulesData?.data[0].id,
-          classId: parseInt(newEvent.id),
+          classId: Number(newEvent.id),
         },
         meta: {
           gqlMutation: ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION
@@ -73,8 +73,8 @@ const Page: React.FC = () => {
     }
 
     return (
-      <CourseCalendar 
-        userId={userData.data.id}
+      <CourseCalendar
+        userId={userId} 
         onEventMove={handleEventMove} 
         onEventRemove={handleEventRemove}
       />

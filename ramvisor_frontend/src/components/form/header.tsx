@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import { UserTag } from "../tags/user-tag";
 import { Text } from "../text";
 import { getDateColor } from "@/utilities";
+import { Task, User } from "@graphql/generated/graphql";
 
 // import { Task } from "@/graphql/schema.types";
 
@@ -15,11 +16,12 @@ type DescriptionProps = {
 };
 
 type DueDateProps = {
-  dueData?: Task["dueDate"];
+  dueData?: Task["dueDate"] | null;
 };
 
 type UserProps = {
-  classes?: Task["classes"];
+  classCodes?: { code: string; color: string }[];
+  classCode?: Task["classCode"];
 };
 
 // display a task's descriptio if it exists, otherwise display a link to add one
@@ -71,18 +73,20 @@ export const DueDateHeader = ({ dueData }: DueDateProps) => {
   return <Typography.Link>Add due date</Typography.Link>;
 };
 
-// display a task's classes if it exists, otherwise display a link to add one
-export const ClassesHeader = ({ classes = [] }: UserProps) => {
-  if (classes.length > 0) {
+// display a task's classCode if it exists, otherwise display a link to add one
+export const ClassesHeader = ({ classCodes = [] }: UserProps) => {
+  if (classCodes.length > 0) {
     return (
       <Space size={[0, 8]} wrap>
-        {classes.map((user) => (
-          <UserTag key={user.id} user={user} />
+        {classCodes.map((classCode) => (
+          <Tag key={classCode.code} color={classCode.color}>
+            {classCode.code}
+          </Tag>
         ))}
       </Space>
     );
   }
 
-  // if the task doesn't have classes, display a link to add one
-  return <Typography.Link>Assign to classes</Typography.Link>;
+  // if the task doesn't have classCode, display a link to add one
+  return <Typography.Link>Assign to classCode</Typography.Link>;
 };

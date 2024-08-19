@@ -1,4 +1,4 @@
-import { extendType, nonNull, intArg, objectType, list } from "nexus";
+import { extendType, nonNull, intArg, objectType, list, inputObjectType } from "nexus";
 
 export const ClassSchedule = objectType({
   name: "ClassSchedule",
@@ -19,6 +19,37 @@ export const ClassScheduleEntry = objectType({
     t.nonNull.int("classId");
     t.field("classSchedule", { type: "ClassSchedule" });
     t.field("class", { type: "Class" });
+  },
+});
+
+export const CreateClassScheduleInput = inputObjectType({
+  name: 'CreateClassScheduleInput',
+  definition(t) {
+    t.nonNull.int('userId');
+    t.nonNull.int('semesterId');
+  },
+});
+
+export const UpdateClassScheduleInput = inputObjectType({
+  name: 'UpdateClassScheduleInput',
+  definition(t) {
+    t.nonNull.int('id');
+    t.int('semesterId');
+  },
+});
+
+export const AddClassToScheduleInput = inputObjectType({
+  name: 'AddClassToScheduleInput',
+  definition(t) {
+    t.nonNull.int('classScheduleId');
+    t.nonNull.int('classId');
+  },
+});
+
+export const RemoveClassFromScheduleInput = inputObjectType({
+  name: 'RemoveClassFromScheduleInput',
+  definition(t) {
+    t.nonNull.int('id');
   },
 });
 
@@ -55,12 +86,11 @@ export const ClassScheduleMutation = extendType({
     t.field("createClassSchedule", {
       type: "ClassSchedule",
       args: {
-        userId: nonNull(intArg()),
-        semesterId: nonNull(intArg()),
+        input: nonNull(CreateClassScheduleInput),
       },
-      resolve: (_, args, { prisma }) =>
+      resolve: (_, { input }, { prisma }) =>
         prisma.classSchedule.create({
-          data: args,
+          data: input,
           include: { entries: true },
         }),
     });
@@ -68,13 +98,12 @@ export const ClassScheduleMutation = extendType({
     t.field("updateClassSchedule", {
       type: "ClassSchedule",
       args: {
-        id: nonNull(intArg()),
-        semesterId: intArg(),
+        input: nonNull(UpdateClassScheduleInput),
       },
-      resolve: (_, args, { prisma }) =>
+      resolve: (_, { input }, { prisma }) =>
         prisma.classSchedule.update({
-          where: { id: args.id },
-          data: args,
+          where: { id: input.id },
+          data: input,
           include: { entries: true },
         }),
     });
@@ -94,11 +123,10 @@ export const ClassScheduleMutation = extendType({
     t.field('addClassToClassSchedule', {
       type: 'ClassScheduleEntry',
       args: {
-        classScheduleId: nonNull(intArg()),
-        classId: nonNull(intArg())
+        input: nonNull(AddClassToScheduleInput),
       },
-      resolve: (_, args, { prisma }) => prisma.classScheduleEntry.create({
-        data: args,
+      resolve: (_, { input }, { prisma }) => prisma.classScheduleEntry.create({
+        data: input,
         include: { class: true }
       })
     });
@@ -106,10 +134,10 @@ export const ClassScheduleMutation = extendType({
     t.field('removeClassFromClassSchedule', {
       type: 'ClassScheduleEntry',
       args: {
-        id: nonNull(intArg())
+        input: nonNull(RemoveClassFromScheduleInput),
       },
-      resolve: (_, { id }, { prisma }) => prisma.classScheduleEntry.delete({
-        where: { id },
+      resolve: (_, { input }, { prisma }) => prisma.classScheduleEntry.delete({
+        where: { id: input.id },
         include: { class: true }
       })
     });

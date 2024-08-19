@@ -14,6 +14,107 @@ declare global {
 }
 
 export interface NexusGenInputs {
+  AddClassToDegreeScheduleInput: { // input type
+    classId: number; // Int!
+    degreeScheduleId: number; // Int!
+  }
+  AddClassToScheduleInput: { // input type
+    classId: number; // Int!
+    classScheduleId: number; // Int!
+  }
+  CreateClassInput: { // input type
+    classCode: string; // String!
+    color: string; // String!
+    coreDegreeId: number; // Int!
+    courseType: string; // String!
+    dayOfWeek: string; // String!
+    endTime: string; // String!
+    professor: string; // String!
+    rateMyProfessorRating: number; // Float!
+    startTime: string; // String!
+    title: string; // String!
+  }
+  CreateClassScheduleInput: { // input type
+    semesterId: number; // Int!
+    userId: number; // Int!
+  }
+  CreateDegreeInput: { // input type
+    name: string; // String!
+    numberOfCores: number; // Int!
+    numberOfElectives: number; // Int!
+  }
+  CreateDegreeScheduleInput: { // input type
+    degreeId: number; // Int!
+    plannerId: number; // Int!
+    semesterId: number; // Int!
+    userId: number; // Int!
+  }
+  CreateTaskInput: { // input type
+    classCode: string; // String!
+    description: string; // String!
+    dueDate: string; // String!
+    stageId: number; // Int!
+    title: string; // String!
+    userId: number; // Int!
+  }
+  DeleteClassInput: { // input type
+    id: number; // Int!
+  }
+  DeleteDegreeInput: { // input type
+    id: number; // Int!
+  }
+  DeleteTaskInput: { // input type
+    id: number; // Int!
+  }
+  LoginInput: { // input type
+    email: string; // String!
+    password: string; // String!
+  }
+  RegisterInput: { // input type
+    email: string; // String!
+    password: string; // String!
+  }
+  RemoveClassFromDegreeScheduleInput: { // input type
+    id: number; // Int!
+  }
+  RemoveClassFromScheduleInput: { // input type
+    id: number; // Int!
+  }
+  UpdateClassInput: { // input type
+    classCode?: string | null; // String
+    color?: string | null; // String
+    coreDegreeId?: number | null; // Int
+    courseType?: string | null; // String
+    dayOfWeek?: string | null; // String
+    endTime?: string | null; // String
+    id: number; // Int!
+    professor?: string | null; // String
+    rateMyProfessorRating?: number | null; // Float
+    startTime?: string | null; // String
+    title?: string | null; // String
+  }
+  UpdateClassScheduleInput: { // input type
+    id: number; // Int!
+    semesterId?: number | null; // Int
+  }
+  UpdateDegreeInput: { // input type
+    id: number; // Int!
+    name?: string | null; // String
+    numberOfCores?: number | null; // Int
+    numberOfElectives?: number | null; // Int
+  }
+  UpdateDegreeScheduleInput: { // input type
+    id: number; // Int!
+    plannerId?: number | null; // Int
+    semesterId?: number | null; // Int
+  }
+  UpdateTaskInput: { // input type
+    description?: string | null; // String
+    dueDate?: string | null; // String
+    id: number; // Int!
+    stageId?: number | null; // Int
+    title?: string | null; // String
+  }
 }
 
 export interface NexusGenEnums {
@@ -181,6 +282,7 @@ export interface NexusGenFieldTypes {
     createDegree: NexusGenRootTypes['Degree'] | null; // Degree
     createDegreeSchedule: NexusGenRootTypes['DegreeSchedule'] | null; // DegreeSchedule
     createTask: NexusGenRootTypes['Task'] | null; // Task
+    deleteClass: NexusGenRootTypes['Class'] | null; // Class
     deleteClassSchedule: NexusGenRootTypes['ClassSchedule'] | null; // ClassSchedule
     deleteDegree: NexusGenRootTypes['Degree'] | null; // Degree
     deleteDegreeSchedule: NexusGenRootTypes['DegreeSchedule'] | null; // DegreeSchedule
@@ -190,6 +292,7 @@ export interface NexusGenFieldTypes {
     register: boolean | null; // Boolean
     removeClassFromClassSchedule: NexusGenRootTypes['ClassScheduleEntry'] | null; // ClassScheduleEntry
     removeClassFromDegreeSchedule: NexusGenRootTypes['DegreeScheduleEntry'] | null; // DegreeScheduleEntry
+    updateClass: NexusGenRootTypes['Class'] | null; // Class
     updateClassSchedule: NexusGenRootTypes['ClassSchedule'] | null; // ClassSchedule
     updateDegree: NexusGenRootTypes['Degree'] | null; // Degree
     updateDegreeSchedule: NexusGenRootTypes['DegreeSchedule'] | null; // DegreeSchedule
@@ -297,6 +400,7 @@ export interface NexusGenFieldTypeNames {
     createDegree: 'Degree'
     createDegreeSchedule: 'DegreeSchedule'
     createTask: 'Task'
+    deleteClass: 'Class'
     deleteClassSchedule: 'ClassSchedule'
     deleteDegree: 'Degree'
     deleteDegreeSchedule: 'DegreeSchedule'
@@ -306,6 +410,7 @@ export interface NexusGenFieldTypeNames {
     register: 'Boolean'
     removeClassFromClassSchedule: 'ClassScheduleEntry'
     removeClassFromDegreeSchedule: 'DegreeScheduleEntry'
+    updateClass: 'Class'
     updateClassSchedule: 'ClassSchedule'
     updateDegree: 'Degree'
     updateDegreeSchedule: 'DegreeSchedule'
@@ -354,95 +459,67 @@ export interface NexusGenFieldTypeNames {
 export interface NexusGenArgTypes {
   Mutation: {
     addClassToClassSchedule: { // args
-      classId: number; // Int!
-      classScheduleId: number; // Int!
+      input: NexusGenInputs['AddClassToScheduleInput']; // AddClassToScheduleInput!
     }
     addClassToDegreeSchedule: { // args
-      classId: number; // Int!
-      degreeScheduleId: number; // Int!
+      input: NexusGenInputs['AddClassToDegreeScheduleInput']; // AddClassToDegreeScheduleInput!
     }
     createClass: { // args
-      classCode: string; // String!
-      color: string; // String!
-      coreDegreeId: number; // Int!
-      courseType: string; // String!
-      dayOfWeek: string; // String!
-      endTime: string; // String!
-      professor: string; // String!
-      rateMyProfessorRating: number; // Float!
-      startTime: string; // String!
-      title: string; // String!
+      input: NexusGenInputs['CreateClassInput']; // CreateClassInput!
     }
     createClassSchedule: { // args
-      semesterId: number; // Int!
-      userId: number; // Int!
+      input: NexusGenInputs['CreateClassScheduleInput']; // CreateClassScheduleInput!
     }
     createDegree: { // args
-      name: string; // String!
-      numberOfCores: number; // Int!
-      numberOfElectives: number; // Int!
+      input: NexusGenInputs['CreateDegreeInput']; // CreateDegreeInput!
     }
     createDegreeSchedule: { // args
-      degreeId: number; // Int!
-      plannerId: number; // Int!
-      semesterId: number; // Int!
-      userId: number; // Int!
+      input: NexusGenInputs['CreateDegreeScheduleInput']; // CreateDegreeScheduleInput!
     }
     createTask: { // args
-      classCode: string; // String!
-      description: string; // String!
-      dueDate: string; // String!
-      stageId: number; // Int!
-      title: string; // String!
-      userId: number; // Int!
+      input: NexusGenInputs['CreateTaskInput']; // CreateTaskInput!
+    }
+    deleteClass: { // args
+      input: NexusGenInputs['DeleteClassInput']; // DeleteClassInput!
     }
     deleteClassSchedule: { // args
       id: number; // Int!
     }
     deleteDegree: { // args
-      id: number; // Int!
+      input: NexusGenInputs['DeleteDegreeInput']; // DeleteDegreeInput!
     }
     deleteDegreeSchedule: { // args
       id: number; // Int!
     }
     deleteTask: { // args
-      id: number; // Int!
+      input: NexusGenInputs['DeleteTaskInput']; // DeleteTaskInput!
     }
     login: { // args
-      email: string; // String!
-      password: string; // String!
+      input: NexusGenInputs['LoginInput']; // LoginInput!
     }
     register: { // args
-      email: string; // String!
-      password: string; // String!
+      input: NexusGenInputs['RegisterInput']; // RegisterInput!
     }
     removeClassFromClassSchedule: { // args
-      id: number; // Int!
+      input: NexusGenInputs['RemoveClassFromScheduleInput']; // RemoveClassFromScheduleInput!
     }
     removeClassFromDegreeSchedule: { // args
-      id: number; // Int!
+      input: NexusGenInputs['RemoveClassFromDegreeScheduleInput']; // RemoveClassFromDegreeScheduleInput!
+    }
+    updateClass: { // args
+      input: NexusGenInputs['UpdateClassInput']; // UpdateClassInput!
     }
     updateClassSchedule: { // args
-      id: number; // Int!
-      semesterId?: number | null; // Int
+      input: NexusGenInputs['UpdateClassScheduleInput']; // UpdateClassScheduleInput!
     }
     updateDegree: { // args
-      id: number; // Int!
-      name?: string | null; // String
-      numberOfCores?: number | null; // Int
-      numberOfElectives?: number | null; // Int
+      input: NexusGenInputs['UpdateDegreeInput']; // UpdateDegreeInput!
     }
     updateDegreeSchedule: { // args
-      id: number; // Int!
-      plannerId?: number | null; // Int
-      semesterId?: number | null; // Int
+      input: NexusGenInputs['UpdateDegreeScheduleInput']; // UpdateDegreeScheduleInput!
     }
     updateTask: { // args
-      description?: string | null; // String
-      dueDate?: string | null; // String
-      id: number; // Int!
-      stageId?: number | null; // Int
-      title?: string | null; // String
+      input: NexusGenInputs['UpdateTaskInput']; // UpdateTaskInput!
     }
     updateUserAcademicInfo: { // args
       assignmentCompletionPercentage?: number | null; // Float
@@ -493,7 +570,7 @@ export interface NexusGenTypeInterfaces {
 
 export type NexusGenObjectNames = keyof NexusGenObjects;
 
-export type NexusGenInputNames = never;
+export type NexusGenInputNames = keyof NexusGenInputs;
 
 export type NexusGenEnumNames = never;
 

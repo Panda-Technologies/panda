@@ -26,7 +26,6 @@ import React, { memo, useMemo } from "react";
 type ProjectCardProps = {
   id: string;
   title: string;
-  updatedAt: string;
   dueDate?: string;
   classes: {
     code: string;
@@ -189,7 +188,6 @@ export const ProjectCardMemo = memo(ProjectCard, (prev, next) => {
   return (
     prev.id === next.id &&
     prev.title === next.title &&
-    prev.updatedAt === next.updatedAt &&
     prev.dueDate === next.dueDate &&
     prev.classes === next.classes &&
     prev.onClick === next.onClick

@@ -1,24 +1,74 @@
 import React from 'react';
-import { Card, List, Checkbox } from 'antd';
+import { Card, List, Checkbox, Spin, message } from 'antd';
 import { ArrowRightOutlined, CheckSquareOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { Text } from '@components/text';
+import { useList, useOne, useUpdate } from '@refinedev/core';
+import { GET_TASKS_QUERY, GET_USER_QUERY } from '../../graphql/queries';
+import { UPDATE_TASK_MUTATION } from '../../graphql/mutations';
 
-type TodoItem = {
-  classCode: string;
-  assignment: string;
+interface User {
   id: string;
-  color: string;
-};
+  // Add other user properties as needed
+}
+
+interface Task {
+  id: string;
+  title: string;
+  classCode: string;
+  stageId: string;
+  class?: {
+    color?: string;
+  };
+  // Add other task properties as needed
+}
 
 const Checklist: React.FC = () => {
-  const data: TodoItem[] = [
-    { classCode: 'COMP 283', assignment: 'Binary Tree Implementation', id: '1', color: '#4285F4' },
-    { classCode: 'ECON 101', assignment: 'Supply and Demand Analysis', id: '2', color: '#0F9D58' },
-    { classCode: 'HIST 201', assignment: 'Essay on Industrial Revolution', id: '3', color: '#DB4437' },
-    { classCode: 'MATH 231', assignment: 'Differential Equations Problem Set', id: '4', color: '#F4B400' },
-    { classCode: 'PHYS 118', assignment: 'Lab Report on Circular Motion', id: '5', color: '#4285F4' },
-  ];
+  const { data: userData, isLoading: isUserLoading } = useOne<User>({
+    resource: 'users',
+    id: 1, // Assuming we have the user ID, replace with actual user ID
+    meta: {
+      gqlQuery: GET_USER_QUERY
+    }
+  });
+
+  const { data, isLoading, refetch } = useList<Task>({
+    resource: 'tasks',
+    meta: {
+      gqlQuery: GET_TASKS_QUERY
+    },
+    filters: [
+      {
+        field: 'userId',
+        operator: 'eq',
+        value: userData?.data?.id
+      }
+    ]
+  });
+
+  const { mutate } = useUpdate();
+
+  const handleCheckboxChange = async (taskId: string, checked: boolean) => {
+    try {
+      await mutate({
+        resource: 'tasks',
+        id: taskId,
+        values: {
+          stageId: checked ? 'in_progress' : 'not_started'
+        },
+        mutationMode: 'optimistic',
+        meta: {
+          gqlMutation: UPDATE_TASK_MUTATION
+        }
+      });
+      message.success(`Task ${checked ? 'started' : 'marked as not started'}`);
+      refetch();
+    } catch (error) {
+      message.error('Failed to update task status');
+    }
+  };
+
+  const tasks = data?.data || [];
 
   return (
     <Card
@@ -48,14 +98,14 @@ const Checklist: React.FC = () => {
           }}>
             Pending Assignments
           </span>
-          <Link href='/login'><ArrowRightOutlined style={{ marginLeft: '60px' }} /></Link>
+          <Link href='/tasks'><ArrowRightOutlined style={{ marginLeft: '60px' }} /></Link>
         </div>
       }
     >
       <List
         itemLayout="horizontal"
-        dataSource={data}
-        renderItem={(item) => (
+        dataSource={tasks}
+        renderItem={(item: Task) => (
           <List.Item
             style={{
               padding: "12px 0",
@@ -66,9 +116,13 @@ const Checklist: React.FC = () => {
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
           >
             <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-              <Checkbox style={{ marginRight: "12px", flexShrink: 0 }} />
+              <Checkbox 
+                checked={item.stageId === 'in_progress'}
+                onChange={(e) => handleCheckboxChange(item.id, e.target.checked)}
+                style={{ marginRight: "12px", flexShrink: 0 }}
+              />
               <Text style={{ 
-                color: item.color, 
+                color: item.class?.color || '#4285F4', 
                 fontSize: "14px", 
                 fontWeight: "600",
                 marginRight: "8px",
@@ -84,7 +138,7 @@ const Checklist: React.FC = () => {
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap'
               }}>
-                {item.assignment}
+                {item.title}
               </Text>
             </div>
           </List.Item>

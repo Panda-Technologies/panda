@@ -4,7 +4,7 @@ import { AuthProvider, CheckResponse, OnErrorResponse } from "@refinedev/core";
 import nookies from "nookies";
 import { API_URL } from "@providers/data-provider";
 
-export const COOKIE_NAME = "gql-api";
+export const COOKIE_NAME = "user-id";
 
 export const authProvider: AuthProvider = {
   login: async ({ email, password }) => {
@@ -15,8 +15,8 @@ export const authProvider: AuthProvider = {
       },
       body: JSON.stringify({
         query: `
-          mutation LoginUser($email: String!, $password: String!) {
-            loginUser(email: $email, password: $password)
+          mutation Login($email: String!, $password: String!) {
+            login(email: $email, password: $password)
           }
         `,
         variables: { email, password },
@@ -25,20 +25,14 @@ export const authProvider: AuthProvider = {
 
     const result = await response.json();
 
-    if (result.data.loginUser) {
-      const cookieValue = JSON.stringify(result.data.loginUser);
-      nookies.set(null, COOKIE_NAME, cookieValue, {
+    if (result.data && result.data.login) {
+      const userId = result.data.login;
+      nookies.set(null, COOKIE_NAME, userId, {
         maxAge: 30 * 24 * 60 * 60,
         path: '/',
       });
       
-      // Debug logging
-      console.log('Cookie set:', COOKIE_NAME);
-      console.log('Cookie value:', cookieValue);
-      console.log('All cookies:', nookies.get(null));
-
       return {
-        authenticated: true,
         success: true,
         redirectTo: "/",
       };
@@ -47,8 +41,8 @@ export const authProvider: AuthProvider = {
     return {
       success: false,
       error: {
-        message: "Login failed",
-        name: "Invalid email or password",
+        message: "Invalid email or password",
+        name: "Invalid credentials",
       },
     };
   },
@@ -60,20 +54,25 @@ export const authProvider: AuthProvider = {
       },
       body: JSON.stringify({
         query: `
-          mutation RegisterUser($email: String!, $password: String!) {
-            registerUser(email: $email, password: $password)
+          mutation Register($input: RegisterInput!) {
+            register(input: $input)
           }
         `,
-        variables: { email, password },
+        variables: { 
+          input: { email, password }
+        },
       }),
     });
 
     const result = await response.json();
 
-    if (result.data.registerUser) {
-      nookies.set(null, COOKIE_NAME, JSON.stringify(result.data.loginUser))
+    if (result.data && result.data.register) {
+      const userId = result.data.register;
+      nookies.set(null, COOKIE_NAME, userId, {
+        maxAge: 30 * 24 * 60 * 60,
+        path: '/',
+      });
       return {
-        authenticated: true,
         success: true,
         redirectTo: "/",
       };
@@ -95,8 +94,8 @@ export const authProvider: AuthProvider = {
       },
       body: JSON.stringify({
         query: `
-          mutation LogoutUser {
-            logoutUser
+          mutation Logout {
+            logout
           }
         `,
       }),
@@ -104,7 +103,7 @@ export const authProvider: AuthProvider = {
 
     const result = await response.json();
 
-    if (result.data.logoutUser) {
+    if (result.data && result.data.logout) {
       nookies.destroy(null, COOKIE_NAME);
       return {
         success: true,
@@ -121,20 +120,22 @@ export const authProvider: AuthProvider = {
     };
   },
   check: async (): Promise<CheckResponse> => {
-    let user = undefined;
+    const cookies = nookies.get(null);
+    const userId = cookies[COOKIE_NAME];
 
-      const cookies = nookies.get(null);
-      user = cookies[COOKIE_NAME];
-
-    if (user) {
+    if (userId) {
       return {
         authenticated: true,
-        redirectTo: "/",
       };
     }
 
     return {
       authenticated: false,
+      error: {
+        message: "Not authenticated",
+        name: "not authenticated",
+      },
+      logout: true,
       redirectTo: "/login",
     };
   },
@@ -144,9 +145,9 @@ export const authProvider: AuthProvider = {
   },
   getIdentity: async () => {
     const cookies = nookies.get(null);
-    const user = cookies[COOKIE_NAME];
-    if (user) {
-      return JSON.parse(user);
+    const userId = cookies[COOKIE_NAME];
+    if (userId) {
+      return { id: userId };
     }
     return null;
   },
