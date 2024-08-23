@@ -1,45 +1,65 @@
+import React, { memo, useMemo } from "react";
+import { Card, ConfigProvider, Dropdown, MenuProps, Button, Tag, Space, Tooltip, theme } from "antd";
+import { ClockCircleOutlined, DeleteOutlined, EyeOutlined, MoreOutlined } from "@ant-design/icons";
+import { useDelete, useNavigation } from "@refinedev/core";
+import dayjs from "dayjs";
+
 import CustomAvatar from "@/components/custom-avatar";
 import { Text } from "@/components/text";
 import { TextIcon } from "@components/text-icon";
 import { getDateColor } from "@/utilities";
-import {
-  ClockCircleOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  MoreOutlined,
-} from "@ant-design/icons";
-import { useDelete, useNavigation } from "@refinedev/core";
-import {
-  Button,
-  Card,
-  ConfigProvider,
-  Dropdown,
-  MenuProps,
-  Space,
-  Tag,
-  theme,
-  Tooltip,
-} from "antd";
-import dayjs from "dayjs";
-import React, { memo, useMemo } from "react";
+import { getClassColor } from "@/utilities/helpers";
+import { useCallback } from "react";
+import { DELETE_TASK_MUTATION } from "@graphql/mutations";
 
-type ProjectCardProps = {
-  id: string;
+interface Task {
+  id: number;
   title: string;
-  dueDate?: string;
-  classes: {
-    code: string;
-    color: string;
-  };
+  description?: string;
+  dueDate: string;
+  classCode: string;
+  stageId: number;
+}
+
+type ProjectCardProps = Task & {
   onClick?: () => void;
+  onDeleteSuccess: (taskId: number) => void;
 };
 
-const ProjectCard = ({ id, title, dueDate, classes, onClick }: ProjectCardProps) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ 
+  id, 
+  title, 
+  description, 
+  dueDate, 
+  classCode, 
+  stageId, 
+  onClick,
+  onDeleteSuccess 
+}) => {
   const { token } = theme.useToken();
-
   const { edit } = useNavigation();
+  const { mutate: deleteTask } = useDelete();
 
-  const { mutate: del } = useDelete();
+  const handleTaskDelete = useCallback(() => {
+    deleteTask(
+      {
+        resource: "tasks",
+        id,
+        values: { id },
+        meta: {
+          gqlMutation: DELETE_TASK_MUTATION
+        }
+      },
+      {
+        onSuccess: () => {
+          onDeleteSuccess(id);
+        },
+        onError: (error) => {
+          console.error('Error deleting task:', error);
+        }
+      }
+    );
+  }, [deleteTask, id, onDeleteSuccess]);
 
   const dropdownItems = useMemo(() => {
     const dropdownItems: MenuProps["items"] = [
@@ -49,7 +69,7 @@ const ProjectCard = ({ id, title, dueDate, classes, onClick }: ProjectCardProps)
         icon: <EyeOutlined />,
         onClick: (e) => {
           e.domEvent.stopPropagation();
-          onClick ? onClick() : edit("tasks", id, "replace");
+          onClick ? onClick() : edit("tasks", id.toString(), "replace");
         },
       },
       {
@@ -59,19 +79,13 @@ const ProjectCard = ({ id, title, dueDate, classes, onClick }: ProjectCardProps)
         key: "2",
         onClick: (e) => {
           e.domEvent.stopPropagation();
-          del({
-            resource: "tasks",
-            id,
-            meta: {
-              operation: "task",
-            },
-          });
+          handleTaskDelete();
         },
       },
     ];
 
     return dropdownItems;
-  }, [onClick]);
+  }, [onClick, edit, id, handleTaskDelete]);
 
   const dueDateOptions = useMemo(() => {
     if (!dueDate) return null;
@@ -99,10 +113,12 @@ const ProjectCard = ({ id, title, dueDate, classes, onClick }: ProjectCardProps)
     >
       <Card
         size="small"
-        title={title.length > 35 ? (<Text ellipsis={{ tooltip: title }}>{title.slice(0, 35) + '...'}</Text>) : (
-          <Text>{title}</Text>
-        )}
-        onClick={onClick || (() => edit("tasks", id, "replace"))}
+        title={
+          <Tooltip title={title}>
+            <Text ellipsis={{ tooltip: title }}>{title}</Text>
+          </Tooltip>
+        }
+        onClick={onClick || (() => edit("tasks", id.toString(), "replace"))}
         extra={
           <Dropdown
             trigger={["click"]}
@@ -119,12 +135,8 @@ const ProjectCard = ({ id, title, dueDate, classes, onClick }: ProjectCardProps)
               shape="circle"
               icon={<MoreOutlined />}
               style={{ transform: "rotate(90deg)" }}
-              onPointerDown={(e) => {
-                e.stopPropagation();
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
             />
           </Dropdown>
         }
@@ -137,7 +149,7 @@ const ProjectCard = ({ id, title, dueDate, classes, onClick }: ProjectCardProps)
             gap: "8px",
           }}
         >
-          <TextIcon style={{ marginRight: "4px" }} />
+          {description && <TextIcon style={{ marginRight: "4px" }} />}
           {dueDateOptions && (
             <Tag
               icon={<ClockCircleOutlined style={{ fontSize: "12px" }} />}
@@ -153,28 +165,18 @@ const ProjectCard = ({ id, title, dueDate, classes, onClick }: ProjectCardProps)
               {dueDateOptions.text}
             </Tag>
           )}
-          {!!classes && (
-            <Space
-              size={4}
-              wrap
-              direction="horizontal"
-              align="center"
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginLeft: "auto",
-                marginRight: "0",
-              }}
-            >
-                <Tooltip title={classes.code}>
-                  <Text style={{ 
-                color: classes.color, 
+          {classCode && (
+            <Tooltip title={classCode}>
+              <Text style={{ 
+                color: getClassColor(classCode),
                 fontSize: "14px", 
                 fontWeight: "600",
                 marginRight: "8px",
-                flexShrink: 0 }}>{classes.code}</Text>
-                </Tooltip>
-            </Space>
+                flexShrink: 0 
+              }}>
+                {classCode}
+              </Text>
+            </Tooltip>
           )}
         </div>
       </Card>
@@ -188,8 +190,10 @@ export const ProjectCardMemo = memo(ProjectCard, (prev, next) => {
   return (
     prev.id === next.id &&
     prev.title === next.title &&
+    prev.description === next.description &&
     prev.dueDate === next.dueDate &&
-    prev.classes === next.classes &&
+    prev.classCode === next.classCode &&
+    prev.stageId === next.stageId &&
     prev.onClick === next.onClick
   );
 });

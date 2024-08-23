@@ -5,12 +5,12 @@ import { Badge, Button, Space } from "antd";
 import React from "react";
 
 type Props = {
-  id: string;
+  id: number;
   title: string;
   description?: React.ReactNode;
   count: number;
   data?: UseDroppableArguments["data"];
-  onAddClick?: (args: { id: string }) => void;
+  onAddClick?: (args: { id: number }) => void;
 };
 
 const KanbanColumn = ({

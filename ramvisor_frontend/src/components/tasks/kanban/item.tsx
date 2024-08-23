@@ -6,7 +6,7 @@ import {
 import React from "react";
 
 interface Props {
-  id: string;
+  id: number;
   data?: UseDraggableArguments["data"];
 }
 

@@ -3,6 +3,8 @@ import { GetFieldsFromList } from "@refinedev/nestjs-query";
 
 import { DashboardDealsChartQuery } from "@/graphql/types";
 
+import nookies from "nookies";
+
 type DealStage = GetFieldsFromList<DashboardDealsChartQuery>;
 
 type DealAggregate = DealStage["dealsAggregate"][0];
@@ -67,4 +69,17 @@ export const mapDealsData = (
 
   // Combine the won and lost deals and sort them by time
   return [...wonDeals, ...lostDeals].sort((a, b) => a.timeUnix - b.timeUnix);
+};
+
+export const getUserId = (): string => {
+  const cookies = nookies.get(null);
+  return cookies['user-id'];
+}
+
+export const getClassColor = (classCode: string): string => {
+  // This is a simple example. You might want to implement a more sophisticated
+  // color selection based on your specific class codes.
+  const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33F1', '#33FFF1'];
+  const index = classCode.charCodeAt(0) % colors.length;
+  return colors[index];
 };

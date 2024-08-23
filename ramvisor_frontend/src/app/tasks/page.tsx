@@ -1,151 +1,257 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { DragEndEvent } from '@dnd-kit/core';
-import { useList, useOne, useCreate, useUpdate, useDelete } from "@refinedev/core";
+import { useGetIdentity, useCustom, useUpdate, useDelete } from "@refinedev/core";
 import { KanbanAddCardButton } from '@/components/tasks/kanban/add-card-button';
 import { KanbanBoardContainer, KanbanBoard } from '@/components/tasks/kanban/board';
 import { ProjectCardMemo } from '@/components/tasks/kanban/card';
 import KanbanColumn from '@/components/tasks/kanban/column';
 import KanbanItem from '@/components/tasks/kanban/item';
 import TasksEditModal from './edit';
+import { GET_TASKS_QUERY, GET_USER_QUERY } from '@/graphql/queries';
+import { UPDATE_TASK_MUTATION, DELETE_TASK_MUTATION } from '@/graphql/mutations';
+import { getClassColor } from '@/utilities/helpers';
 
-interface Task {
-  id: string;
+export interface Task {
+  id: number;
   title: string;
-  stageId: string | null;
-  dueDate: string;
-  classes: {
-    code: string;
-    color: string;
-  };
   description?: string;
+  dueDate: string;
+  classCode: string;
+  classes?: { code: string; color: string };
+  stageId: number;
 }
 
 interface Stage {
-  id: string;
+  id: number;
   title: string;
+  tasks: Task[];
 }
 
-const stages: Stage[] = [
-  { id: '1', title: 'NOT STARTED' },
-  { id: '2', title: 'IN PROGRESS' },
-  { id: '3', title: 'DONE' },
+const initialStages: Stage[] = [
+  { id: 1, title: 'NOT STARTED', tasks: [] },
+  { id: 2, title: 'IN PROGRESS', tasks: [] },
+  { id: 3, title: 'DONE', tasks: [] },
 ];
 
-const TasksPage: React.FC = () => {
+export const TasksPage: React.FC = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [stages, setStages] = useState<Stage[]>(initialStages);
+  const pendingTasksRef = useRef<Set<number>>(new Set());
+  const router = useRouter();
 
-  const { data: userData, isLoading: userLoading } = useOne({
-    resource: "users",
-    id: 1,
-    liveMode: "off",
+  const { data: identity } = useGetIdentity<{ id: string }>();
+  const userId = identity?.id;
+  
+  const { data: userData, isLoading: userLoading } = useCustom({
+    url: "",
+    method: "get",
+    meta: {
+      gqlQuery: GET_USER_QUERY,
+      variables: { id: userId }
+    }
   });
 
-  const { data: tasksData, isLoading: tasksLoading } = useList<Task>({
-    resource: "tasks",
-    filters: [{ field: "userId", operator: "eq", value: "1" }],
-    liveMode: "off",
+  const { data: tasksData, isLoading: tasksLoading, refetch: refetchTasks } = useCustom<{ getTasks: Task[] }>({
+    url: "",
+    method: "get",
+    meta: {
+      gqlQuery: GET_TASKS_QUERY,
+      variables: { userId }
+    }
   });
 
-  const { mutate: createTask } = useCreate();
   const { mutate: updateTask } = useUpdate();
   const { mutate: deleteTask } = useDelete();
 
-  const tasks = useMemo(() => tasksData?.data || [], [tasksData]);
+  const memoizedTasks = useMemo(() => tasksData?.data?.getTasks || [], [tasksData?.data?.getTasks]);
 
-  const taskStages = useMemo(() => {
-    if (!Array.isArray(tasks)) {
-      console.error('Tasks is not an array:', tasks);
-      return [];
-    }
-    return stages.map((stage) => ({
-      ...stage,
-      tasks: tasks.filter((task) => task && task.stageId === stage.id)
+  useEffect(() => {
+    console.log('Memo Tasks:', memoizedTasks);
+    const processedTasks = memoizedTasks.map(task => ({
+      ...task,
+      stageId: task.stageId || 1,
+      classes: task.classes || { code: task.classCode, color: getClassColor(task.classCode) },
     }));
-  }, [tasks]);
-
-  const handleAddCard = useCallback((stageId: string) => {
-    createTask({
-      resource: "tasks",
-      values: {
-        title: `New Task`,
-        stageId,
-        userId: "1",
-        dueDate: new Date().toISOString(),
-        classes: { code: 'DEFAULT', color: '#000000' },
-        description: '',
-      },
+    const newTasks = processedTasks.filter(task => !pendingTasksRef.current.has(task.id));
+    console.log('New Tasks:', newTasks);
+    setStages(prevStages => {
+      const updatedStages = prevStages.map(stage => {
+        const stageTasks = [
+          ...stage.tasks.filter(task => pendingTasksRef.current.has(task.id)),
+          ...newTasks.filter(task => task.stageId === stage.id)
+        ];
+        console.log(`Stage ${stage.id} tasks:`, stageTasks);
+        return {
+          ...stage,
+          tasks: stageTasks
+        };
+      });
+      console.log('Updated Stages:', updatedStages);
+      return updatedStages;
     });
-  }, [createTask]);
+  }, [memoizedTasks]);
+
+  const handleAddCard = useCallback((stageId: number) => {
+    router.push(`/tasks/new?stageId=${stageId}`);
+  }, [router]);
 
   const handleOnDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;
 
-    const taskId = active.id as string;
-    const newStageId = over.id as string;
+    const taskId = active.id as number;
+    const newStageId = over.id as number;
 
     if (active.id !== over.id) {
-      updateTask({
-        resource: "tasks",
-        id: taskId,
-        values: { stageId: newStageId },
+      pendingTasksRef.current.add(taskId);
+      setStages(prevStages => {
+        const updatedStages = prevStages.map(stage => ({
+          ...stage,
+          tasks: stage.tasks.filter(task => task.id !== taskId)
+        }));
+        const targetStage = updatedStages.find(stage => stage.id === newStageId);
+        if (targetStage) {
+          const movedTask = prevStages.flatMap(stage => stage.tasks).find(task => task.id === taskId);
+          if (movedTask) {
+            targetStage.tasks.push({ ...movedTask, stageId: newStageId });
+          }
+        }
+        return updatedStages;
       });
+
+      updateTask(
+        {
+          resource: "tasks",
+          id: taskId,
+          values: { 
+            id: taskId,
+            stageId: newStageId 
+          },
+          meta: {
+            gqlMutation: UPDATE_TASK_MUTATION
+          }
+        },
+        {
+          onSuccess: () => {
+            pendingTasksRef.current.delete(taskId);
+          },
+          onError: (error) => {
+            console.error('Error updating task:', error);
+            pendingTasksRef.current.delete(taskId);
+            refetchTasks();
+          }
+        }
+      );
     }
-  }, [updateTask]);
+  }, [updateTask, refetchTasks]);
 
   const handleTaskClick = useCallback((task: Task) => {
     setEditingTask(task);
   }, []);
 
   const handleTaskSave = useCallback((updatedTask: Task) => {
-    updateTask({
-      resource: "tasks",
-      id: updatedTask.id,
-      values: updatedTask,
-    });
-    setEditingTask(null);
+    updateTask(
+      {
+        resource: "tasks",
+        id: updatedTask.id,
+        values: {
+          id: updatedTask.id,
+          title: updatedTask.title,
+          dueDate: updatedTask.dueDate,
+          stageId: updatedTask.stageId,
+          classCode: updatedTask.classCode,
+          description: updatedTask.description,
+        },
+        meta: {
+          gqlMutation: UPDATE_TASK_MUTATION
+        }
+      },
+      {
+        onSuccess: () => {
+          setStages(prevStages => 
+            prevStages.map(stage => ({
+              ...stage,
+              tasks: stage.tasks.map(task => 
+                task.id === updatedTask.id ? updatedTask : task
+              )
+            }))
+          );
+          setEditingTask(null);
+        },
+        onError: (error) => {
+          console.error('Error updating task:', error);
+        }
+      }
+    );
   }, [updateTask]);
 
-  const handleTaskDelete = useCallback((taskId: string) => {
-    deleteTask({
-      resource: "tasks",
-      id: taskId,
-    });
-    setEditingTask(null);
+  const handleTaskDelete = useCallback((taskId: number) => {
+    deleteTask(
+      {
+        resource: "tasks",
+        id: taskId,
+        values: { id: taskId, },
+        meta: {
+          gqlMutation: DELETE_TASK_MUTATION
+        }
+      },
+      {
+        onSuccess: () => {
+          setStages(prevStages => 
+            prevStages.map(stage => ({
+              ...stage,
+              tasks: stage.tasks.filter(task => task.id !== taskId)
+            }))
+          );
+          setEditingTask(null);
+        },
+        onError: (error) => {
+          console.error('Error deleting task:', error);
+        }
+      }
+    );
   }, [deleteTask]);
+
+  const handleDeleteSuccess = useCallback((taskId: number) => {
+    setStages(prevStages => 
+      prevStages.map(stage => ({
+        ...stage,
+        tasks: stage.tasks.filter(task => task.id !== taskId)
+      }))
+    );
+    setEditingTask(null);
+  }, []);
 
   if (userLoading || tasksLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!Array.isArray(taskStages) || taskStages.length === 0) {
-    return <div>Error: Unable to load tasks. Please try again later.</div>;
-  }
-
   return (
-    <div style={{ maxHeight: '50px' }}>
+    <div style={{ maxHeight: 'calc(100vh - 85px)', overflow: 'hidden' }}>
       <KanbanBoardContainer>
         <KanbanBoard onDragEnd={handleOnDragEnd}>
-          {taskStages.map((column) => (
+          {stages.map((stage) => (
             <KanbanColumn 
-              key={column.id} 
-              id={column.id} 
-              title={column.title} 
-              count={column.tasks.length} 
-              onAddClick={() => handleAddCard(column.id)}
+              key={stage.id} 
+              id={stage.id} 
+              title={stage.title} 
+              count={stage.tasks.length} 
+              onAddClick={() => handleAddCard(stage.id)}
             >
-              {column.tasks.map((task) => (
+              {stage.tasks.map((task) => (
                 <KanbanItem key={task.id} id={task.id} data={task}>
                   <ProjectCardMemo 
                     {...task} 
                     onClick={() => handleTaskClick(task)} 
+                    onDeleteSuccess={handleDeleteSuccess}
                   />
                 </KanbanItem>
               ))}
-              {column.tasks.length === 0 && (
-                <KanbanAddCardButton onClick={() => handleAddCard(column.id)} />
+              {stage.tasks.length === 0 && (
+                <KanbanAddCardButton onClick={() => handleAddCard(stage.id)} />
               )}
             </KanbanColumn>
           ))}

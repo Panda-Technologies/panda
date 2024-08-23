@@ -1,5 +1,6 @@
 import Argon from 'argon2'
 import { ISession } from './interface';
+import { v4 as uuidv4 } from 'uuid';
 
 export const hashPassword = async (password: string): Promise<string> => {
         const hashedPassword = await Argon.hash(password);
@@ -18,3 +19,7 @@ export const isAuthenticated = (session: ISession): boolean => {if (!session.use
 } else {
     return true;
 }};
+
+export const generateUUID = (): string => {
+    return uuidv4();
+}

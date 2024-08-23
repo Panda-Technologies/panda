@@ -67,7 +67,7 @@ const timeOnSiteData = [
 const IndexPage: React.FC = () => {
   return (
     <AntLayout
-      style={{ minHeight: "80vh", padding: "24px", maxHeight: "80vh" }}
+      style={{ minHeight: "50vh", padding: "24px", maxHeight: "95vh" }}
     >
       <Row gutter={[32, 32]}>
         <Col xs={24} sm={24} md={8} lg={8} xl={8}>
@@ -110,7 +110,7 @@ const IndexPage: React.FC = () => {
         </Col>
       </Row>
       <Row gutter={[32, 32]} style={{ marginTop: "25px", flex: 1 }}>
-        <Col xs={24} md={24} lg={24} xl={24} style={{ height: "618px" }}>
+        <Col xs={24} md={24} lg={24} xl={24} style={{ maxHeight: "618px" }}>
           <Calendar title="Spring 2024" credits={12} />
         </Col>
       </Row>

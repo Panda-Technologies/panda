@@ -19,8 +19,8 @@ export const LOGOUT_MUTATION = gql`
 `;
 
 export const UPDATE_USER_PROFILE_MUTATION = gql`
-  mutation UpdateUserProfile($input: UpdateUserProfileInput!) {
-    updateUserProfile(input: $input) {
+  mutation UpdateUserProfile($id: String!, $university: String!, $yearInUniversity: Int!, $degreeId: Int!) {
+    updateUserProfile(id: $id, university: $university, yearInUniversity: $yearInUniversity, degreeId: $degreeId) {
       id
       university
       yearInUniversity
@@ -30,8 +30,8 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
 `;
 
 export const UPDATE_USER_ACADEMIC_INFO_MUTATION = gql`
-  mutation UpdateUserAcademicInfo($input: UpdateUserAcademicInfoInput!) {
-    updateUserAcademicInfo(input: $input) {
+  mutation UpdateUserAcademicInfo($id: String!, $gpa: Float, $attendancePercentage: Float, $assignmentCompletionPercentage: Float) {
+    updateUserAcademicInfo(id: $id, gpa: $gpa, attendancePercentage: $attendancePercentage, assignmentCompletionPercentage: $assignmentCompletionPercentage) {
       id
       gpa
       attendancePercentage
@@ -82,8 +82,6 @@ export const REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION = gql`
   mutation RemoveClassFromClassSchedule($input: RemoveClassFromScheduleInput!) {
     removeClassFromClassSchedule(input: $input) {
       id
-      classScheduleId
-      classId
     }
   }
 `;
@@ -114,8 +112,6 @@ export const REMOVE_CLASS_FROM_DEGREE_SCHEDULE_MUTATION = gql`
   mutation RemoveClassFromDegreeSchedule($input: RemoveClassFromDegreeScheduleInput!) {
     removeClassFromDegreeSchedule(input: $input) {
       id
-      degreeScheduleId
-      classId
     }
   }
 `;
@@ -124,12 +120,12 @@ export const CREATE_TASK_MUTATION = gql`
   mutation CreateTask($input: CreateTaskInput!) {
     createTask(input: $input) {
       id
-      userId
+      title
+      description
       dueDate
       stageId
+      userId
       classCode
-      description
-      title
     }
   }
 `;

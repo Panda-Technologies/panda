@@ -21,7 +21,7 @@ datasource db {
 }
 
 model User {
-  id                             Int              @id @unique @default(autoincrement())
+  id                             String              @id @default(uuid())
   email                          String           @unique
   password                       String
   university                     String?
@@ -41,11 +41,11 @@ model User {
 
 model Task {
   id          Int      @id @unique @default(autoincrement())
-  userId      Int
-  dueDate     String
+  userId      String
+  dueDate     String?
   stageId     Int
-  classCode   String
-  description String
+  classCode   String?
+  description String?
   title       String
   user        User     @relation(fields: [userId], references: [id])
 
@@ -54,7 +54,7 @@ model Task {
 
 model ClassSchedule {
   id         Int               @id @unique @default(autoincrement())
-  userId     Int
+  userId     String
   semesterId Int
   user       User              @relation(fields: [userId], references: [id])
   entries    ClassScheduleEntry[]
@@ -93,7 +93,7 @@ model Class {
 
 model DegreeSchedule {
   id         Int                   @id @unique @default(autoincrement())
-  userId     Int
+  userId     String
   plannerId  Int
   degreeId   Int
   semesterId Int

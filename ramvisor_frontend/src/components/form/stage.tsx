@@ -6,7 +6,7 @@ import AccordionHeaderSkeleton from "@skeleton/accordion-header";
 type Props = {
   isLoading?: boolean;
   initialValues?: {
-    stageId?: string | null;
+    stageId?: number | null;
     completed?: boolean;
   };
   onSave: (values: { stageId: string | null; completed: boolean }) => void;

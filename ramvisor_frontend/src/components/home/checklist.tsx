@@ -3,72 +3,78 @@ import { Card, List, Checkbox, Spin, message } from 'antd';
 import { ArrowRightOutlined, CheckSquareOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { Text } from '@components/text';
-import { useList, useOne, useUpdate } from '@refinedev/core';
-import { GET_TASKS_QUERY, GET_USER_QUERY } from '../../graphql/queries';
+import { useUpdate } from '@refinedev/core';
+import { GET_TASKS_QUERY } from '../../graphql/queries';
 import { UPDATE_TASK_MUTATION } from '../../graphql/mutations';
-
-interface User {
-  id: string;
-  // Add other user properties as needed
-}
+import { useGetIdentity } from '@refinedev/core';
+import { useCustom } from '@refinedev/core';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
 interface Task {
-  id: string;
+  id: number;
   title: string;
   classCode: string;
-  stageId: string;
+  stageId: number;
   class?: {
     color?: string;
   };
-  // Add other task properties as needed
+  isChecked?: boolean;
 }
 
 const Checklist: React.FC = () => {
-  const { data: userData, isLoading: isUserLoading } = useOne<User>({
-    resource: 'users',
-    id: 1, // Assuming we have the user ID, replace with actual user ID
-    meta: {
-      gqlQuery: GET_USER_QUERY
-    }
-  });
+  const { data: identity } = useGetIdentity<{ id: string }>();
+  const [tasks, setTasks] = useState<Task[]>([]);
 
-  const { data, isLoading, refetch } = useList<Task>({
-    resource: 'tasks',
+  const { data: tasksData, isLoading: tasksLoading, refetch } = useCustom<{ getTasks: Task[] }>({
+    url: "",
+    method: "get",
     meta: {
-      gqlQuery: GET_TASKS_QUERY
-    },
-    filters: [
-      {
-        field: 'userId',
-        operator: 'eq',
-        value: userData?.data?.id
+      gqlQuery: GET_TASKS_QUERY,
+      variables: {
+        userId: identity?.id
       }
-    ]
+    }
   });
 
   const { mutate } = useUpdate();
 
-  const handleCheckboxChange = async (taskId: string, checked: boolean) => {
+  useEffect(() => {
+    if (tasksData?.data?.getTasks) {
+      setTasks(tasksData.data.getTasks);
+    }
+  }, [tasksData]);
+
+  const handleCheckboxChange = async (taskId: number, checked: boolean) => {
     try {
       await mutate({
         resource: 'tasks',
         id: taskId,
         values: {
-          stageId: checked ? 'in_progress' : 'not_started'
+          id: taskId,
+          stageId: checked ? 2 : 1
         },
         mutationMode: 'optimistic',
         meta: {
           gqlMutation: UPDATE_TASK_MUTATION
         }
       });
-      message.success(`Task ${checked ? 'started' : 'marked as not started'}`);
-      refetch();
+
+      setTasks(prevTasks => 
+        prevTasks.map(task => 
+          task.id === taskId ? { ...task, isChecked: true, stageId: checked ? 2 : 1 } : task
+        )
+      );
+
+      setTimeout(() => {
+        setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+      }, 300);
+
+      message.success(`Task ${checked ? 'completed' : 'marked as not started'}`);
     } catch (error) {
       message.error('Failed to update task status');
     }
   };
-
-  const tasks = data?.data || [];
 
   return (
     <Card
@@ -79,8 +85,8 @@ const Checklist: React.FC = () => {
         background: "linear-gradient(135deg, #ffffff, #f0f8ff)",
         border: "none",
         overflow: "hidden",
-        width: '65%',
-        left: '106%',
+        width: '76%',
+        left: '99%',
         top: '-643px'
       }}
       styles={{ 
@@ -98,26 +104,31 @@ const Checklist: React.FC = () => {
           }}>
             Pending Assignments
           </span>
-          <Link href='/tasks'><ArrowRightOutlined style={{ marginLeft: '60px' }} /></Link>
+          <Link href='/tasks'><ArrowRightOutlined style={{ marginLeft: '29%' }} /></Link>
         </div>
       }
     >
       <List
         itemLayout="horizontal"
-        dataSource={tasks}
+        dataSource={tasks.filter(task => task.stageId === 1)}
+        pagination={{ pageSize: 7 }}
         renderItem={(item: Task) => (
           <List.Item
+            key={item.id}
             style={{
               padding: "12px 0",
               borderBottom: "1px solid #f0f0f0",
-              transition: "background-color 0.3s ease",
+              transition: "all 0.3s ease",
+              opacity: 1,
+              height: 'auto',
+              overflow: 'hidden',
             }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f9f9f9"}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
           >
             <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
               <Checkbox 
-                checked={item.stageId === 'in_progress'}
+                checked={item.isChecked} 
                 onChange={(e) => handleCheckboxChange(item.id, e.target.checked)}
                 style={{ marginRight: "12px", flexShrink: 0 }}
               />

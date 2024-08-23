@@ -13,7 +13,7 @@ export const RegisterMutation = extendType({
   type: 'Mutation',
   definition(t) {
     t.field('register', {
-      type: 'Boolean',
+      type: 'String',
       args: {
         input: nonNull(RegisterInput),
       },

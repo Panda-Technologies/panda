@@ -1,43 +1,29 @@
-import { useSearchParams } from "react-router-dom";
+"use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useModalForm } from "@refinedev/antd";
-import { useNavigation } from "@refinedev/core";
-
-import { Form, Input, Modal } from "antd";
-
+import { useNavigation, useGetIdentity } from "@refinedev/core";
+import { Form, Input, Modal, DatePicker, Select } from "antd";
+import { CREATE_TASK_MUTATION } from "@/graphql/mutations";
 
 const TasksCreatePage = () => {
-  // get search params from the url
-  const [searchParams] = useSearchParams();
+  const router = useRouter();
+  const [stageId, setStageId] = useState<number | null>(null);
+  const { list } = useNavigation();
+  const { data: identity } = useGetIdentity<{ id: string }>();
 
-  /**
-   * useNavigation is a hook by Refine that allows you to navigate to a page.
-   * https://refine.dev/docs/routing/hooks/use-navigation/
-   *
-   * list method navigates to the list page of the specified resource.
-   * https://refine.dev/docs/routing/hooks/use-navigation/#list
-   */ const { list } = useNavigation();
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const stageIdParam = params.get('stageId');
+    setStageId(stageIdParam ? parseInt(stageIdParam, 10) : null);
+  }, []);
 
-  /**
-   * useModalForm is a hook by Refine that allows you manage a form inside a modal.
-   * it extends the useForm hook from the @refinedev/antd package
-   * https://refine.dev/docs/ui-integrations/ant-design/hooks/use-modal-form/
-   *
-   * formProps -> It's an instance of HTML form that manages form state and actions like onFinish, onValuesChange, etc.
-   * Under the hood, it uses the useForm hook from the @refinedev/antd package
-   * https://refine.dev/docs/ui-integrations/ant-design/hooks/use-modal-form/#formprops
-   *
-   * modalProps -> It's an instance of Modal that manages modal state and actions like onOk, onCancel, etc.
-   * https://refine.dev/docs/ui-integrations/ant-design/hooks/use-modal-form/#modalprops
-   */
   const { formProps, modalProps, close } = useModalForm({
-    // specify the action to perform i.e., create or edit
     action: "create",
-    // specify whether the modal should be visible by default
     defaultVisible: true,
-    // specify the gql mutation to be performed
     meta: {
-      // gqlMutation: CREATE_TASK_MUTATION,
+      gqlMutation: CREATE_TASK_MUTATION,
     },
   });
 
@@ -45,11 +31,8 @@ const TasksCreatePage = () => {
     <Modal
       {...modalProps}
       onCancel={() => {
-        // close the modal
         close();
-
-        // navigate to the list page of the tasks resource
-        list("tasks", "replace");
+        router.push("/tasks");
       }}
       title="Add new card"
       width={512}
@@ -58,18 +41,49 @@ const TasksCreatePage = () => {
         {...formProps}
         layout="vertical"
         onFinish={(values) => {
-          // on finish, call the onFinish method of useModalForm to perform the mutation
           formProps?.onFinish?.({
             ...values,
-            stageId: searchParams.get("stageId")
-              ? Number(searchParams.get("stageId"))
-              : null,
-            userIds: [],
+            stageId: stageId || 1, // Default to 1 if stageId is null
+            userId: identity?.id,
           });
         }}
       >
-        <Form.Item label="Title" name="title" rules={[{ required: true }]}>
+        <Form.Item
+          label="Title"
+          name="title"
+          rules={[{ required: true, message: "Please enter a title" }]}
+        >
           <Input />
+        </Form.Item>
+        <Form.Item
+          label="Description"
+          name="description"
+        >
+          <Input.TextArea />
+        </Form.Item>
+        <Form.Item
+          label="Due Date"
+          name="dueDate"
+          rules={[{ required: true, message: "Please select a due date" }]}
+        >
+          <DatePicker style={{ width: '100%' }} />
+        </Form.Item>
+        <Form.Item
+          label="Class Code"
+          name="classCode"
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Stage"
+          name="stageId"
+          initialValue={stageId}
+        >
+          <Select>
+            <Select.Option value={1}>NOT STARTED</Select.Option>
+            <Select.Option value={2}>IN PROGRESS</Select.Option>
+            <Select.Option value={3}>DONE</Select.Option>
+          </Select>
         </Form.Item>
       </Form>
     </Modal>

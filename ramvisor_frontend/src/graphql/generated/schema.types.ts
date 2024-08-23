@@ -105,7 +105,7 @@ export type CreateTaskInput = {
   dueDate: Scalars["String"]["input"];
   stageId: Scalars["Int"]["input"];
   title: Scalars["String"]["input"];
-  userId: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
 };
 
 export type Degree = {
@@ -166,9 +166,9 @@ export type Mutation = {
   deleteDegree?: Maybe<Degree>;
   deleteDegreeSchedule?: Maybe<DegreeSchedule>;
   deleteTask?: Maybe<Task>;
-  login?: Maybe<Scalars["Boolean"]["output"]>;
+  login?: Maybe<Scalars["String"]["output"]>;
   logout?: Maybe<Scalars["Boolean"]["output"]>;
-  register?: Maybe<Scalars["Boolean"]["output"]>;
+  register?: Maybe<Scalars["String"]["output"]>;
   removeClassFromClassSchedule?: Maybe<ClassScheduleEntry>;
   removeClassFromDegreeSchedule?: Maybe<DegreeScheduleEntry>;
   updateClass?: Maybe<Class>;
@@ -265,11 +265,17 @@ export type MutationUpdateTaskArgs = {
 };
 
 export type MutationUpdateUserAcademicInfoArgs = {
-  input: UpdateUserAcademicInfoInput;
+  assignmentCompletionPercentage?: InputMaybe<Scalars["Float"]["input"]>;
+  attendancePercentage?: InputMaybe<Scalars["Float"]["input"]>;
+  gpa?: InputMaybe<Scalars["Float"]["input"]>;
+  id: Scalars["String"]["input"];
 };
 
 export type MutationUpdateUserProfileArgs = {
-  input: UpdateUserProfileInput;
+  degreeId: Scalars["Int"]["input"];
+  id: Scalars["String"]["input"];
+  university: Scalars["String"]["input"];
+  yearInUniversity: Scalars["Int"]["input"];
 };
 
 export type Query = {
@@ -310,11 +316,11 @@ export type QueryGetDegreeSchedulesArgs = {
 };
 
 export type QueryGetTasksArgs = {
-  userId: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
 };
 
 export type QueryGetUserArgs = {
-  id: Scalars["Int"]["input"];
+  id: Scalars["String"]["input"];
 };
 
 export type RegisterInput = {
@@ -338,7 +344,7 @@ export type Task = {
   stageId: Scalars["Int"]["output"];
   title: Scalars["String"]["output"];
   user?: Maybe<User>;
-  userId: Scalars["Int"]["output"];
+  userId: Scalars["String"]["output"];
 };
 
 export type UpdateClassInput = {
@@ -381,20 +387,6 @@ export type UpdateTaskInput = {
   title?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type UpdateUserAcademicInfoInput = {
-  assignmentCompletionPercentage?: InputMaybe<Scalars["Float"]["input"]>;
-  attendancePercentage?: InputMaybe<Scalars["Float"]["input"]>;
-  gpa?: InputMaybe<Scalars["Float"]["input"]>;
-  id: Scalars["Int"]["input"];
-};
-
-export type UpdateUserProfileInput = {
-  degreeId: Scalars["Int"]["input"];
-  id: Scalars["Int"]["input"];
-  university: Scalars["String"]["input"];
-  yearInUniversity: Scalars["Int"]["input"];
-};
-
 export type User = {
   assignmentCompletionPercentage?: Maybe<Scalars["Float"]["output"]>;
   attendancePercentage?: Maybe<Scalars["Float"]["output"]>;
@@ -404,7 +396,7 @@ export type User = {
   degreeSchedules?: Maybe<Array<Maybe<DegreeSchedule>>>;
   email: Scalars["String"]["output"];
   gpa?: Maybe<Scalars["Float"]["output"]>;
-  id: Scalars["Int"]["output"];
+  id: Scalars["String"]["output"];
   tasks?: Maybe<Array<Maybe<Task>>>;
   university?: Maybe<Scalars["String"]["output"]>;
   yearInUniversity?: Maybe<Scalars["Int"]["output"]>;

@@ -5,7 +5,7 @@ import { registerResolve } from "../resolvers/registerResolver";
 export const User = objectType({
   name: 'User',
   definition(t) {
-    t.nonNull.int('id');
+    t.nonNull.string('id');
     t.nonNull.string('email');
     t.string('university');
     t.int('yearInUniversity');
@@ -25,7 +25,7 @@ export const UserQuery = extendType({
   definition(t) {
     t.field('getUser', {
       type: 'User',
-      args: { id: nonNull(intArg()) },
+      args: { id: nonNull(stringArg()) },
       resolve: (_, { id }, { prisma }) => prisma.user.findUnique({ where: { id } })
     });
   },
@@ -60,7 +60,7 @@ export const UserMutation = extendType({
     t.field('updateUserProfile', {
       type: 'User',
       args: {
-        id: nonNull(intArg()),
+        id: nonNull(stringArg()),
         university: nonNull(stringArg()),
         yearInUniversity: nonNull(intArg()),
         degreeId: nonNull(intArg())
@@ -74,7 +74,7 @@ export const UserMutation = extendType({
     t.field('updateUserAcademicInfo', {
       type: 'User',
       args: {
-        id: nonNull(intArg()),
+        id: nonNull(stringArg()),
         gpa: floatArg(),
         attendancePercentage: floatArg(),
         assignmentCompletionPercentage: floatArg()

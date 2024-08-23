@@ -13,7 +13,7 @@ export const LoginMutation = extendType({
   type: 'Mutation',
   definition(t) {
     t.field('login', {
-      type: 'Boolean',
+      type: 'String',
       args: {
         input: nonNull(LoginInput),
       },

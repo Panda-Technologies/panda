@@ -75,12 +75,7 @@ input CreateDegreeScheduleInput {
 }
 
 input CreateTaskInput {
-  classCode: String!
-  description: String!
-  dueDate: String!
-  stageId: Int!
-  title: String!
-  userId: Int!
+  task: TaskInputFields
 }
 
 type Degree {
@@ -135,24 +130,24 @@ type Mutation {
   createClassSchedule(input: CreateClassScheduleInput!): ClassSchedule
   createDegree(input: CreateDegreeInput!): Degree
   createDegreeSchedule(input: CreateDegreeScheduleInput!): DegreeSchedule
-  createTask(input: CreateTaskInput!): Task
+  createTask(input: CreateTaskInput): Task
   deleteClass(input: DeleteClassInput!): Class
   deleteClassSchedule(id: Int!): ClassSchedule
   deleteDegree(input: DeleteDegreeInput!): Degree
   deleteDegreeSchedule(id: Int!): DegreeSchedule
-  deleteTask(input: DeleteTaskInput!): Task
-  login(input: LoginInput!): Boolean
+  deleteTask(input: DeleteTaskInput): Task
+  login(input: LoginInput!): String
   logout: Boolean
-  register(input: RegisterInput!): Boolean
+  register(input: RegisterInput!): String
   removeClassFromClassSchedule(input: RemoveClassFromScheduleInput!): ClassScheduleEntry
   removeClassFromDegreeSchedule(input: RemoveClassFromDegreeScheduleInput!): DegreeScheduleEntry
   updateClass(input: UpdateClassInput!): Class
   updateClassSchedule(input: UpdateClassScheduleInput!): ClassSchedule
   updateDegree(input: UpdateDegreeInput!): Degree
   updateDegreeSchedule(input: UpdateDegreeScheduleInput!): DegreeSchedule
-  updateTask(input: UpdateTaskInput!): Task
-  updateUserAcademicInfo(assignmentCompletionPercentage: Float, attendancePercentage: Float, gpa: Float, id: Int!): User
-  updateUserProfile(degreeId: Int!, id: Int!, university: String!, yearInUniversity: Int!): User
+  updateTask(input: UpdateTaskInput): Task
+  updateUserAcademicInfo(assignmentCompletionPercentage: Float, attendancePercentage: Float, gpa: Float, id: String!): User
+  updateUserProfile(degreeId: Int!, id: String!, university: String!, yearInUniversity: Int!): User
 }
 
 type Query {
@@ -164,8 +159,8 @@ type Query {
   getDegree(id: Int!): Degree
   getDegreeScheduleEntries(degreeScheduleId: Int!): [DegreeScheduleEntry]
   getDegreeSchedules(userId: Int!): [DegreeSchedule]
-  getTasks(userId: Int!): [Task]
-  getUser(id: Int!): User
+  getTasks(userId: String!): [Task]
+  getUser(id: String!): User
 }
 
 input RegisterInput {
@@ -182,14 +177,23 @@ input RemoveClassFromScheduleInput {
 }
 
 type Task {
-  classCode: String!
-  description: String!
+  classCode: String
+  description: String
   dueDate: String!
   id: Int!
   stageId: Int!
   title: String!
   user: User
-  userId: Int!
+  userId: String!
+}
+
+input TaskInputFields {
+  classCode: String
+  description: String
+  dueDate: String!
+  stageId: Int
+  title: String!
+  userId: String!
 }
 
 input UpdateClassInput {
@@ -224,12 +228,18 @@ input UpdateDegreeScheduleInput {
   semesterId: Int
 }
 
-input UpdateTaskInput {
+input UpdateTaskFields {
+  classCode: String
   description: String
   dueDate: String
   id: Int!
   stageId: Int
   title: String
+}
+
+input UpdateTaskInput {
+  id: Int!
+  update: UpdateTaskFields
 }
 
 type User {
@@ -241,7 +251,7 @@ type User {
   degreeSchedules: [DegreeSchedule]
   email: String!
   gpa: Float
-  id: Int!
+  id: String!
   tasks: [Task]
   university: String
   yearInUniversity: Int
