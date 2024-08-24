@@ -10,6 +10,7 @@ export const loginResolve = async (_: any, { input }: { input: Pick<User, 'email
         if (isAuthenticated(session)) {
             throw new Error(NOT_AUTHORIZED);
         }
+        const { email, password } = input;
 
         const user = await prisma.user.findUnique({
             where: {

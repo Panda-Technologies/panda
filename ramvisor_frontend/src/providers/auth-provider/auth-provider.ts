@@ -28,6 +28,8 @@ export const authProvider: AuthProvider = {
         query: `
           mutation Login($input: LoginInput!) {
             login(input: $input)
+          mutation Login($input: LoginInput!) {
+            login(input: $input)
           }
         `,
         variables: { 
