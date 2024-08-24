@@ -26,11 +26,13 @@ export const authProvider: AuthProvider = {
       },
       body: JSON.stringify({
         query: `
-          mutation Login($email: String!, $password: String!) {
-            login(email: $email, password: $password)
+          mutation Login($input: LoginInput!) {
+            login(input: $input)
           }
         `,
-        variables: { email, password },
+        variables: { 
+          input: { email, password }, 
+        },
       }),
     });
 
