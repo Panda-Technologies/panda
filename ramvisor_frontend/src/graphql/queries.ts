@@ -80,7 +80,7 @@ export const GET_CLASSES_QUERY = gql`
 `;
 
 export const GET_CLASS_SCHEDULES_QUERY = gql`
-  query GetClassSchedules($userId: Int!) {
+  query GetClassSchedules($userId: String!) {
     getClassSchedules(userId: $userId) {
       id
       userId
@@ -104,7 +104,7 @@ export const GET_CLASS_SCHEDULES_QUERY = gql`
 `;
 
 export const GET_DEGREE_SCHEDULES_QUERY = gql`
-  query GetDegreeSchedules($userId: Int!) {
+  query GetDegreeSchedules($userId: String!) {
     getDegreeSchedules(userId: $userId) {
       id
       userId

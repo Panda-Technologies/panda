@@ -11,7 +11,7 @@ interface CalendarProps {
   height?: string;
   title?: string;
   credits?: number;
-  userId: string;
+  userId?: string;
 }
 
 interface ClassSchedule {
@@ -36,9 +36,9 @@ const Calendar: React.FC<CalendarProps> = ({ width, height, title, credits, user
 
   const { data, isLoading } = useOne<ClassSchedule>({
     resource: 'classSchedules',
-    id: userId,
     meta: {
-      gqlQuery: GET_CLASS_SCHEDULES_QUERY
+      gqlQuery: GET_CLASS_SCHEDULES_QUERY,
+      variables: { userId: userId }
     }
   });
 

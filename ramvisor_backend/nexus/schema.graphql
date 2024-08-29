@@ -32,7 +32,7 @@ type ClassSchedule {
   id: Int!
   semesterId: Int!
   user: User
-  userId: Int!
+  userId: String!
 }
 
 type ClassScheduleEntry {
@@ -58,7 +58,7 @@ input CreateClassInput {
 
 input CreateClassScheduleInput {
   semesterId: Int!
-  userId: Int!
+  userId: String!
 }
 
 input CreateDegreeInput {
@@ -71,7 +71,7 @@ input CreateDegreeScheduleInput {
   degreeId: Int!
   plannerId: Int!
   semesterId: Int!
-  userId: Int!
+  userId: String!
 }
 
 input CreateTaskInput {
@@ -95,7 +95,7 @@ type DegreeSchedule {
   plannerId: Int!
   semesterId: Int!
   user: User
-  userId: Int!
+  userId: String!
 }
 
 type DegreeScheduleEntry {
@@ -154,11 +154,11 @@ type Query {
   getAllDegrees: [Degree]
   getClass(id: Int!): Class
   getClassScheduleEntries(classScheduleId: Int!): [ClassScheduleEntry]
-  getClassSchedules(userId: Int!): [ClassSchedule]
+  getClassSchedules(userId: String!): [ClassSchedule]
   getClasses: [Class]
   getDegree(id: Int!): Degree
   getDegreeScheduleEntries(degreeScheduleId: Int!): [DegreeScheduleEntry]
-  getDegreeSchedules(userId: Int!): [DegreeSchedule]
+  getDegreeSchedules(userId: String!): [DegreeSchedule]
   getTasks(userId: String!): [Task]
   getUser(id: String!): User
 }

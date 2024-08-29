@@ -1,10 +1,10 @@
-import { extendType, nonNull, intArg, objectType, list, inputObjectType } from "nexus";
+import { extendType, nonNull, intArg, objectType, list, inputObjectType, stringArg } from "nexus";
 
 export const ClassSchedule = objectType({
   name: "ClassSchedule",
   definition(t) {
     t.nonNull.int("id");
-    t.nonNull.int("userId");
+    t.nonNull.string("userId");
     t.nonNull.int("semesterId");
     t.field("user", { type: "User" });
     t.list.field("entries", { type: "ClassScheduleEntry" });
@@ -25,7 +25,7 @@ export const ClassScheduleEntry = objectType({
 export const CreateClassScheduleInput = inputObjectType({
   name: 'CreateClassScheduleInput',
   definition(t) {
-    t.nonNull.int('userId');
+    t.nonNull.string('userId');
     t.nonNull.int('semesterId');
   },
 });
@@ -59,7 +59,7 @@ export const ClassScheduleQuery = extendType({
     t.list.field('getClassSchedules', {
       type: 'ClassSchedule',
       args: {
-        userId: nonNull(intArg())
+        userId: nonNull(stringArg())
       },
       resolve: (_, { userId }, { prisma }) => prisma.classSchedule.findMany({ 
         where: { userId },

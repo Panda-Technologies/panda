@@ -142,12 +142,12 @@ export type CreateTaskMutation = {
     Pick<
       Types.Task,
       | "id"
-      | "userId"
+      | "title"
+      | "description"
       | "dueDate"
       | "stageId"
+      | "userId"
       | "classCode"
-      | "description"
-      | "title"
     >
   >;
 };
@@ -286,7 +286,7 @@ export type GetClassesQuery = {
 };
 
 export type GetClassSchedulesQueryVariables = Types.Exact<{
-  userId: Types.Scalars["Int"]["input"];
+  userId: Types.Scalars["String"]["input"];
 }>;
 
 export type GetClassSchedulesQuery = {
@@ -322,7 +322,7 @@ export type GetClassSchedulesQuery = {
 };
 
 export type GetDegreeSchedulesQueryVariables = Types.Exact<{
-  userId: Types.Scalars["Int"]["input"];
+  userId: Types.Scalars["String"]["input"];
 }>;
 
 export type GetDegreeSchedulesQuery = {

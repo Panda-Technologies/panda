@@ -57,7 +57,7 @@ export type ClassSchedule = {
   id: Scalars["Int"]["output"];
   semesterId: Scalars["Int"]["output"];
   user?: Maybe<User>;
-  userId: Scalars["Int"]["output"];
+  userId: Scalars["String"]["output"];
 };
 
 export type ClassScheduleEntry = {
@@ -83,7 +83,7 @@ export type CreateClassInput = {
 
 export type CreateClassScheduleInput = {
   semesterId: Scalars["Int"]["input"];
-  userId: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
 };
 
 export type CreateDegreeInput = {
@@ -96,16 +96,11 @@ export type CreateDegreeScheduleInput = {
   degreeId: Scalars["Int"]["input"];
   plannerId: Scalars["Int"]["input"];
   semesterId: Scalars["Int"]["input"];
-  userId: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
 };
 
 export type CreateTaskInput = {
-  classCode: Scalars["String"]["input"];
-  description: Scalars["String"]["input"];
-  dueDate: Scalars["String"]["input"];
-  stageId: Scalars["Int"]["input"];
-  title: Scalars["String"]["input"];
-  userId: Scalars["String"]["input"];
+  task?: InputMaybe<TaskInputFields>;
 };
 
 export type Degree = {
@@ -125,7 +120,7 @@ export type DegreeSchedule = {
   plannerId: Scalars["Int"]["output"];
   semesterId: Scalars["Int"]["output"];
   user?: Maybe<User>;
-  userId: Scalars["Int"]["output"];
+  userId: Scalars["String"]["output"];
 };
 
 export type DegreeScheduleEntry = {
@@ -205,7 +200,7 @@ export type MutationCreateDegreeScheduleArgs = {
 };
 
 export type MutationCreateTaskArgs = {
-  input: CreateTaskInput;
+  input?: InputMaybe<CreateTaskInput>;
 };
 
 export type MutationDeleteClassArgs = {
@@ -225,7 +220,7 @@ export type MutationDeleteDegreeScheduleArgs = {
 };
 
 export type MutationDeleteTaskArgs = {
-  input: DeleteTaskInput;
+  input?: InputMaybe<DeleteTaskInput>;
 };
 
 export type MutationLoginArgs = {
@@ -261,7 +256,7 @@ export type MutationUpdateDegreeScheduleArgs = {
 };
 
 export type MutationUpdateTaskArgs = {
-  input: UpdateTaskInput;
+  input?: InputMaybe<UpdateTaskInput>;
 };
 
 export type MutationUpdateUserAcademicInfoArgs = {
@@ -300,7 +295,7 @@ export type QueryGetClassScheduleEntriesArgs = {
 };
 
 export type QueryGetClassSchedulesArgs = {
-  userId: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
 };
 
 export type QueryGetDegreeArgs = {
@@ -312,7 +307,7 @@ export type QueryGetDegreeScheduleEntriesArgs = {
 };
 
 export type QueryGetDegreeSchedulesArgs = {
-  userId: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
 };
 
 export type QueryGetTasksArgs = {
@@ -337,14 +332,23 @@ export type RemoveClassFromScheduleInput = {
 };
 
 export type Task = {
-  classCode: Scalars["String"]["output"];
-  description: Scalars["String"]["output"];
+  classCode?: Maybe<Scalars["String"]["output"]>;
+  description?: Maybe<Scalars["String"]["output"]>;
   dueDate: Scalars["String"]["output"];
   id: Scalars["Int"]["output"];
   stageId: Scalars["Int"]["output"];
   title: Scalars["String"]["output"];
   user?: Maybe<User>;
   userId: Scalars["String"]["output"];
+};
+
+export type TaskInputFields = {
+  classCode?: InputMaybe<Scalars["String"]["input"]>;
+  description?: InputMaybe<Scalars["String"]["input"]>;
+  dueDate: Scalars["String"]["input"];
+  stageId?: InputMaybe<Scalars["Int"]["input"]>;
+  title: Scalars["String"]["input"];
+  userId: Scalars["String"]["input"];
 };
 
 export type UpdateClassInput = {
@@ -379,12 +383,18 @@ export type UpdateDegreeScheduleInput = {
   semesterId?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
-export type UpdateTaskInput = {
+export type UpdateTaskFields = {
+  classCode?: InputMaybe<Scalars["String"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
   dueDate?: InputMaybe<Scalars["String"]["input"]>;
   id: Scalars["Int"]["input"];
   stageId?: InputMaybe<Scalars["Int"]["input"]>;
   title?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type UpdateTaskInput = {
+  id: Scalars["Int"]["input"];
+  update?: InputMaybe<UpdateTaskFields>;
 };
 
 export type User = {

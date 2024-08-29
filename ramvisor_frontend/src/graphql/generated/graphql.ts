@@ -61,7 +61,7 @@ export type ClassSchedule = {
   id: Scalars["Int"]["output"];
   semesterId: Scalars["Int"]["output"];
   user?: Maybe<User>;
-  userId: Scalars["Int"]["output"];
+  userId: Scalars["String"]["output"];
 };
 
 export type ClassScheduleEntry = {
@@ -88,7 +88,7 @@ export type CreateClassInput = {
 
 export type CreateClassScheduleInput = {
   semesterId: Scalars["Int"]["input"];
-  userId: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
 };
 
 export type CreateDegreeInput = {
@@ -101,16 +101,11 @@ export type CreateDegreeScheduleInput = {
   degreeId: Scalars["Int"]["input"];
   plannerId: Scalars["Int"]["input"];
   semesterId: Scalars["Int"]["input"];
-  userId: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
 };
 
 export type CreateTaskInput = {
-  classCode: Scalars["String"]["input"];
-  description: Scalars["String"]["input"];
-  dueDate: Scalars["String"]["input"];
-  stageId: Scalars["Int"]["input"];
-  title: Scalars["String"]["input"];
-  userId: Scalars["String"]["input"];
+  task?: InputMaybe<TaskInputFields>;
 };
 
 export type Degree = {
@@ -132,7 +127,7 @@ export type DegreeSchedule = {
   plannerId: Scalars["Int"]["output"];
   semesterId: Scalars["Int"]["output"];
   user?: Maybe<User>;
-  userId: Scalars["Int"]["output"];
+  userId: Scalars["String"]["output"];
 };
 
 export type DegreeScheduleEntry = {
@@ -214,7 +209,7 @@ export type MutationCreateDegreeScheduleArgs = {
 };
 
 export type MutationCreateTaskArgs = {
-  input: CreateTaskInput;
+  input?: InputMaybe<CreateTaskInput>;
 };
 
 export type MutationDeleteClassArgs = {
@@ -234,7 +229,7 @@ export type MutationDeleteDegreeScheduleArgs = {
 };
 
 export type MutationDeleteTaskArgs = {
-  input: DeleteTaskInput;
+  input?: InputMaybe<DeleteTaskInput>;
 };
 
 export type MutationLoginArgs = {
@@ -270,7 +265,7 @@ export type MutationUpdateDegreeScheduleArgs = {
 };
 
 export type MutationUpdateTaskArgs = {
-  input: UpdateTaskInput;
+  input?: InputMaybe<UpdateTaskInput>;
 };
 
 export type MutationUpdateUserAcademicInfoArgs = {
@@ -310,7 +305,7 @@ export type QueryGetClassScheduleEntriesArgs = {
 };
 
 export type QueryGetClassSchedulesArgs = {
-  userId: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
 };
 
 export type QueryGetDegreeArgs = {
@@ -322,7 +317,7 @@ export type QueryGetDegreeScheduleEntriesArgs = {
 };
 
 export type QueryGetDegreeSchedulesArgs = {
-  userId: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
 };
 
 export type QueryGetTasksArgs = {
@@ -348,14 +343,23 @@ export type RemoveClassFromScheduleInput = {
 
 export type Task = {
   __typename?: "Task";
-  classCode: Scalars["String"]["output"];
-  description: Scalars["String"]["output"];
+  classCode?: Maybe<Scalars["String"]["output"]>;
+  description?: Maybe<Scalars["String"]["output"]>;
   dueDate: Scalars["String"]["output"];
   id: Scalars["Int"]["output"];
   stageId: Scalars["Int"]["output"];
   title: Scalars["String"]["output"];
   user?: Maybe<User>;
   userId: Scalars["String"]["output"];
+};
+
+export type TaskInputFields = {
+  classCode?: InputMaybe<Scalars["String"]["input"]>;
+  description?: InputMaybe<Scalars["String"]["input"]>;
+  dueDate: Scalars["String"]["input"];
+  stageId?: InputMaybe<Scalars["Int"]["input"]>;
+  title: Scalars["String"]["input"];
+  userId: Scalars["String"]["input"];
 };
 
 export type UpdateClassInput = {
@@ -390,12 +394,18 @@ export type UpdateDegreeScheduleInput = {
   semesterId?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
-export type UpdateTaskInput = {
+export type UpdateTaskFields = {
+  classCode?: InputMaybe<Scalars["String"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
   dueDate?: InputMaybe<Scalars["String"]["input"]>;
   id: Scalars["Int"]["input"];
   stageId?: InputMaybe<Scalars["Int"]["input"]>;
   title?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type UpdateTaskInput = {
+  id: Scalars["Int"]["input"];
+  update?: InputMaybe<UpdateTaskFields>;
 };
 
 export type User = {
@@ -503,7 +513,7 @@ export type CreateClassScheduleMutation = {
   createClassSchedule?: {
     __typename?: "ClassSchedule";
     id: number;
-    userId: number;
+    userId: string;
     semesterId: number;
   } | null;
 };
@@ -543,7 +553,7 @@ export type CreateDegreeScheduleMutation = {
   createDegreeSchedule?: {
     __typename?: "DegreeSchedule";
     id: number;
-    userId: number;
+    userId: string;
     plannerId: number;
     degreeId: number;
     semesterId: number;
@@ -585,12 +595,12 @@ export type CreateTaskMutation = {
   createTask?: {
     __typename?: "Task";
     id: number;
-    userId: string;
+    title: string;
+    description?: string | null;
     dueDate: string;
     stageId: number;
-    classCode: string;
-    description: string;
-    title: string;
+    userId: string;
+    classCode?: string | null;
   } | null;
 };
 
@@ -605,7 +615,7 @@ export type UpdateTaskMutation = {
     id: number;
     dueDate: string;
     stageId: number;
-    description: string;
+    description?: string | null;
     title: string;
   } | null;
 };
@@ -641,8 +651,8 @@ export type GetUserQuery = {
       title: string;
       dueDate: string;
       stageId: number;
-      classCode: string;
-      description: string;
+      classCode?: string | null;
+      description?: string | null;
     } | null> | null;
     classSchedules?: Array<{
       __typename?: "ClassSchedule";
@@ -713,7 +723,7 @@ export type GetClassesQuery = {
 };
 
 export type GetClassSchedulesQueryVariables = Exact<{
-  userId: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
 }>;
 
 export type GetClassSchedulesQuery = {
@@ -721,7 +731,7 @@ export type GetClassSchedulesQuery = {
   getClassSchedules?: Array<{
     __typename?: "ClassSchedule";
     id: number;
-    userId: number;
+    userId: string;
     semesterId: number;
     entries?: Array<{
       __typename?: "ClassScheduleEntry";
@@ -743,7 +753,7 @@ export type GetClassSchedulesQuery = {
 };
 
 export type GetDegreeSchedulesQueryVariables = Exact<{
-  userId: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
 }>;
 
 export type GetDegreeSchedulesQuery = {
@@ -751,7 +761,7 @@ export type GetDegreeSchedulesQuery = {
   getDegreeSchedules?: Array<{
     __typename?: "DegreeSchedule";
     id: number;
-    userId: number;
+    userId: string;
     plannerId: number;
     degreeId: number;
     semesterId: number;
@@ -794,8 +804,8 @@ export type GetTasksQuery = {
     userId: string;
     dueDate: string;
     stageId: number;
-    classCode: string;
-    description: string;
+    classCode?: string | null;
+    description?: string | null;
     title: string;
   } | null> | null;
 };
@@ -1669,12 +1679,12 @@ export const CreateTaskDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "userId" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "dueDate" } },
                 { kind: "Field", name: { kind: "Name", value: "stageId" } },
+                { kind: "Field", name: { kind: "Name", value: "userId" } },
                 { kind: "Field", name: { kind: "Name", value: "classCode" } },
-                { kind: "Field", name: { kind: "Name", value: "description" } },
-                { kind: "Field", name: { kind: "Name", value: "title" } },
               ],
             },
           },
@@ -2087,7 +2097,10 @@ export const GetClassSchedulesDocument = {
           },
           type: {
             kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
           },
         },
       ],
@@ -2195,7 +2208,10 @@ export const GetDegreeSchedulesDocument = {
           },
           type: {
             kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
           },
         },
       ],

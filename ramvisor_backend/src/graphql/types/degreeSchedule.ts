@@ -5,13 +5,14 @@ import {
   objectType,
   list,
   inputObjectType,
+  stringArg,
 } from "nexus";
 
 export const DegreeSchedule = objectType({
   name: "DegreeSchedule",
   definition(t) {
     t.nonNull.int("id");
-    t.nonNull.int("userId");
+    t.nonNull.string("userId");
     t.nonNull.int("plannerId");
     t.nonNull.int("degreeId");
     t.nonNull.int("semesterId");
@@ -35,7 +36,7 @@ export const DegreeScheduleEntry = objectType({
 export const CreateDegreeScheduleInput = inputObjectType({
   name: "CreateDegreeScheduleInput",
   definition(t) {
-    t.nonNull.int("userId");
+    t.nonNull.string("userId");
     t.nonNull.int("plannerId");
     t.nonNull.int("degreeId");
     t.nonNull.int("semesterId");
@@ -72,7 +73,7 @@ export const DegreeScheduleQuery = extendType({
     t.list.field("getDegreeSchedules", {
       type: "DegreeSchedule",
       args: {
-        userId: nonNull(intArg()),
+        userId: nonNull(stringArg()),
       },
       resolve: (_, { userId }, { prisma }) =>
         prisma.degreeSchedule.findMany({

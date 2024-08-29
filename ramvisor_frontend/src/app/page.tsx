@@ -12,6 +12,7 @@ import Calendar from "@components/home/calendar";
 import { registerLicense } from "@syncfusion/ej2-base";
 import UpcomingEvents from "@components/home/upcoming-events";
 import Checklist from "@components/home/checklist";
+import { useGetIdentity } from "@refinedev/core";
 
 // Register Syncfusion license
 registerLicense(
@@ -65,6 +66,10 @@ const timeOnSiteData = [
 ];
 
 const IndexPage: React.FC = () => {
+
+  const { data: identity } = useGetIdentity<{ id: string }>();
+  const userId = identity?.id;
+
   return (
     <AntLayout
       style={{ minHeight: "50vh", padding: "24px", maxHeight: "95vh" }}
@@ -111,7 +116,7 @@ const IndexPage: React.FC = () => {
       </Row>
       <Row gutter={[32, 32]} style={{ marginTop: "25px", flex: 1 }}>
         <Col xs={24} md={24} lg={24} xl={24} style={{ maxHeight: "618px" }}>
-          <Calendar title="Spring 2024" credits={12} />
+          <Calendar title="Spring 2024" credits={12} userId={userId ? userId : "null"}/>
         </Col>
       </Row>
       <Col xs={24} sm={24} md={8} lg={8} xl={8} style={{ maxHeight: '1px'}}>

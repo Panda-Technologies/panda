@@ -59,7 +59,7 @@ export const TasksPage: React.FC = () => {
     method: "get",
     meta: {
       gqlQuery: GET_TASKS_QUERY,
-      variables: { userId }
+      variables: { userId: userId }
     }
   });
 
