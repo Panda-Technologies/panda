@@ -1,10 +1,25 @@
+"use client";
+
+import { Card } from "antd";
 import React, { PropsWithChildren } from "react";
 
 type Props = {
   isPremium: boolean;
+  setShowNewPlannerModal: (isActive: boolean) => void;
+  saveCurrentPlanner: () => void;
+  setShowAIPlanModal: (isActive: boolean) => void;
+  resetPlanner: () => void;
+  findPlanner: () => void;
 };
 
-const DegreeHeader = ({ isPremium }: Props) => {
+const DegreeHeader = ({
+  isPremium,
+  setShowNewPlannerModal,
+  saveCurrentPlanner,
+  setShowAIPlanModal,
+  resetPlanner,
+  findPlanner,
+}: Props) => {
   return (
     <div
       style={{
@@ -23,20 +38,84 @@ const DegreeHeader = ({ isPremium }: Props) => {
           boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
         }}
       >
-        <button
-          style={{
-            padding: "8px 16px",
-            fontSize: "14px",
-            fontWeight: 500,
-            borderBottomLeftRadius: "0.375rem",
-            borderBottomRightRadius: "0.375rem",
-            backgroundColor: isPremium ? '#3B82F6' : 'white',
-            
+        <Card
+          styles={{
+            body: {
+              padding: "0.5rem 1rem",
+              backgroundColor: isPremium ? "#3B82F6" : "white",
+              borderTopRightRadius: "0.375rem",
+              borderTopLeftRadius: "0.375rem",
+              fontWeight: 500,
+            },
           }}
+          size="small"
         >
           {isPremium ? "Premium" : "Basic"}
-        </button>
+        </Card>
       </div>
+      {!isPremium && (
+        <div
+          style={{
+            fontSize: "14px",
+            color: "#1F2937",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <button
+            onClick={() => setShowNewPlannerModal(true)}
+            style={{
+              marginRight: "8px",
+              padding: "4px 8px",
+              backgroundColor: "#3B82F6",
+              color: "white",
+              borderRadius: "4px",
+              fontWeight: 500,
+            }}
+          >
+            New Planner
+          </button>
+          <button
+            onClick={saveCurrentPlanner}
+            style={{
+              marginRight: "8px",
+              padding: "4px 8px",
+              backgroundColor: "#10B981",
+              color: "white",
+              borderRadius: "4px",
+            }}
+          >
+            Save Planner
+          </button>
+          <button
+            onClick={() => setShowAIPlanModal(true)}
+            style={{
+              marginRight: "8px",
+              padding: "4px 8px",
+              backgroundColor: "#10B981",
+              color: "white",
+              borderRadius: "4px",
+            }}
+          >
+            Generate AI Plan
+          </button>
+          <button
+            onClick={resetPlanner}
+            style={{
+              marginRight: "8px",
+              padding: "4px 8px",
+              backgroundColor: "#EF4444",
+              color: "white",
+              borderRadius: "4px",
+            }}
+          >
+            Reset
+          </button>
+          <select>
+
+          </select>
+        </div>
+      )}
     </div>
   );
 };
