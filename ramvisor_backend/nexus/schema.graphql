@@ -19,6 +19,7 @@ type Class {
   coreDegreeId: Int!
   courseType: String!
   dayOfWeek: String!
+  electiveDegreeId: [Int]
   endTime: String!
   id: Int!
   professor: String!
@@ -49,6 +50,7 @@ input CreateClassInput {
   coreDegreeId: Int!
   courseType: String!
   dayOfWeek: String!
+  electiveDegreeId: [Int]!
   endTime: String!
   professor: String!
   rateMyProfessorRating: Float!
@@ -69,7 +71,6 @@ input CreateDegreeInput {
 
 input CreateDegreeScheduleInput {
   degreeId: Int!
-  plannerId: Int!
   semesterId: Int!
   userId: String!
 }
@@ -92,7 +93,6 @@ type DegreeSchedule {
   degreeId: Int!
   entries: [DegreeScheduleEntry]
   id: Int!
-  plannerId: Int!
   semesterId: Int!
   user: User
   userId: String!
@@ -202,6 +202,7 @@ input UpdateClassInput {
   coreDegreeId: Int
   courseType: String
   dayOfWeek: String
+  electiveDegreeId: [Int]
   endTime: String
   id: Int!
   professor: String
@@ -224,7 +225,6 @@ input UpdateDegreeInput {
 
 input UpdateDegreeScheduleInput {
   id: Int!
-  plannerId: Int
   semesterId: Int
 }
 

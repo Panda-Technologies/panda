@@ -91,7 +91,6 @@ export const CREATE_DEGREE_SCHEDULE_MUTATION = gql`
     createDegreeSchedule(input: $input) {
       id
       userId
-      plannerId
       degreeId
       semesterId
     }

@@ -106,10 +106,7 @@ export type CreateDegreeScheduleMutationVariables = Types.Exact<{
 
 export type CreateDegreeScheduleMutation = {
   createDegreeSchedule?: Types.Maybe<
-    Pick<
-      Types.DegreeSchedule,
-      "id" | "userId" | "plannerId" | "degreeId" | "semesterId"
-    >
+    Pick<Types.DegreeSchedule, "id" | "userId" | "degreeId" | "semesterId">
   >;
 };
 
@@ -234,7 +231,7 @@ export type GetUserQuery = {
       degreeSchedules?: Types.Maybe<
         Array<
           Types.Maybe<
-            Pick<Types.DegreeSchedule, "id" | "plannerId" | "semesterId"> & {
+            Pick<Types.DegreeSchedule, "id" | "semesterId"> & {
               entries?: Types.Maybe<
                 Array<
                   Types.Maybe<
@@ -331,7 +328,7 @@ export type GetDegreeSchedulesQuery = {
       Types.Maybe<
         Pick<
           Types.DegreeSchedule,
-          "id" | "userId" | "plannerId" | "degreeId" | "semesterId"
+          "id" | "userId" | "degreeId" | "semesterId"
         > & {
           entries?: Types.Maybe<
             Array<

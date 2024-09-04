@@ -94,7 +94,6 @@ model Class {
 model DegreeSchedule {
   id         Int                   @id @unique @default(autoincrement())
   userId     String
-  plannerId  Int
   degreeId   Int
   semesterId Int
   user       User                  @relation(fields: [userId], references: [id])

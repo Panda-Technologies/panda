@@ -39,7 +39,6 @@ export const GET_USER_QUERY = gql`
       }
       degreeSchedules {
         id
-        plannerId
         semesterId
         entries {
           id
@@ -108,7 +107,6 @@ export const GET_DEGREE_SCHEDULES_QUERY = gql`
     getDegreeSchedules(userId: $userId) {
       id
       userId
-      plannerId
       degreeId
       semesterId
       entries {

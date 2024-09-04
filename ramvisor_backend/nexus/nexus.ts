@@ -28,6 +28,7 @@ export interface NexusGenInputs {
     coreDegreeId: number; // Int!
     courseType: string; // String!
     dayOfWeek: string; // String!
+    electiveDegreeId: Array<number | null>; // [Int]!
     endTime: string; // String!
     professor: string; // String!
     rateMyProfessorRating: number; // Float!
@@ -45,7 +46,6 @@ export interface NexusGenInputs {
   }
   CreateDegreeScheduleInput: { // input type
     degreeId: number; // Int!
-    plannerId: number; // Int!
     semesterId: number; // Int!
     userId: string; // String!
   }
@@ -89,6 +89,7 @@ export interface NexusGenInputs {
     coreDegreeId?: number | null; // Int
     courseType?: string | null; // String
     dayOfWeek?: string | null; // String
+    electiveDegreeId?: Array<number | null> | null; // [Int]
     endTime?: string | null; // String
     id: number; // Int!
     professor?: string | null; // String
@@ -108,7 +109,6 @@ export interface NexusGenInputs {
   }
   UpdateDegreeScheduleInput: { // input type
     id: number; // Int!
-    plannerId?: number | null; // Int
     semesterId?: number | null; // Int
   }
   UpdateTaskFields: { // input type
@@ -144,6 +144,7 @@ export interface NexusGenObjects {
     coreDegreeId: number; // Int!
     courseType: string; // String!
     dayOfWeek: string; // String!
+    electiveDegreeId?: Array<number | null> | null; // [Int]
     endTime: string; // String!
     id: number; // Int!
     professor: string; // String!
@@ -178,7 +179,6 @@ export interface NexusGenObjects {
     degreeId: number; // Int!
     entries?: Array<NexusGenRootTypes['DegreeScheduleEntry'] | null> | null; // [DegreeScheduleEntry]
     id: number; // Int!
-    plannerId: number; // Int!
     semesterId: number; // Int!
     user?: NexusGenRootTypes['User'] | null; // User
     userId: string; // String!
@@ -236,6 +236,7 @@ export interface NexusGenFieldTypes {
     coreDegreeId: number; // Int!
     courseType: string; // String!
     dayOfWeek: string; // String!
+    electiveDegreeId: Array<number | null> | null; // [Int]
     endTime: string; // String!
     id: number; // Int!
     professor: string; // String!
@@ -270,7 +271,6 @@ export interface NexusGenFieldTypes {
     degreeId: number; // Int!
     entries: Array<NexusGenRootTypes['DegreeScheduleEntry'] | null> | null; // [DegreeScheduleEntry]
     id: number; // Int!
-    plannerId: number; // Int!
     semesterId: number; // Int!
     user: NexusGenRootTypes['User'] | null; // User
     userId: string; // String!
@@ -354,6 +354,7 @@ export interface NexusGenFieldTypeNames {
     coreDegreeId: 'Int'
     courseType: 'String'
     dayOfWeek: 'String'
+    electiveDegreeId: 'Int'
     endTime: 'String'
     id: 'Int'
     professor: 'String'
@@ -388,7 +389,6 @@ export interface NexusGenFieldTypeNames {
     degreeId: 'Int'
     entries: 'DegreeScheduleEntry'
     id: 'Int'
-    plannerId: 'Int'
     semesterId: 'Int'
     user: 'User'
     userId: 'String'

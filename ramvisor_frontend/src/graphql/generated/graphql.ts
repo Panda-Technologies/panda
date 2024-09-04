@@ -47,6 +47,7 @@ export type Class = {
   coreDegreeId: Scalars["Int"]["output"];
   courseType: Scalars["String"]["output"];
   dayOfWeek: Scalars["String"]["output"];
+  electiveDegreeId?: Maybe<Array<Maybe<Scalars["Int"]["output"]>>>;
   endTime: Scalars["String"]["output"];
   id: Scalars["Int"]["output"];
   professor: Scalars["String"]["output"];
@@ -79,6 +80,7 @@ export type CreateClassInput = {
   coreDegreeId: Scalars["Int"]["input"];
   courseType: Scalars["String"]["input"];
   dayOfWeek: Scalars["String"]["input"];
+  electiveDegreeId: Array<InputMaybe<Scalars["Int"]["input"]>>;
   endTime: Scalars["String"]["input"];
   professor: Scalars["String"]["input"];
   rateMyProfessorRating: Scalars["Float"]["input"];
@@ -99,7 +101,6 @@ export type CreateDegreeInput = {
 
 export type CreateDegreeScheduleInput = {
   degreeId: Scalars["Int"]["input"];
-  plannerId: Scalars["Int"]["input"];
   semesterId: Scalars["Int"]["input"];
   userId: Scalars["String"]["input"];
 };
@@ -124,7 +125,6 @@ export type DegreeSchedule = {
   degreeId: Scalars["Int"]["output"];
   entries?: Maybe<Array<Maybe<DegreeScheduleEntry>>>;
   id: Scalars["Int"]["output"];
-  plannerId: Scalars["Int"]["output"];
   semesterId: Scalars["Int"]["output"];
   user?: Maybe<User>;
   userId: Scalars["String"]["output"];
@@ -368,6 +368,7 @@ export type UpdateClassInput = {
   coreDegreeId?: InputMaybe<Scalars["Int"]["input"]>;
   courseType?: InputMaybe<Scalars["String"]["input"]>;
   dayOfWeek?: InputMaybe<Scalars["String"]["input"]>;
+  electiveDegreeId?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
   endTime?: InputMaybe<Scalars["String"]["input"]>;
   id: Scalars["Int"]["input"];
   professor?: InputMaybe<Scalars["String"]["input"]>;
@@ -390,7 +391,6 @@ export type UpdateDegreeInput = {
 
 export type UpdateDegreeScheduleInput = {
   id: Scalars["Int"]["input"];
-  plannerId?: InputMaybe<Scalars["Int"]["input"]>;
   semesterId?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
@@ -554,7 +554,6 @@ export type CreateDegreeScheduleMutation = {
     __typename?: "DegreeSchedule";
     id: number;
     userId: string;
-    plannerId: number;
     degreeId: number;
     semesterId: number;
   } | null;
@@ -678,7 +677,6 @@ export type GetUserQuery = {
     degreeSchedules?: Array<{
       __typename?: "DegreeSchedule";
       id: number;
-      plannerId: number;
       semesterId: number;
       entries?: Array<{
         __typename?: "DegreeScheduleEntry";
@@ -762,7 +760,6 @@ export type GetDegreeSchedulesQuery = {
     __typename?: "DegreeSchedule";
     id: number;
     userId: string;
-    plannerId: number;
     degreeId: number;
     semesterId: number;
     entries?: Array<{
@@ -1506,7 +1503,6 @@ export const CreateDegreeScheduleDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "userId" } },
-                { kind: "Field", name: { kind: "Name", value: "plannerId" } },
                 { kind: "Field", name: { kind: "Name", value: "degreeId" } },
                 { kind: "Field", name: { kind: "Name", value: "semesterId" } },
               ],
@@ -1966,10 +1962,6 @@ export const GetUserDocument = {
                       { kind: "Field", name: { kind: "Name", value: "id" } },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "plannerId" },
-                      },
-                      {
-                        kind: "Field",
                         name: { kind: "Name", value: "semesterId" },
                       },
                       {
@@ -2236,7 +2228,6 @@ export const GetDegreeSchedulesDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "userId" } },
-                { kind: "Field", name: { kind: "Name", value: "plannerId" } },
                 { kind: "Field", name: { kind: "Name", value: "degreeId" } },
                 { kind: "Field", name: { kind: "Name", value: "semesterId" } },
                 {

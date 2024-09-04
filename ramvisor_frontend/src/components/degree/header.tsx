@@ -1,15 +1,18 @@
 "use client";
 
+import { DegreeSchedule } from "@app/degree/page";
 import { Card } from "antd";
-import React, { PropsWithChildren } from "react";
+import React from "react";
 
 type Props = {
   isPremium: boolean;
+  gradSemesterId: number;
   setShowNewPlannerModal: (isActive: boolean) => void;
   saveCurrentPlanner: () => void;
   setShowAIPlanModal: (isActive: boolean) => void;
   resetPlanner: () => void;
-  findPlanner: () => void;
+  getPlanners: () => DegreeSchedule[];
+  loadPlanner: (selectedPlannerId: number) => void;
 };
 
 const DegreeHeader = ({
@@ -18,8 +21,13 @@ const DegreeHeader = ({
   saveCurrentPlanner,
   setShowAIPlanModal,
   resetPlanner,
-  findPlanner,
+  getPlanners,
+  loadPlanner,
+  gradSemesterId,
 }: Props) => {
+  const [activePlanner, setActivePlanner] =
+    React.useState<DegreeSchedule | null>(null);
+
   return (
     <div
       style={{
@@ -71,6 +79,9 @@ const DegreeHeader = ({
               color: "white",
               borderRadius: "4px",
               fontWeight: 500,
+              borderTopRightRadius: "0.375rem",
+              borderTopLeftRadius: "0.375rem",
+              borderBottomLeftRadius: "0.375rem",
             }}
           >
             New Planner
@@ -83,6 +94,9 @@ const DegreeHeader = ({
               backgroundColor: "#10B981",
               color: "white",
               borderRadius: "4px",
+              borderTopRightRadius: "0.375rem",
+              borderTopLeftRadius: "0.375rem",
+              borderBottomLeftRadius: "0.375rem",
             }}
           >
             Save Planner
@@ -95,6 +109,9 @@ const DegreeHeader = ({
               backgroundColor: "#10B981",
               color: "white",
               borderRadius: "4px",
+              borderTopRightRadius: "0.375rem",
+              borderTopLeftRadius: "0.375rem",
+              borderBottomLeftRadius: "0.375rem",
             }}
           >
             Generate AI Plan
@@ -107,12 +124,33 @@ const DegreeHeader = ({
               backgroundColor: "#EF4444",
               color: "white",
               borderRadius: "4px",
+              borderTopRightRadius: "0.375rem",
+              borderTopLeftRadius: "0.375rem",
+              borderBottomLeftRadius: "0.375rem",
             }}
           >
             Reset
           </button>
-          <select>
-
+          <select
+            value={activePlanner ? activePlanner.id.toString() : ""}
+            onChange={(queryObj) => {
+              loadPlanner(Number(queryObj.target.value));
+            }}
+            style={{
+              marginRight: "8px",
+              padding: "4px 8px",
+              backgroundColor: "white",
+              color: "#1F2937",
+              borderRadius: "4px",
+            }}
+            aria-label="Select a planner"
+          >
+            <option value="">Select a planner</option>
+            {getPlanners().map((planner) => (
+              <option key={planner.id} value={planner.id.toString()}>
+                {planner.id.toString()}
+              </option>
+            ))}
           </select>
         </div>
       )}

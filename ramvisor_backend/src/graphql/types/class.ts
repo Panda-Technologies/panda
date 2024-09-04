@@ -14,6 +14,7 @@ export const Class = objectType({
     t.nonNull.string('professor');
     t.nonNull.float('rateMyProfessorRating');
     t.nonNull.int('coreDegreeId');
+    t.list.int('electiveDegreeId');
     t.list.field('classSchedules', { type: 'ClassSchedule' });
   },
 });
@@ -31,6 +32,7 @@ export const CreateClassInput = inputObjectType({
     t.nonNull.string('professor');
     t.nonNull.float('rateMyProfessorRating');
     t.nonNull.int('coreDegreeId');
+    t.nonNull.list.int('electiveDegreeId');
   },
 });
 
@@ -48,6 +50,7 @@ export const UpdateClassInput = inputObjectType({
     t.string('professor');
     t.float('rateMyProfessorRating');
     t.int('coreDegreeId');
+    t.list.int('electiveDegreeId');
   },
 });
 

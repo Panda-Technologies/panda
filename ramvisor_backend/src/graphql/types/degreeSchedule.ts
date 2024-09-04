@@ -13,7 +13,6 @@ export const DegreeSchedule = objectType({
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.string("userId");
-    t.nonNull.int("plannerId");
     t.nonNull.int("degreeId");
     t.nonNull.int("semesterId");
     t.field("user", { type: "User" });
@@ -37,7 +36,6 @@ export const CreateDegreeScheduleInput = inputObjectType({
   name: "CreateDegreeScheduleInput",
   definition(t) {
     t.nonNull.string("userId");
-    t.nonNull.int("plannerId");
     t.nonNull.int("degreeId");
     t.nonNull.int("semesterId");
   },
@@ -47,7 +45,6 @@ export const UpdateDegreeScheduleInput = inputObjectType({
   name: "UpdateDegreeScheduleInput",
   definition(t) {
     t.nonNull.int("id");
-    t.int("plannerId");
     t.int("semesterId");
   },
 });

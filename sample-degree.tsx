@@ -1734,7 +1734,7 @@ const DegreePlanning: React.FC = () => {
                 style={{
                   marginRight: "8px",
                   padding: "4px 8px",
-                  backgroundColor: "#8B5CF6",
+                  backgroundColor: "#10B981",
                   color: "white",
                   borderRadius: "4px",
                 }}

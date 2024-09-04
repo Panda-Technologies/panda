@@ -4,6 +4,7 @@ import { GetFieldsFromList } from "@refinedev/nestjs-query";
 import { DashboardDealsChartQuery } from "@/graphql/types";
 
 import nookies from "nookies";
+import { Class, Degree } from "@graphql/generated/graphql";
 
 type DealStage = GetFieldsFromList<DashboardDealsChartQuery>;
 
@@ -76,10 +77,17 @@ export const getUserId = (): string => {
   return cookies['user-id'];
 }
 
-export const getClassColor = (classCode: string): string => {
-  // This is a simple example. You might want to implement a more sophisticated
-  // color selection based on your specific class codes.
-  const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33F1', '#33FFF1'];
-  const index = classCode.charCodeAt(0) % colors.length;
-  return colors[index];
+export const getClassColor = (course: Class, degree: Degree): React.CSSProperties => {
+  const colors: { [key: string]: React.CSSProperties } = {
+    core: { backgroundColor: "#e9d5ff", color: "#581c87" },
+    prerequisite: { backgroundColor: "#fce7f3", color: "#831843" },
+    elective: { backgroundColor: "#dbeafe", color: "#1e3a8a" },
+    default: { backgroundColor: "#e0e7ff", color: "#312e81" },
+  };
+
+  if (!course.electiveDegreeId || course.electiveDegreeId.length === 0) return colors.default;
+  if (course.coreDegreeId === degree.id) return colors.core;
+  if (course.electiveDegreeId.includes(degree.id)) return colors.elective;
+
+  return colors.default;
 };

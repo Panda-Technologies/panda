@@ -44,6 +44,7 @@ export type Class = {
   coreDegreeId: Scalars["Int"]["output"];
   courseType: Scalars["String"]["output"];
   dayOfWeek: Scalars["String"]["output"];
+  electiveDegreeId?: Maybe<Array<Maybe<Scalars["Int"]["output"]>>>;
   endTime: Scalars["String"]["output"];
   id: Scalars["Int"]["output"];
   professor: Scalars["String"]["output"];
@@ -74,6 +75,7 @@ export type CreateClassInput = {
   coreDegreeId: Scalars["Int"]["input"];
   courseType: Scalars["String"]["input"];
   dayOfWeek: Scalars["String"]["input"];
+  electiveDegreeId: Array<InputMaybe<Scalars["Int"]["input"]>>;
   endTime: Scalars["String"]["input"];
   professor: Scalars["String"]["input"];
   rateMyProfessorRating: Scalars["Float"]["input"];
@@ -94,7 +96,6 @@ export type CreateDegreeInput = {
 
 export type CreateDegreeScheduleInput = {
   degreeId: Scalars["Int"]["input"];
-  plannerId: Scalars["Int"]["input"];
   semesterId: Scalars["Int"]["input"];
   userId: Scalars["String"]["input"];
 };
@@ -117,7 +118,6 @@ export type DegreeSchedule = {
   degreeId: Scalars["Int"]["output"];
   entries?: Maybe<Array<Maybe<DegreeScheduleEntry>>>;
   id: Scalars["Int"]["output"];
-  plannerId: Scalars["Int"]["output"];
   semesterId: Scalars["Int"]["output"];
   user?: Maybe<User>;
   userId: Scalars["String"]["output"];
@@ -357,6 +357,7 @@ export type UpdateClassInput = {
   coreDegreeId?: InputMaybe<Scalars["Int"]["input"]>;
   courseType?: InputMaybe<Scalars["String"]["input"]>;
   dayOfWeek?: InputMaybe<Scalars["String"]["input"]>;
+  electiveDegreeId?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
   endTime?: InputMaybe<Scalars["String"]["input"]>;
   id: Scalars["Int"]["input"];
   professor?: InputMaybe<Scalars["String"]["input"]>;
@@ -379,7 +380,6 @@ export type UpdateDegreeInput = {
 
 export type UpdateDegreeScheduleInput = {
   id: Scalars["Int"]["input"];
-  plannerId?: InputMaybe<Scalars["Int"]["input"]>;
   semesterId?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
