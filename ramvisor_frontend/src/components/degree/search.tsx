@@ -1,5 +1,6 @@
 import { Class } from "@app/degree/page";
 import React from "react";
+import { SortableCourse } from "./sortable-course";
 
 type Props = {
   handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
