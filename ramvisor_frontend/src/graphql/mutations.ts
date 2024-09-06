@@ -86,13 +86,48 @@ export const REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION = gql`
   }
 `;
 
+export const CREATE_DEGREE_PLANNER_MUTATION = gql`
+  mutation CreateDegreePlanner($input: CreateDegreePlannerInput!) {
+    createDegreePlanner(input: $input) {
+      id
+      userId
+      degreeId
+    }
+  }
+`;
+
+export const DELETE_DEGREE_PLANNER_MUTATION = gql`
+  mutation DeleteDegreePlanner($id: Int!) {
+    deleteDegreePlanner(id: $id) {
+      id
+    }
+  }
+`;
+
 export const CREATE_DEGREE_SCHEDULE_MUTATION = gql`
   mutation CreateDegreeSchedule($input: CreateDegreeScheduleInput!) {
     createDegreeSchedule(input: $input) {
       id
-      userId
       degreeId
       semesterId
+      plannerId
+    }
+  }
+`;
+
+export const UPDATE_DEGREE_SCHEDULE_MUTATION = gql`
+  mutation UpdateDegreeSchedule($input: UpdateDegreeScheduleInput!) {
+    updateDegreeSchedule(input: $input) {
+      id
+      semesterId
+    }
+  }
+`;
+
+export const DELETE_DEGREE_SCHEDULE_MUTATION = gql`
+  mutation DeleteDegreeSchedule($id: Int!) {
+    deleteDegreeSchedule(id: $id) {
+      id
     }
   }
 `;
@@ -114,6 +149,7 @@ export const REMOVE_CLASS_FROM_DEGREE_SCHEDULE_MUTATION = gql`
     }
   }
 `;
+
 
 export const CREATE_TASK_MUTATION = gql`
   mutation CreateTask($input: CreateTaskInput!) {

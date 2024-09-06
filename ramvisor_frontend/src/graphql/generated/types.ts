@@ -100,14 +100,50 @@ export type RemoveClassFromClassScheduleMutation = {
   >;
 };
 
+export type CreateDegreePlannerMutationVariables = Types.Exact<{
+  input: Types.CreateDegreePlannerInput;
+}>;
+
+export type CreateDegreePlannerMutation = {
+  createDegreePlanner?: Types.Maybe<
+    Pick<Types.DegreePlanner, "id" | "userId" | "degreeId">
+  >;
+};
+
+export type DeleteDegreePlannerMutationVariables = Types.Exact<{
+  id: Types.Scalars["Int"]["input"];
+}>;
+
+export type DeleteDegreePlannerMutation = {
+  deleteDegreePlanner?: Types.Maybe<Pick<Types.DegreePlanner, "id">>;
+};
+
 export type CreateDegreeScheduleMutationVariables = Types.Exact<{
   input: Types.CreateDegreeScheduleInput;
 }>;
 
 export type CreateDegreeScheduleMutation = {
   createDegreeSchedule?: Types.Maybe<
-    Pick<Types.DegreeSchedule, "id" | "userId" | "degreeId" | "semesterId">
+    Pick<Types.DegreeSchedule, "id" | "degreeId" | "semesterId" | "plannerId">
   >;
+};
+
+export type UpdateDegreeScheduleMutationVariables = Types.Exact<{
+  input: Types.UpdateDegreeScheduleInput;
+}>;
+
+export type UpdateDegreeScheduleMutation = {
+  updateDegreeSchedule?: Types.Maybe<
+    Pick<Types.DegreeSchedule, "id" | "semesterId">
+  >;
+};
+
+export type DeleteDegreeScheduleMutationVariables = Types.Exact<{
+  id: Types.Scalars["Int"]["input"];
+}>;
+
+export type DeleteDegreeScheduleMutation = {
+  deleteDegreeSchedule?: Types.Maybe<Pick<Types.DegreeSchedule, "id">>;
 };
 
 export type AddClassToDegreeScheduleMutationVariables = Types.Exact<{
@@ -318,18 +354,49 @@ export type GetClassSchedulesQuery = {
   >;
 };
 
-export type GetDegreeSchedulesQueryVariables = Types.Exact<{
+export type GetDegreePlannersQueryVariables = Types.Exact<{
   userId: Types.Scalars["String"]["input"];
+}>;
+
+export type GetDegreePlannersQuery = {
+  getDegreePlanners?: Types.Maybe<
+    Array<
+      Types.Maybe<
+        Pick<Types.DegreePlanner, "id" | "userId" | "degreeId"> & {
+          degreeSchedule?: Types.Maybe<
+            Array<
+              Types.Maybe<
+                Pick<Types.DegreeSchedule, "id" | "degreeId" | "semesterId"> & {
+                  entries?: Types.Maybe<
+                    Array<
+                      Types.Maybe<
+                        Pick<Types.DegreeScheduleEntry, "id" | "classId"> & {
+                          class?: Types.Maybe<
+                            Pick<Types.Class, "id" | "classCode" | "title">
+                          >;
+                        }
+                      >
+                    >
+                  >;
+                }
+              >
+            >
+          >;
+        }
+      >
+    >
+  >;
+};
+
+export type GetDegreeSchedulesQueryVariables = Types.Exact<{
+  plannerId: Types.Scalars["Int"]["input"];
 }>;
 
 export type GetDegreeSchedulesQuery = {
   getDegreeSchedules?: Types.Maybe<
     Array<
       Types.Maybe<
-        Pick<
-          Types.DegreeSchedule,
-          "id" | "userId" | "degreeId" | "semesterId"
-        > & {
+        Pick<Types.DegreeSchedule, "id" | "degreeId" | "semesterId"> & {
           entries?: Types.Maybe<
             Array<
               Types.Maybe<

@@ -94,10 +94,15 @@ export type CreateDegreeInput = {
   numberOfElectives: Scalars["Int"]["input"];
 };
 
+export type CreateDegreePlannerInput = {
+  degreeId: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
+};
+
 export type CreateDegreeScheduleInput = {
   degreeId: Scalars["Int"]["input"];
+  plannerId: Scalars["Int"]["input"];
   semesterId: Scalars["String"]["input"];
-  userId: Scalars["String"]["input"];
 };
 
 export type CreateTaskInput = {
@@ -113,14 +118,22 @@ export type Degree = {
   users?: Maybe<Array<Maybe<User>>>;
 };
 
-export type DegreeSchedule = {
+export type DegreePlanner = {
   degree?: Maybe<Degree>;
   degreeId: Scalars["Int"]["output"];
-  entries?: Maybe<Array<Maybe<DegreeScheduleEntry>>>;
+  degreeSchedule?: Maybe<Array<Maybe<DegreeSchedule>>>;
   id: Scalars["Int"]["output"];
-  semesterId: Scalars["String"]["output"];
   user?: Maybe<User>;
   userId: Scalars["String"]["output"];
+};
+
+export type DegreeSchedule = {
+  degreeId: Scalars["Int"]["output"];
+  degreePlanner?: Maybe<DegreePlanner>;
+  entries?: Maybe<Array<Maybe<DegreeScheduleEntry>>>;
+  id: Scalars["Int"]["output"];
+  plannerId: Scalars["Int"]["output"];
+  semesterId: Scalars["String"]["output"];
 };
 
 export type DegreeScheduleEntry = {
@@ -154,11 +167,13 @@ export type Mutation = {
   createClass?: Maybe<Class>;
   createClassSchedule?: Maybe<ClassSchedule>;
   createDegree?: Maybe<Degree>;
+  createDegreePlanner?: Maybe<DegreePlanner>;
   createDegreeSchedule?: Maybe<DegreeSchedule>;
   createTask?: Maybe<Task>;
   deleteClass?: Maybe<Class>;
   deleteClassSchedule?: Maybe<ClassSchedule>;
   deleteDegree?: Maybe<Degree>;
+  deleteDegreePlanner?: Maybe<DegreePlanner>;
   deleteDegreeSchedule?: Maybe<DegreeSchedule>;
   deleteTask?: Maybe<Task>;
   login?: Maybe<Scalars["String"]["output"]>;
@@ -195,6 +210,10 @@ export type MutationCreateDegreeArgs = {
   input: CreateDegreeInput;
 };
 
+export type MutationCreateDegreePlannerArgs = {
+  input: CreateDegreePlannerInput;
+};
+
 export type MutationCreateDegreeScheduleArgs = {
   input: CreateDegreeScheduleInput;
 };
@@ -213,6 +232,10 @@ export type MutationDeleteClassScheduleArgs = {
 
 export type MutationDeleteDegreeArgs = {
   input: DeleteDegreeInput;
+};
+
+export type MutationDeleteDegreePlannerArgs = {
+  id: Scalars["Int"]["input"];
 };
 
 export type MutationDeleteDegreeScheduleArgs = {
@@ -280,6 +303,7 @@ export type Query = {
   getClassSchedules?: Maybe<Array<Maybe<ClassSchedule>>>;
   getClasses?: Maybe<Array<Maybe<Class>>>;
   getDegree?: Maybe<Degree>;
+  getDegreePlanners?: Maybe<Array<Maybe<DegreePlanner>>>;
   getDegreeScheduleEntries?: Maybe<Array<Maybe<DegreeScheduleEntry>>>;
   getDegreeSchedules?: Maybe<Array<Maybe<DegreeSchedule>>>;
   getTasks?: Maybe<Array<Maybe<Task>>>;
@@ -302,12 +326,16 @@ export type QueryGetDegreeArgs = {
   id: Scalars["Int"]["input"];
 };
 
+export type QueryGetDegreePlannersArgs = {
+  userId: Scalars["String"]["input"];
+};
+
 export type QueryGetDegreeScheduleEntriesArgs = {
   degreeScheduleId: Scalars["Int"]["input"];
 };
 
 export type QueryGetDegreeSchedulesArgs = {
-  userId: Scalars["String"]["input"];
+  plannerId: Scalars["Int"]["input"];
 };
 
 export type QueryGetTasksArgs = {

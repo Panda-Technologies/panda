@@ -1,13 +1,9 @@
 import React from 'react'
 
-interface Planner {
-    id: number;
-    name: string;
-    userId: string;
-}
-
-const planner = () => {
+const Planner = () => {
   return (
     <div>planner</div>
   )
 }
+
+export default Planner

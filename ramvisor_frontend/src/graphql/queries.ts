@@ -102,11 +102,34 @@ export const GET_CLASS_SCHEDULES_QUERY = gql`
   }
 `;
 
-export const GET_DEGREE_SCHEDULES_QUERY = gql`
-  query GetDegreeSchedules($userId: String!) {
-    getDegreeSchedules(userId: $userId) {
+export const GET_DEGREE_PLANNERS_QUERY = gql`
+  query GetDegreePlanners($userId: String!) {
+    getDegreePlanners(userId: $userId) {
       id
       userId
+      degreeId
+      degreeSchedule {
+        id
+        degreeId
+        semesterId
+        entries {
+          id
+          classId
+          class {
+            id
+            classCode
+            title
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_DEGREE_SCHEDULES_QUERY = gql`
+  query GetDegreeSchedules($plannerId: Int!) {
+    getDegreeSchedules(plannerId: $plannerId) {
+      id
       degreeId
       semesterId
       entries {

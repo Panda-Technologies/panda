@@ -20,7 +20,6 @@ type Props = {
 
 export const SortableCourse = ({
   course,
-  semesterId,
   onRemoveFromSemester,
   DegreeSchedules,
   degree,
@@ -29,6 +28,19 @@ export const SortableCourse = ({
     useSortable({
       id: course.id,
     });
+
+  const getSemesterId = () => {
+    if (DegreeSchedules) {
+      for (const schedule of DegreeSchedules) {
+        if (schedule.entries?.find((entry) => entry?.classId === course.id)) {
+          return schedule.semesterId;
+        }
+      }
+    }
+    return null;
+  };
+
+  const semesterId = getSemesterId();
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -50,7 +62,7 @@ export const SortableCourse = ({
   };
 
   const getClassStatus = () => {
-    if (semesterId && DegreeSchedules) {
+    if (DegreeSchedules) {
       for (const schedule of DegreeSchedules) {
         if (schedule.entries?.find((entry) => entry?.classId === course.id)) {
           return `Already added to ${schedule.semesterId}`;
@@ -80,7 +92,7 @@ export const SortableCourse = ({
         </div>
         <div>
           <button
-            onclick={handleRemove}
+            onClick={handleRemove}
             style={{
               padding: "0 4px",
               color: "#dc2626",
@@ -88,9 +100,44 @@ export const SortableCourse = ({
               background: "none",
               border: "none",
             }}
-          ></button>
+          >
+            ×
+          </button>
         </div>
       </div>
     );
   }
+
+  return (
+    <div
+      style={{
+        marginBottom: "8px",
+        borderRadius: "8px",
+        overflow: "hidden",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      <div
+        ref={setNodeRef}
+        {...attributes}
+        {...listeners}
+        style={{ ...style, padding: "8px", cursor: "move" }}
+      >
+        <span style={{ fontWeight: 'bold' }}>{course.classCode}</span>
+      </div>
+      <div style={{ padding: '8px', backgroundColor: 'white', color: '#374151' }}>
+        <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>
+          {course.title}
+        </div>
+        <div style={{ fontSize: '12px', color: '#2563eb' }}>
+          {course.courseType}
+        </div>
+        {status && (
+          <div style={{ fontSize: '12px', color: '#d97706', marginTop: '4px' }}>
+            {status}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
