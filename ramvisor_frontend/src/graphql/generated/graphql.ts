@@ -60,7 +60,7 @@ export type ClassSchedule = {
   __typename?: "ClassSchedule";
   entries?: Maybe<Array<Maybe<ClassScheduleEntry>>>;
   id: Scalars["Int"]["output"];
-  semesterId: Scalars["Int"]["output"];
+  semesterId: Scalars["String"]["output"];
   user?: Maybe<User>;
   userId: Scalars["String"]["output"];
 };
@@ -89,7 +89,7 @@ export type CreateClassInput = {
 };
 
 export type CreateClassScheduleInput = {
-  semesterId: Scalars["Int"]["input"];
+  semesterId: Scalars["String"]["input"];
   userId: Scalars["String"]["input"];
 };
 
@@ -101,7 +101,7 @@ export type CreateDegreeInput = {
 
 export type CreateDegreeScheduleInput = {
   degreeId: Scalars["Int"]["input"];
-  semesterId: Scalars["Int"]["input"];
+  semesterId: Scalars["String"]["input"];
   userId: Scalars["String"]["input"];
 };
 
@@ -125,7 +125,7 @@ export type DegreeSchedule = {
   degreeId: Scalars["Int"]["output"];
   entries?: Maybe<Array<Maybe<DegreeScheduleEntry>>>;
   id: Scalars["Int"]["output"];
-  semesterId: Scalars["Int"]["output"];
+  semesterId: Scalars["String"]["output"];
   user?: Maybe<User>;
   userId: Scalars["String"]["output"];
 };
@@ -379,7 +379,7 @@ export type UpdateClassInput = {
 
 export type UpdateClassScheduleInput = {
   id: Scalars["Int"]["input"];
-  semesterId?: InputMaybe<Scalars["Int"]["input"]>;
+  semesterId?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type UpdateDegreeInput = {
@@ -391,7 +391,7 @@ export type UpdateDegreeInput = {
 
 export type UpdateDegreeScheduleInput = {
   id: Scalars["Int"]["input"];
-  semesterId?: InputMaybe<Scalars["Int"]["input"]>;
+  semesterId?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type UpdateTaskFields = {
@@ -514,7 +514,7 @@ export type CreateClassScheduleMutation = {
     __typename?: "ClassSchedule";
     id: number;
     userId: string;
-    semesterId: number;
+    semesterId: string;
   } | null;
 };
 
@@ -555,7 +555,7 @@ export type CreateDegreeScheduleMutation = {
     id: number;
     userId: string;
     degreeId: number;
-    semesterId: number;
+    semesterId: string;
   } | null;
 };
 
@@ -656,7 +656,7 @@ export type GetUserQuery = {
     classSchedules?: Array<{
       __typename?: "ClassSchedule";
       id: number;
-      semesterId: number;
+      semesterId: string;
       entries?: Array<{
         __typename?: "ClassScheduleEntry";
         id: number;
@@ -677,7 +677,7 @@ export type GetUserQuery = {
     degreeSchedules?: Array<{
       __typename?: "DegreeSchedule";
       id: number;
-      semesterId: number;
+      semesterId: string;
       entries?: Array<{
         __typename?: "DegreeScheduleEntry";
         id: number;
@@ -730,7 +730,7 @@ export type GetClassSchedulesQuery = {
     __typename?: "ClassSchedule";
     id: number;
     userId: string;
-    semesterId: number;
+    semesterId: string;
     entries?: Array<{
       __typename?: "ClassScheduleEntry";
       id: number;
@@ -761,7 +761,7 @@ export type GetDegreeSchedulesQuery = {
     id: number;
     userId: string;
     degreeId: number;
-    semesterId: number;
+    semesterId: string;
     entries?: Array<{
       __typename?: "DegreeScheduleEntry";
       id: number;

@@ -55,7 +55,7 @@ model Task {
 model ClassSchedule {
   id         Int               @id @unique @default(autoincrement())
   userId     String
-  semesterId Int
+  semesterId String
   user       User              @relation(fields: [userId], references: [id])
   entries    ClassScheduleEntry[]
 
@@ -95,7 +95,7 @@ model DegreeSchedule {
   id         Int                   @id @unique @default(autoincrement())
   userId     String
   degreeId   Int
-  semesterId Int
+  semesterId String
   user       User                  @relation(fields: [userId], references: [id])
   degree     Degree                @relation(fields: [degreeId], references: [id])
   entries    DegreeScheduleEntry[]

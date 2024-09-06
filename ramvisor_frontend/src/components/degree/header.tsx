@@ -1,6 +1,5 @@
 "use client";
-
-import { DegreeSchedule } from "@app/degree/page";
+import { DegreeSchedule } from "@graphql/generated/graphql";
 import { Card } from "antd";
 import React from "react";
 

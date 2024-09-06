@@ -8,11 +8,12 @@ import React from "react";
 import { CSS } from "@dnd-kit/utilities";
 import { getClassColor } from "@utilities/helpers";
 import { Class, Degree, DegreeSchedule } from "@graphql/generated/graphql";
+import { get } from "http";
 
 type Props = {
-  onRemoveFromSemester: (semesterId: number, courseId: number) => void;
+  onRemoveFromSemester: (semesterId: String, courseId: number) => void;
   course: Class;
-  semesterId?: number;
+  semesterId?: String;
   DegreeSchedules?: DegreeSchedule[];
   degree: Degree;
 };
@@ -48,12 +49,48 @@ export const SortableCourse = ({
     }
   };
 
-  const getScheduleInfo = () => {
+  const getClassStatus = () => {
     if (semesterId && DegreeSchedules) {
       for (const schedule of DegreeSchedules) {
         if (schedule.entries?.find((entry) => entry?.classId === course.id)) {
+          return `Already added to ${schedule.semesterId}`;
         }
       }
     }
+    return null;
   };
+
+  const status = getClassStatus();
+
+  if (semesterId) {
+    return (
+      <div style={style}>
+        <div
+          ref={setNodeRef}
+          {...attributes}
+          {...listeners}
+          style={{
+            flexGrow: 1,
+            padding: "4px",
+            cursor: "move",
+            fontSize: "12px",
+          }}
+        >
+          <span style={{ fontWeight: "bold" }}>{course.id}</span>
+        </div>
+        <div>
+          <button
+            onclick={handleRemove}
+            style={{
+              padding: "0 4px",
+              color: "#dc2626",
+              cursor: "pointer",
+              background: "none",
+              border: "none",
+            }}
+          ></button>
+        </div>
+      </div>
+    );
+  }
 };

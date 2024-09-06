@@ -1,14 +1,42 @@
 import { Class } from "@app/degree/page";
 import React from "react";
 import { SortableCourse } from "./sortable-course";
+import { BaseKey, useDelete } from "@refinedev/core";
+import { REMOVE_CLASS_FROM_DEGREE_SCHEDULE_MUTATION } from "@graphql/mutations";
+import { Degree, DegreeSchedule } from "@graphql/generated/graphql";
 
 type Props = {
   handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  getDegreeSchedules: () => DegreeSchedule[];
 };
 
-const DegreeSearch = ({ handleSearch }: Props) => {
+const DegreeSearch = ({ handleSearch, getDegreeSchedules }: Props) => {
   const [searchTerm, setSearchTerm] = React.useState<string>("");
   const [searchResults, setSearchResults] = React.useState<Class[]>([]);
+
+  const { mutate: removeClassFromSemester } = useDelete();
+
+  const getDegreeScheduleEntryId = (courseId: number) => {
+    const degreeSchedules: DegreeSchedule[] = getDegreeSchedules();
+    if (degreeSchedules) {
+    const entry = degreeSchedules.flatMap(schedule => schedule.entries).find(entry => entry?.classId === courseId);
+    return entry?.id;
+  }
+  };
+
+  const removeFromSemester = (semesterId: string, courseId: number) => {
+    removeClassFromSemester({
+      resource: "degree",
+      id: getDegreeScheduleEntryId(courseId) ?? "" as BaseKey,
+      values: {
+        id: getDegreeScheduleEntryId(courseId) ?? "" as BaseKey
+      },
+      meta: {
+        gqlMutation: REMOVE_CLASS_FROM_DEGREE_SCHEDULE_MUTATION
+      }
+    });
+  };
+
   return (
     <div
       style={{

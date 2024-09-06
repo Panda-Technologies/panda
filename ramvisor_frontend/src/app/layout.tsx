@@ -70,7 +70,7 @@ export default function RootLayout({
                       },
                   
                       {
-                          name: 'degree planner',
+                          name: 'degree',
                           list: '/degree',
                           meta: {
                               label: 'Degree Planner',

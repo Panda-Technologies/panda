@@ -2,6 +2,7 @@
 
 import DegreeHeader from "@components/degree/header";
 import DegreeSearch from "@components/degree/search";
+import { DegreeSchedule } from "@graphql/generated/graphql";
 import React from "react";
 
 type Props = {};
@@ -12,15 +13,6 @@ export interface Degree {
   numberOfCores: number;
   numberOfElectives: number;
 }
-
-export interface DegreeSchedule {
-  id: number;
-  semesterId: number;
-  degreeId: number;
-  degree: Degree;
-  entries: DegreeScheduleEntry[];
-}
-
 export interface DegreeScheduleEntry {
   id: number;
   degreeScheduleId: number;
@@ -45,7 +37,7 @@ export interface Class {
 }
 
 const DegreePage = (props: Props) => {
-  const getPlanners = () => {
+  const getPlanners = (): DegreeSchedule[] => {
     const planners: DegreeSchedule[] = [];
     return planners;
   };
@@ -63,7 +55,7 @@ const DegreePage = (props: Props) => {
         <DegreeHeader getPlanners={getPlanners} />
       </div>
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        <DegreeSearch />
+        <DegreeSearch getDegreeSchedules={getPlanners}/>
       </div>
     </>
   );

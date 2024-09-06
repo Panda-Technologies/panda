@@ -31,7 +31,7 @@ type Class {
 type ClassSchedule {
   entries: [ClassScheduleEntry]
   id: Int!
-  semesterId: Int!
+  semesterId: String!
   user: User
   userId: String!
 }
@@ -59,7 +59,7 @@ input CreateClassInput {
 }
 
 input CreateClassScheduleInput {
-  semesterId: Int!
+  semesterId: String!
   userId: String!
 }
 
@@ -71,7 +71,7 @@ input CreateDegreeInput {
 
 input CreateDegreeScheduleInput {
   degreeId: Int!
-  semesterId: Int!
+  semesterId: String!
   userId: String!
 }
 
@@ -93,7 +93,7 @@ type DegreeSchedule {
   degreeId: Int!
   entries: [DegreeScheduleEntry]
   id: Int!
-  semesterId: Int!
+  semesterId: String!
   user: User
   userId: String!
 }
@@ -213,7 +213,7 @@ input UpdateClassInput {
 
 input UpdateClassScheduleInput {
   id: Int!
-  semesterId: Int
+  semesterId: String
 }
 
 input UpdateDegreeInput {
@@ -225,7 +225,7 @@ input UpdateDegreeInput {
 
 input UpdateDegreeScheduleInput {
   id: Int!
-  semesterId: Int
+  semesterId: String
 }
 
 input UpdateTaskFields {
