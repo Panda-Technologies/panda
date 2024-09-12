@@ -7,11 +7,11 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["relationJoins"]
-  engineType = "binary"
+  engineType      = "binary"
 }
 
 generator nexusPrisma {
-  provider = "nexus-prisma"
+  provider   = "nexus-prisma"
   engineType = "binary"
 }
 
@@ -21,8 +21,8 @@ datasource db {
 }
 
 model User {
-  id                             String              @id @default(uuid())
-  email                          String           @unique
+  id                             String          @id @default(uuid())
+  email                          String          @unique
   password                       String
   university                     String?
   yearInUniversity               Int?
@@ -33,30 +33,30 @@ model User {
   assignmentCompletionPercentage Float?
   tasks                          Task[]
   classSchedule                  ClassSchedule[]
-  degreeSchedule                 DegreeSchedule[]
-  degree                         Degree?           @relation(fields: [degreeId], references: [id])
+  degreeSchedule                 DegreePlanner[]
+  degree                         Degree?         @relation(fields: [degreeId], references: [id])
+
   @@map("users")
 }
 
-
 model Task {
-  id          Int      @id @unique @default(autoincrement())
+  id          Int     @id @unique @default(autoincrement())
   userId      String
   dueDate     String?
   stageId     Int
   classCode   String?
   description String?
   title       String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User    @relation(fields: [userId], references: [id])
 
   @@map("tasks")
 }
 
 model ClassSchedule {
-  id         Int               @id @unique @default(autoincrement())
+  id         Int                  @id @unique @default(autoincrement())
   userId     String
   semesterId String
-  user       User              @relation(fields: [userId], references: [id])
+  user       User                 @relation(fields: [userId], references: [id])
   entries    ClassScheduleEntry[]
 
   @@map("class_schedules")
@@ -91,34 +91,42 @@ model Class {
   @@map("classes")
 }
 
+model DegreePlanner {
+  id             Int              @id @unique @default(autoincrement())
+  userId         String
+  degreeId       Int
+  user           User             @relation(fields: [userId], references: [id])
+  degree         Degree           @relation(fields: [degreeId], references: [id])
+  degreeSchedule DegreeSchedule[]
+}
+
 model DegreeSchedule {
-  id         Int                   @id @unique @default(autoincrement())
-  userId     String
-  degreeId   Int
-  semesterId String
-  user       User                  @relation(fields: [userId], references: [id])
-  degree     Degree                @relation(fields: [degreeId], references: [id])
-  entries    DegreeScheduleEntry[]
+  id            Int                   @id @unique @default(autoincrement())
+  degreeId      Int
+  semesterId    String
+  plannerId     Int
+  entries       DegreeScheduleEntry[]
+  degreePlanner DegreePlanner         @relation(fields: [plannerId], references: [id])
 
   @@map("degree_schedules")
 }
 
 model DegreeScheduleEntry {
-  id               Int           @id @unique @default(autoincrement())
+  id               Int            @id @unique @default(autoincrement())
   degreeScheduleId Int
   classId          Int
   degreeSchedule   DegreeSchedule @relation(fields: [degreeScheduleId], references: [id])
-  class            Class         @relation(fields: [classId], references: [id])
+  class            Class          @relation(fields: [classId], references: [id])
 
   @@map("degree_schedule_entries")
 }
 
 model Degree {
-  id                Int              @id @unique @default(autoincrement())
+  id                Int             @id @unique @default(autoincrement())
   name              String
   numberOfCores     Int
   numberOfElectives Int
-  degreeSchedules   DegreeSchedule[]
+  degreePlanners    DegreePlanner[]
   user              User[]
 
   @@map("degrees")

@@ -69,10 +69,15 @@ input CreateDegreeInput {
   numberOfElectives: Int!
 }
 
+input CreateDegreePlannerInput {
+  degreeId: Int!
+  userId: String!
+}
+
 input CreateDegreeScheduleInput {
   degreeId: Int!
+  plannerId: Int!
   semesterId: String!
-  userId: String!
 }
 
 input CreateTaskInput {
@@ -88,14 +93,22 @@ type Degree {
   users: [User]
 }
 
-type DegreeSchedule {
+type DegreePlanner {
   degree: Degree
   degreeId: Int!
-  entries: [DegreeScheduleEntry]
+  degreeSchedule: [DegreeSchedule]
   id: Int!
-  semesterId: String!
   user: User
   userId: String!
+}
+
+type DegreeSchedule {
+  degreeId: Int!
+  degreePlanner: DegreePlanner
+  entries: [DegreeScheduleEntry]
+  id: Int!
+  plannerId: Int!
+  semesterId: String!
 }
 
 type DegreeScheduleEntry {
@@ -129,11 +142,13 @@ type Mutation {
   createClass(input: CreateClassInput!): Class
   createClassSchedule(input: CreateClassScheduleInput!): ClassSchedule
   createDegree(input: CreateDegreeInput!): Degree
+  createDegreePlanner(input: CreateDegreePlannerInput!): DegreePlanner
   createDegreeSchedule(input: CreateDegreeScheduleInput!): DegreeSchedule
   createTask(input: CreateTaskInput): Task
   deleteClass(input: DeleteClassInput!): Class
   deleteClassSchedule(id: Int!): ClassSchedule
   deleteDegree(input: DeleteDegreeInput!): Degree
+  deleteDegreePlanner(id: Int!): DegreePlanner
   deleteDegreeSchedule(id: Int!): DegreeSchedule
   deleteTask(input: DeleteTaskInput): Task
   login(input: LoginInput!): String
@@ -157,8 +172,9 @@ type Query {
   getClassSchedules(userId: String!): [ClassSchedule]
   getClasses: [Class]
   getDegree(id: Int!): Degree
+  getDegreePlanners(userId: String!): [DegreePlanner]
   getDegreeScheduleEntries(degreeScheduleId: Int!): [DegreeScheduleEntry]
-  getDegreeSchedules(userId: String!): [DegreeSchedule]
+  getDegreeSchedules(plannerId: Int!): [DegreeSchedule]
   getTasks(userId: String!): [Task]
   getUser(id: String!): User
 }

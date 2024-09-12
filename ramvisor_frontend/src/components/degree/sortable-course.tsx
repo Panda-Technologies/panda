@@ -8,7 +8,6 @@ import React from "react";
 import { CSS } from "@dnd-kit/utilities";
 import { getClassColor } from "@utilities/helpers";
 import { Class, Degree, DegreeSchedule } from "@graphql/generated/graphql";
-import { get } from "http";
 
 type Props = {
   onRemoveFromSemester: (semesterId: String, courseId: number) => void;

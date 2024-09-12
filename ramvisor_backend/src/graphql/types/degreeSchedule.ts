@@ -8,15 +8,26 @@ import {
   stringArg,
 } from "nexus";
 
-export const DegreeSchedule = objectType({
-  name: "DegreeSchedule",
+export const DegreePlanner = objectType({
+  name: "DegreePlanner",
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.string("userId");
     t.nonNull.int("degreeId");
-    t.nonNull.string("semesterId");
     t.field("user", { type: "User" });
     t.field("degree", { type: "Degree" });
+    t.list.field("degreeSchedule", { type: "DegreeSchedule" });
+  },
+});
+
+export const DegreeSchedule = objectType({
+  name: "DegreeSchedule",
+  definition(t) {
+    t.nonNull.int("id");
+    t.nonNull.int("degreeId");
+    t.nonNull.string("semesterId");
+    t.nonNull.int("plannerId");
+    t.field("degreePlanner", { type: "DegreePlanner" });
     t.list.field("entries", { type: "DegreeScheduleEntry" });
   },
 });
@@ -32,12 +43,20 @@ export const DegreeScheduleEntry = objectType({
   },
 });
 
-export const CreateDegreeScheduleInput = inputObjectType({
-  name: "CreateDegreeScheduleInput",
+export const CreateDegreePlannerInput = inputObjectType({
+  name: "CreateDegreePlannerInput",
   definition(t) {
     t.nonNull.string("userId");
     t.nonNull.int("degreeId");
+  },
+});
+
+export const CreateDegreeScheduleInput = inputObjectType({
+  name: "CreateDegreeScheduleInput",
+  definition(t) {
+    t.nonNull.int("degreeId");
     t.nonNull.string("semesterId");
+    t.nonNull.int("plannerId");
   },
 });
 
@@ -64,17 +83,34 @@ export const RemoveClassFromDegreeScheduleInput = inputObjectType({
   },
 });
 
+export const DegreePlannerQuery = extendType({
+  type: "Query",
+  definition(t) {
+    t.list.field("getDegreePlanners", {
+      type: "DegreePlanner",
+      args: {
+        userId: nonNull(stringArg()),
+      },
+      resolve: (_, { userId }, { prisma }) =>
+        prisma.degreePlanner.findMany({
+          where: { userId },
+          include: { degreeSchedule: { include: { entries: { include: { class: true } } } } },
+        }),
+    });
+  },
+});
+
 export const DegreeScheduleQuery = extendType({
   type: "Query",
   definition(t) {
     t.list.field("getDegreeSchedules", {
       type: "DegreeSchedule",
       args: {
-        userId: nonNull(stringArg()),
+        plannerId: nonNull(intArg()),
       },
-      resolve: (_, { userId }, { prisma }) =>
+      resolve: (_, { plannerId }, { prisma }) =>
         prisma.degreeSchedule.findMany({
-          where: { userId },
+          where: { plannerId },
           include: { entries: { include: { class: true } } },
         }),
     });
@@ -88,6 +124,35 @@ export const DegreeScheduleQuery = extendType({
         prisma.degreeScheduleEntry.findMany({
           where: { degreeScheduleId },
           include: { class: true },
+        }),
+    });
+  },
+});
+
+export const DegreePlannerMutation = extendType({
+  type: "Mutation",
+  definition(t) {
+    t.field("createDegreePlanner", {
+      type: "DegreePlanner",
+      args: {
+        input: nonNull(CreateDegreePlannerInput),
+      },
+      resolve: (_, { input }, { prisma }) =>
+        prisma.degreePlanner.create({
+          data: input,
+          include: { degreeSchedule: true },
+        }),
+    });
+
+    t.field("deleteDegreePlanner", {
+      type: "DegreePlanner",
+      args: {
+        id: nonNull(intArg()),
+      },
+      resolve: (_, { id }, { prisma }) =>
+        prisma.degreePlanner.delete({
+          where: { id },
+          include: { degreeSchedule: true },
         }),
     });
   },
