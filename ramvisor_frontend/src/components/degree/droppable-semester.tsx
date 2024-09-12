@@ -5,6 +5,8 @@ import React, { useState } from "react";
 type Props = {
   semester: Semester;
   children: React.ReactNode;
+  activeSemester: string | null;
+  setActiveSemester: (id: string) => void;
 };
 
 export interface Semester {
@@ -17,8 +19,9 @@ export interface Semester {
 const DroppableSemester = ({
   semester,
   children,
+  activeSemester,
+  setActiveSemester,
 }: React.PropsWithChildren<Props>) => {
-  const [activeSemester, setActiveSemester] = useState<string | null>(null);
 
   const { setNodeRef } = useSortable({
     id: semester.id,

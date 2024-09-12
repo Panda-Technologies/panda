@@ -46,6 +46,7 @@ export const CREATE_CLASS_MUTATION = gql`
       id
       classCode
       courseType
+      credits
       title
       dayOfWeek
       startTime

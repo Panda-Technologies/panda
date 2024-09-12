@@ -66,6 +66,7 @@ export const GET_CLASSES_QUERY = gql`
       id
       classCode
       courseType
+      credits
       title
       dayOfWeek
       startTime
@@ -90,6 +91,7 @@ export const GET_CLASS_SCHEDULES_QUERY = gql`
         class {
           id
           classCode
+          credits
           title
           dayOfWeek
           startTime
@@ -117,6 +119,7 @@ export const GET_DEGREE_PLANNERS_QUERY = gql`
           classId
           class {
             id
+            credits
             classCode
             title
           }
@@ -138,6 +141,7 @@ export const GET_DEGREE_SCHEDULES_QUERY = gql`
         class {
           id
           classCode
+          credits
           title
         }
       }
@@ -176,6 +180,7 @@ export const GET_CLASS_QUERY = gql`
       id
       classCode
       courseType
+      credits
       title
       dayOfWeek
       startTime
@@ -198,6 +203,7 @@ export const GET_CLASS_SCHEDULE_ENTRIES_QUERY = gql`
         id
         classCode
         title
+        credits
         dayOfWeek
         startTime
         endTime
@@ -217,6 +223,7 @@ export const GET_DEGREE_SCHEDULE_ENTRIES_QUERY = gql`
       class {
         id
         classCode
+        credits
         title
       }
     }

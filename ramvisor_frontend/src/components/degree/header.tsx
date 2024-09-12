@@ -12,6 +12,8 @@ type Props = {
   resetPlanner: () => void;
   getPlanners: () => DegreeSchedule[];
   loadPlanner: (selectedPlannerId: number) => void;
+  activePlanner: DegreeSchedule | null;
+  setActivePlanner: (planner: DegreeSchedule) => void;
 };
 
 const DegreeHeader = ({
@@ -23,9 +25,9 @@ const DegreeHeader = ({
   getPlanners,
   loadPlanner,
   gradSemesterId,
+  activePlanner,
+  setActivePlanner,
 }: Props) => {
-  const [activePlanner, setActivePlanner] =
-    React.useState<DegreeSchedule | null>(null);
 
   return (
     <div

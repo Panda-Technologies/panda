@@ -22,7 +22,7 @@ const documents = {
     types.UpdateUserProfileDocument,
   "\n  mutation UpdateUserAcademicInfo($id: String!, $gpa: Float, $attendancePercentage: Float, $assignmentCompletionPercentage: Float) {\n    updateUserAcademicInfo(id: $id, gpa: $gpa, attendancePercentage: $attendancePercentage, assignmentCompletionPercentage: $assignmentCompletionPercentage) {\n      id\n      gpa\n      attendancePercentage\n      assignmentCompletionPercentage\n    }\n  }\n":
     types.UpdateUserAcademicInfoDocument,
-  "\n  mutation CreateClass($input: CreateClassInput!) {\n    createClass(input: $input) {\n      id\n      classCode\n      courseType\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n":
+  "\n  mutation CreateClass($input: CreateClassInput!) {\n    createClass(input: $input) {\n      id\n      classCode\n      courseType\n      credits\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n":
     types.CreateClassDocument,
   "\n  mutation CreateClassSchedule($input: CreateClassScheduleInput!) {\n    createClassSchedule(input: $input) {\n      id\n      userId\n      semesterId\n    }\n  }\n":
     types.CreateClassScheduleDocument,
@@ -52,23 +52,23 @@ const documents = {
     types.DeleteTaskDocument,
   "\n  query GetUser($id: String!) {\n    getUser(id: $id) {\n      id\n      email\n      university\n      yearInUniversity\n      gpa\n      attendancePercentage\n      assignmentCompletionPercentage\n      degreeId\n      tasks {\n        id\n        title\n        dueDate\n        stageId\n        classCode\n        description\n      }\n      classSchedules {\n        id\n        semesterId\n        entries {\n          id\n          classId\n          class {\n            id\n            classCode\n            title\n            dayOfWeek\n            startTime\n            endTime\n            color\n            professor\n          }\n        }\n      }\n      degreeSchedules {\n        id\n        semesterId\n        entries {\n          id\n          classId\n          class {\n            id\n            classCode\n            title\n          }\n        }\n      }\n      degree {\n        id\n        name\n        numberOfCores\n        numberOfElectives\n      }\n    }\n  }\n":
     types.GetUserDocument,
-  "\n  query GetClasses {\n    getClasses {\n      id\n      classCode\n      courseType\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n":
+  "\n  query GetClasses {\n    getClasses {\n      id\n      classCode\n      courseType\n      credits\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n":
     types.GetClassesDocument,
-  "\n  query GetClassSchedules($userId: String!) {\n    getClassSchedules(userId: $userId) {\n      id\n      userId\n      semesterId\n      entries {\n        id\n        classId\n        class {\n          id\n          classCode\n          title\n          dayOfWeek\n          startTime\n          endTime\n          color\n          professor\n        }\n      }\n    }\n  }\n":
+  "\n  query GetClassSchedules($userId: String!) {\n    getClassSchedules(userId: $userId) {\n      id\n      userId\n      semesterId\n      entries {\n        id\n        classId\n        class {\n          id\n          classCode\n          credits\n          title\n          dayOfWeek\n          startTime\n          endTime\n          color\n          professor\n        }\n      }\n    }\n  }\n":
     types.GetClassSchedulesDocument,
-  "\n  query GetDegreePlanners($userId: String!) {\n    getDegreePlanners(userId: $userId) {\n      id\n      userId\n      degreeId\n      degreeSchedule {\n        id\n        degreeId\n        semesterId\n        entries {\n          id\n          classId\n          class {\n            id\n            classCode\n            title\n          }\n        }\n      }\n    }\n  }\n":
+  "\n  query GetDegreePlanners($userId: String!) {\n    getDegreePlanners(userId: $userId) {\n      id\n      userId\n      degreeId\n      degreeSchedule {\n        id\n        degreeId\n        semesterId\n        entries {\n          id\n          classId\n          class {\n            id\n            credits\n            classCode\n            title\n          }\n        }\n      }\n    }\n  }\n":
     types.GetDegreePlannersDocument,
-  "\n  query GetDegreeSchedules($plannerId: Int!) {\n    getDegreeSchedules(plannerId: $plannerId) {\n      id\n      degreeId\n      semesterId\n      entries {\n        id\n        classId\n        class {\n          id\n          classCode\n          title\n        }\n      }\n    }\n  }\n":
+  "\n  query GetDegreeSchedules($plannerId: Int!) {\n    getDegreeSchedules(plannerId: $plannerId) {\n      id\n      degreeId\n      semesterId\n      entries {\n        id\n        classId\n        class {\n          id\n          classCode\n          credits\n          title\n        }\n      }\n    }\n  }\n":
     types.GetDegreeSchedulesDocument,
   "\n  query GetAllDegrees {\n    getAllDegrees {\n      id\n      name\n      numberOfCores\n      numberOfElectives\n    }\n  }\n":
     types.GetAllDegreesDocument,
   "\n  query GetTasks($userId: String!) {\n    getTasks(userId: $userId) {\n      id\n      userId\n      dueDate\n      stageId\n      classCode\n      description\n      title\n    }\n  }\n":
     types.GetTasksDocument,
-  "\n  query GetClass($id: Int!) {\n    getClass(id: $id) {\n      id\n      classCode\n      courseType\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n":
+  "\n  query GetClass($id: Int!) {\n    getClass(id: $id) {\n      id\n      classCode\n      courseType\n      credits\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n":
     types.GetClassDocument,
-  "\n  query GetClassScheduleEntries($classScheduleId: Int!) {\n    getClassScheduleEntries(classScheduleId: $classScheduleId) {\n      id\n      classScheduleId\n      classId\n      class {\n        id\n        classCode\n        title\n        dayOfWeek\n        startTime\n        endTime\n        color\n        professor\n      }\n    }\n  }\n":
+  "\n  query GetClassScheduleEntries($classScheduleId: Int!) {\n    getClassScheduleEntries(classScheduleId: $classScheduleId) {\n      id\n      classScheduleId\n      classId\n      class {\n        id\n        classCode\n        title\n        credits\n        dayOfWeek\n        startTime\n        endTime\n        color\n        professor\n      }\n    }\n  }\n":
     types.GetClassScheduleEntriesDocument,
-  "\n  query GetDegreeScheduleEntries($degreeScheduleId: Int!) {\n    getDegreeScheduleEntries(degreeScheduleId: $degreeScheduleId) {\n      id\n      degreeScheduleId\n      classId\n      class {\n        id\n        classCode\n        title\n      }\n    }\n  }\n":
+  "\n  query GetDegreeScheduleEntries($degreeScheduleId: Int!) {\n    getDegreeScheduleEntries(degreeScheduleId: $degreeScheduleId) {\n      id\n      degreeScheduleId\n      classId\n      class {\n        id\n        classCode\n        credits\n        title\n      }\n    }\n  }\n":
     types.GetDegreeScheduleEntriesDocument,
   "\n  query GetDegree($id: Int!) {\n    getDegree(id: $id) {\n      id\n      name\n      numberOfCores\n      numberOfElectives\n    }\n  }\n":
     types.GetDegreeDocument,
@@ -122,8 +122,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  mutation CreateClass($input: CreateClassInput!) {\n    createClass(input: $input) {\n      id\n      classCode\n      courseType\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n"
-): (typeof documents)["\n  mutation CreateClass($input: CreateClassInput!) {\n    createClass(input: $input) {\n      id\n      classCode\n      courseType\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n"];
+  source: "\n  mutation CreateClass($input: CreateClassInput!) {\n    createClass(input: $input) {\n      id\n      classCode\n      courseType\n      credits\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n"
+): (typeof documents)["\n  mutation CreateClass($input: CreateClassInput!) {\n    createClass(input: $input) {\n      id\n      classCode\n      courseType\n      credits\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -212,26 +212,26 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query GetClasses {\n    getClasses {\n      id\n      classCode\n      courseType\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n"
-): (typeof documents)["\n  query GetClasses {\n    getClasses {\n      id\n      classCode\n      courseType\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n"];
+  source: "\n  query GetClasses {\n    getClasses {\n      id\n      classCode\n      courseType\n      credits\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n"
+): (typeof documents)["\n  query GetClasses {\n    getClasses {\n      id\n      classCode\n      courseType\n      credits\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query GetClassSchedules($userId: String!) {\n    getClassSchedules(userId: $userId) {\n      id\n      userId\n      semesterId\n      entries {\n        id\n        classId\n        class {\n          id\n          classCode\n          title\n          dayOfWeek\n          startTime\n          endTime\n          color\n          professor\n        }\n      }\n    }\n  }\n"
-): (typeof documents)["\n  query GetClassSchedules($userId: String!) {\n    getClassSchedules(userId: $userId) {\n      id\n      userId\n      semesterId\n      entries {\n        id\n        classId\n        class {\n          id\n          classCode\n          title\n          dayOfWeek\n          startTime\n          endTime\n          color\n          professor\n        }\n      }\n    }\n  }\n"];
+  source: "\n  query GetClassSchedules($userId: String!) {\n    getClassSchedules(userId: $userId) {\n      id\n      userId\n      semesterId\n      entries {\n        id\n        classId\n        class {\n          id\n          classCode\n          credits\n          title\n          dayOfWeek\n          startTime\n          endTime\n          color\n          professor\n        }\n      }\n    }\n  }\n"
+): (typeof documents)["\n  query GetClassSchedules($userId: String!) {\n    getClassSchedules(userId: $userId) {\n      id\n      userId\n      semesterId\n      entries {\n        id\n        classId\n        class {\n          id\n          classCode\n          credits\n          title\n          dayOfWeek\n          startTime\n          endTime\n          color\n          professor\n        }\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query GetDegreePlanners($userId: String!) {\n    getDegreePlanners(userId: $userId) {\n      id\n      userId\n      degreeId\n      degreeSchedule {\n        id\n        degreeId\n        semesterId\n        entries {\n          id\n          classId\n          class {\n            id\n            classCode\n            title\n          }\n        }\n      }\n    }\n  }\n"
-): (typeof documents)["\n  query GetDegreePlanners($userId: String!) {\n    getDegreePlanners(userId: $userId) {\n      id\n      userId\n      degreeId\n      degreeSchedule {\n        id\n        degreeId\n        semesterId\n        entries {\n          id\n          classId\n          class {\n            id\n            classCode\n            title\n          }\n        }\n      }\n    }\n  }\n"];
+  source: "\n  query GetDegreePlanners($userId: String!) {\n    getDegreePlanners(userId: $userId) {\n      id\n      userId\n      degreeId\n      degreeSchedule {\n        id\n        degreeId\n        semesterId\n        entries {\n          id\n          classId\n          class {\n            id\n            credits\n            classCode\n            title\n          }\n        }\n      }\n    }\n  }\n"
+): (typeof documents)["\n  query GetDegreePlanners($userId: String!) {\n    getDegreePlanners(userId: $userId) {\n      id\n      userId\n      degreeId\n      degreeSchedule {\n        id\n        degreeId\n        semesterId\n        entries {\n          id\n          classId\n          class {\n            id\n            credits\n            classCode\n            title\n          }\n        }\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query GetDegreeSchedules($plannerId: Int!) {\n    getDegreeSchedules(plannerId: $plannerId) {\n      id\n      degreeId\n      semesterId\n      entries {\n        id\n        classId\n        class {\n          id\n          classCode\n          title\n        }\n      }\n    }\n  }\n"
-): (typeof documents)["\n  query GetDegreeSchedules($plannerId: Int!) {\n    getDegreeSchedules(plannerId: $plannerId) {\n      id\n      degreeId\n      semesterId\n      entries {\n        id\n        classId\n        class {\n          id\n          classCode\n          title\n        }\n      }\n    }\n  }\n"];
+  source: "\n  query GetDegreeSchedules($plannerId: Int!) {\n    getDegreeSchedules(plannerId: $plannerId) {\n      id\n      degreeId\n      semesterId\n      entries {\n        id\n        classId\n        class {\n          id\n          classCode\n          credits\n          title\n        }\n      }\n    }\n  }\n"
+): (typeof documents)["\n  query GetDegreeSchedules($plannerId: Int!) {\n    getDegreeSchedules(plannerId: $plannerId) {\n      id\n      degreeId\n      semesterId\n      entries {\n        id\n        classId\n        class {\n          id\n          classCode\n          credits\n          title\n        }\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -248,20 +248,20 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query GetClass($id: Int!) {\n    getClass(id: $id) {\n      id\n      classCode\n      courseType\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n"
-): (typeof documents)["\n  query GetClass($id: Int!) {\n    getClass(id: $id) {\n      id\n      classCode\n      courseType\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n"];
+  source: "\n  query GetClass($id: Int!) {\n    getClass(id: $id) {\n      id\n      classCode\n      courseType\n      credits\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n"
+): (typeof documents)["\n  query GetClass($id: Int!) {\n    getClass(id: $id) {\n      id\n      classCode\n      courseType\n      credits\n      title\n      dayOfWeek\n      startTime\n      endTime\n      color\n      professor\n      rateMyProfessorRating\n      coreDegreeId\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query GetClassScheduleEntries($classScheduleId: Int!) {\n    getClassScheduleEntries(classScheduleId: $classScheduleId) {\n      id\n      classScheduleId\n      classId\n      class {\n        id\n        classCode\n        title\n        dayOfWeek\n        startTime\n        endTime\n        color\n        professor\n      }\n    }\n  }\n"
-): (typeof documents)["\n  query GetClassScheduleEntries($classScheduleId: Int!) {\n    getClassScheduleEntries(classScheduleId: $classScheduleId) {\n      id\n      classScheduleId\n      classId\n      class {\n        id\n        classCode\n        title\n        dayOfWeek\n        startTime\n        endTime\n        color\n        professor\n      }\n    }\n  }\n"];
+  source: "\n  query GetClassScheduleEntries($classScheduleId: Int!) {\n    getClassScheduleEntries(classScheduleId: $classScheduleId) {\n      id\n      classScheduleId\n      classId\n      class {\n        id\n        classCode\n        title\n        credits\n        dayOfWeek\n        startTime\n        endTime\n        color\n        professor\n      }\n    }\n  }\n"
+): (typeof documents)["\n  query GetClassScheduleEntries($classScheduleId: Int!) {\n    getClassScheduleEntries(classScheduleId: $classScheduleId) {\n      id\n      classScheduleId\n      classId\n      class {\n        id\n        classCode\n        title\n        credits\n        dayOfWeek\n        startTime\n        endTime\n        color\n        professor\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query GetDegreeScheduleEntries($degreeScheduleId: Int!) {\n    getDegreeScheduleEntries(degreeScheduleId: $degreeScheduleId) {\n      id\n      degreeScheduleId\n      classId\n      class {\n        id\n        classCode\n        title\n      }\n    }\n  }\n"
-): (typeof documents)["\n  query GetDegreeScheduleEntries($degreeScheduleId: Int!) {\n    getDegreeScheduleEntries(degreeScheduleId: $degreeScheduleId) {\n      id\n      degreeScheduleId\n      classId\n      class {\n        id\n        classCode\n        title\n      }\n    }\n  }\n"];
+  source: "\n  query GetDegreeScheduleEntries($degreeScheduleId: Int!) {\n    getDegreeScheduleEntries(degreeScheduleId: $degreeScheduleId) {\n      id\n      degreeScheduleId\n      classId\n      class {\n        id\n        classCode\n        credits\n        title\n      }\n    }\n  }\n"
+): (typeof documents)["\n  query GetDegreeScheduleEntries($degreeScheduleId: Int!) {\n    getDegreeScheduleEntries(degreeScheduleId: $degreeScheduleId) {\n      id\n      degreeScheduleId\n      classId\n      class {\n        id\n        classCode\n        credits\n        title\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

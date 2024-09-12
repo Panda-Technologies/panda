@@ -18,6 +18,7 @@ type Class {
   color: String!
   coreDegreeId: Int!
   courseType: String!
+  credits: Int!
   dayOfWeek: String!
   electiveDegreeId: [Int]
   endTime: String!
@@ -49,6 +50,7 @@ input CreateClassInput {
   color: String!
   coreDegreeId: Int!
   courseType: String!
+  credits: Int!
   dayOfWeek: String!
   electiveDegreeId: [Int]!
   endTime: String!
@@ -217,6 +219,7 @@ input UpdateClassInput {
   color: String
   coreDegreeId: Int
   courseType: String
+  credits: Int
   dayOfWeek: String
   electiveDegreeId: [Int]
   endTime: String

@@ -58,6 +58,7 @@ export type CreateClassMutation = {
       | "id"
       | "classCode"
       | "courseType"
+      | "credits"
       | "title"
       | "dayOfWeek"
       | "startTime"
@@ -304,6 +305,7 @@ export type GetClassesQuery = {
           | "id"
           | "classCode"
           | "courseType"
+          | "credits"
           | "title"
           | "dayOfWeek"
           | "startTime"
@@ -336,6 +338,7 @@ export type GetClassSchedulesQuery = {
                       Types.Class,
                       | "id"
                       | "classCode"
+                      | "credits"
                       | "title"
                       | "dayOfWeek"
                       | "startTime"
@@ -372,7 +375,10 @@ export type GetDegreePlannersQuery = {
                       Types.Maybe<
                         Pick<Types.DegreeScheduleEntry, "id" | "classId"> & {
                           class?: Types.Maybe<
-                            Pick<Types.Class, "id" | "classCode" | "title">
+                            Pick<
+                              Types.Class,
+                              "id" | "credits" | "classCode" | "title"
+                            >
                           >;
                         }
                       >
@@ -402,7 +408,7 @@ export type GetDegreeSchedulesQuery = {
               Types.Maybe<
                 Pick<Types.DegreeScheduleEntry, "id" | "classId"> & {
                   class?: Types.Maybe<
-                    Pick<Types.Class, "id" | "classCode" | "title">
+                    Pick<Types.Class, "id" | "classCode" | "credits" | "title">
                   >;
                 }
               >
@@ -463,6 +469,7 @@ export type GetClassQuery = {
       | "id"
       | "classCode"
       | "courseType"
+      | "credits"
       | "title"
       | "dayOfWeek"
       | "startTime"
@@ -490,6 +497,7 @@ export type GetClassScheduleEntriesQuery = {
               | "id"
               | "classCode"
               | "title"
+              | "credits"
               | "dayOfWeek"
               | "startTime"
               | "endTime"
@@ -515,7 +523,9 @@ export type GetDegreeScheduleEntriesQuery = {
           Types.DegreeScheduleEntry,
           "id" | "degreeScheduleId" | "classId"
         > & {
-          class?: Types.Maybe<Pick<Types.Class, "id" | "classCode" | "title">>;
+          class?: Types.Maybe<
+            Pick<Types.Class, "id" | "classCode" | "credits" | "title">
+          >;
         }
       >
     >

@@ -43,6 +43,7 @@ export type Class = {
   color: Scalars["String"]["output"];
   coreDegreeId: Scalars["Int"]["output"];
   courseType: Scalars["String"]["output"];
+  credits: Scalars["Int"]["output"];
   dayOfWeek: Scalars["String"]["output"];
   electiveDegreeId?: Maybe<Array<Maybe<Scalars["Int"]["output"]>>>;
   endTime: Scalars["String"]["output"];
@@ -74,6 +75,7 @@ export type CreateClassInput = {
   color: Scalars["String"]["input"];
   coreDegreeId: Scalars["Int"]["input"];
   courseType: Scalars["String"]["input"];
+  credits: Scalars["Int"]["input"];
   dayOfWeek: Scalars["String"]["input"];
   electiveDegreeId: Array<InputMaybe<Scalars["Int"]["input"]>>;
   endTime: Scalars["String"]["input"];
@@ -384,6 +386,7 @@ export type UpdateClassInput = {
   color?: InputMaybe<Scalars["String"]["input"]>;
   coreDegreeId?: InputMaybe<Scalars["Int"]["input"]>;
   courseType?: InputMaybe<Scalars["String"]["input"]>;
+  credits?: InputMaybe<Scalars["Int"]["input"]>;
   dayOfWeek?: InputMaybe<Scalars["String"]["input"]>;
   electiveDegreeId?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
   endTime?: InputMaybe<Scalars["String"]["input"]>;

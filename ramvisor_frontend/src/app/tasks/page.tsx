@@ -20,7 +20,7 @@ export interface Task {
   description?: string;
   dueDate: string;
   classCode: string;
-  classes?: { code: string; color: string };
+  classes?: { code: string; color: React.CSSProperties };
   stageId: number;
 }
 

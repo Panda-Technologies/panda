@@ -46,6 +46,7 @@ export type Class = {
   color: Scalars["String"]["output"];
   coreDegreeId: Scalars["Int"]["output"];
   courseType: Scalars["String"]["output"];
+  credits: Scalars["Int"]["output"];
   dayOfWeek: Scalars["String"]["output"];
   electiveDegreeId?: Maybe<Array<Maybe<Scalars["Int"]["output"]>>>;
   endTime: Scalars["String"]["output"];
@@ -79,6 +80,7 @@ export type CreateClassInput = {
   color: Scalars["String"]["input"];
   coreDegreeId: Scalars["Int"]["input"];
   courseType: Scalars["String"]["input"];
+  credits: Scalars["Int"]["input"];
   dayOfWeek: Scalars["String"]["input"];
   electiveDegreeId: Array<InputMaybe<Scalars["Int"]["input"]>>;
   endTime: Scalars["String"]["input"];
@@ -396,6 +398,7 @@ export type UpdateClassInput = {
   color?: InputMaybe<Scalars["String"]["input"]>;
   coreDegreeId?: InputMaybe<Scalars["Int"]["input"]>;
   courseType?: InputMaybe<Scalars["String"]["input"]>;
+  credits?: InputMaybe<Scalars["Int"]["input"]>;
   dayOfWeek?: InputMaybe<Scalars["String"]["input"]>;
   electiveDegreeId?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
   endTime?: InputMaybe<Scalars["String"]["input"]>;
@@ -522,6 +525,7 @@ export type CreateClassMutation = {
     id: number;
     classCode: string;
     courseType: string;
+    credits: number;
     title: string;
     dayOfWeek: string;
     startTime: string;
@@ -783,6 +787,7 @@ export type GetClassesQuery = {
     id: number;
     classCode: string;
     courseType: string;
+    credits: number;
     title: string;
     dayOfWeek: string;
     startTime: string;
@@ -813,6 +818,7 @@ export type GetClassSchedulesQuery = {
         __typename?: "Class";
         id: number;
         classCode: string;
+        credits: number;
         title: string;
         dayOfWeek: string;
         startTime: string;
@@ -847,6 +853,7 @@ export type GetDegreePlannersQuery = {
         class?: {
           __typename?: "Class";
           id: number;
+          credits: number;
           classCode: string;
           title: string;
         } | null;
@@ -874,6 +881,7 @@ export type GetDegreeSchedulesQuery = {
         __typename?: "Class";
         id: number;
         classCode: string;
+        credits: number;
         title: string;
       } | null;
     } | null> | null;
@@ -922,6 +930,7 @@ export type GetClassQuery = {
     id: number;
     classCode: string;
     courseType: string;
+    credits: number;
     title: string;
     dayOfWeek: string;
     startTime: string;
@@ -949,6 +958,7 @@ export type GetClassScheduleEntriesQuery = {
       id: number;
       classCode: string;
       title: string;
+      credits: number;
       dayOfWeek: string;
       startTime: string;
       endTime: string;
@@ -973,6 +983,7 @@ export type GetDegreeScheduleEntriesQuery = {
       __typename?: "Class";
       id: number;
       classCode: string;
+      credits: number;
       title: string;
     } | null;
   } | null> | null;
@@ -1372,6 +1383,7 @@ export const CreateClassDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "classCode" } },
                 { kind: "Field", name: { kind: "Name", value: "courseType" } },
+                { kind: "Field", name: { kind: "Name", value: "credits" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "dayOfWeek" } },
                 { kind: "Field", name: { kind: "Name", value: "startTime" } },
@@ -2362,6 +2374,7 @@ export const GetClassesDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "classCode" } },
                 { kind: "Field", name: { kind: "Name", value: "courseType" } },
+                { kind: "Field", name: { kind: "Name", value: "credits" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "dayOfWeek" } },
                 { kind: "Field", name: { kind: "Name", value: "startTime" } },
@@ -2453,6 +2466,10 @@ export const GetClassSchedulesDocument = {
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "classCode" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "credits" },
                             },
                             {
                               kind: "Field",
@@ -2581,6 +2598,10 @@ export const GetDegreePlannersDocument = {
                                   },
                                   {
                                     kind: "Field",
+                                    name: { kind: "Name", value: "credits" },
+                                  },
+                                  {
+                                    kind: "Field",
                                     name: { kind: "Name", value: "classCode" },
                                   },
                                   {
@@ -2673,6 +2694,10 @@ export const GetDegreeSchedulesDocument = {
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "classCode" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "credits" },
                             },
                             {
                               kind: "Field",
@@ -2825,6 +2850,7 @@ export const GetClassDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "classCode" } },
                 { kind: "Field", name: { kind: "Name", value: "courseType" } },
+                { kind: "Field", name: { kind: "Name", value: "credits" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "dayOfWeek" } },
                 { kind: "Field", name: { kind: "Name", value: "startTime" } },
@@ -2904,6 +2930,10 @@ export const GetClassScheduleEntriesDocument = {
                         name: { kind: "Name", value: "classCode" },
                       },
                       { kind: "Field", name: { kind: "Name", value: "title" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "credits" },
+                      },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "dayOfWeek" },
@@ -2990,6 +3020,10 @@ export const GetDegreeScheduleEntriesDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "classCode" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "credits" },
                       },
                       { kind: "Field", name: { kind: "Name", value: "title" } },
                     ],
