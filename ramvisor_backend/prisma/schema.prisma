@@ -118,6 +118,7 @@ model SemesterEntry {
   id         Int      @id @unique @default(autoincrement())
   semesterId Int
   classId    Int
+  index      Int
   Semester   Semester @relation(fields: [semesterId], references: [id])
   class      Class    @relation(fields: [classId], references: [id])
 

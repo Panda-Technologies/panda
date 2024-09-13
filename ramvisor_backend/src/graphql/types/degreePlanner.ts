@@ -20,7 +20,6 @@ export const DegreePlanner = objectType({
   },
 });
 
-
 export const Semester = objectType({
   name: "Semester",
   definition(t) {
@@ -39,6 +38,7 @@ export const SemesterEntry = objectType({
     t.nonNull.int("id");
     t.nonNull.int("semesterId");
     t.nonNull.int("classId");
+    t.nonNull.int("index"); // Added index field
     t.field("semester", { type: "Semester" });
     t.field("class", { type: "Class" });
   },
@@ -62,12 +62,20 @@ export const CreateSemesterInput = inputObjectType({
   },
 });
 
+export const SemesterEntryInput = inputObjectType({
+  name: "SemesterEntryInput",
+  definition(t) {
+    t.nonNull.int("classId");
+    t.nonNull.int("index"); // Include index in input
+  },
+});
+
 export const UpdateSemesterInput = inputObjectType({
   name: "UpdateSemesterInput",
   definition(t) {
     t.nonNull.int("id");
     t.string("name");
-    t.list.nonNull.int("classIds");
+    t.list.nonNull.field("entries", { type: nonNull(SemesterEntryInput) }); // Changed from classIds to entries
   },
 });
 
@@ -97,7 +105,16 @@ export const DegreePlannerQuery = extendType({
       resolve: (_, { userId }, { prisma }) =>
         prisma.degreePlanner.findMany({
           where: { userId },
-          include: { Semester: { include: { entries: { include: { class: true } } } } },
+          include: {
+            Semester: {
+              include: {
+                entries: {
+                  include: { class: true },
+                  orderBy: { index: "asc" }, // Ensure entries are ordered by index
+                },
+              },
+            },
+          },
         }),
     });
   },
@@ -114,7 +131,12 @@ export const SemesterQuery = extendType({
       resolve: (_, { plannerId }, { prisma }) =>
         prisma.semester.findMany({
           where: { plannerId },
-          include: { entries: { include: { class: true } } },
+          include: {
+            entries: {
+              include: { class: true },
+              orderBy: { index: "asc" }, // Ensure entries are ordered by index
+            },
+          },
         }),
     });
 
@@ -126,7 +148,12 @@ export const SemesterQuery = extendType({
       resolve: (_, { id }, { prisma }) =>
         prisma.semester.findUnique({
           where: { id },
-          include: { entries: { include: { class: true } } },
+          include: {
+            entries: {
+              include: { class: true },
+              orderBy: { index: "asc" }, // Ensure entries are ordered by index
+            },
+          },
         }),
     });
   },
@@ -169,7 +196,11 @@ export const SemesterMutation = extendType({
       args: {
         input: nonNull(CreateSemesterInput),
       },
-      resolve: async (_, { input }, { prisma }: { prisma: PrismaClient }) => {
+      resolve: async (
+        _,
+        { input },
+        { prisma }: { prisma: PrismaClient }
+      ) => {
         const { name, degreeId, plannerId, classIds } = input;
         const semester = await prisma.semester.create({
           data: {
@@ -178,11 +209,19 @@ export const SemesterMutation = extendType({
             plannerId,
             entries: {
               createMany: {
-                data: classIds.map((classId: number) => ({ classId })),
+                data: classIds.map((classId: number, index: number) => ({
+                  classId,
+                  index,
+                })),
               },
             },
           },
-          include: { entries: { include: { class: true } } },
+          include: {
+            entries: {
+              include: { class: true },
+              orderBy: { index: "asc" },
+            },
+          },
         });
         return semester;
       },
@@ -193,9 +232,13 @@ export const SemesterMutation = extendType({
       args: {
         input: nonNull(UpdateSemesterInput),
       },
-      resolve: async (_, { input }, { prisma }: { prisma: PrismaClient }) => {
-        const { id, name, classIds } = input;
-        
+      resolve: async (
+        _,
+        { input },
+        { prisma }: { prisma: PrismaClient }
+      ) => {
+        const { id, name, entries } = input;
+
         // Update semester name if provided
         if (name) {
           await prisma.semester.update({
@@ -209,31 +252,73 @@ export const SemesterMutation = extendType({
           where: { semesterId: id },
         });
 
-        // Determine entries to delete and create
-        const currentClassIds = currentEntries.map(entry => entry.classId);
-        const classIdsToDelete = currentClassIds.filter((classId: number) => !classIds.includes(classId));
-        const classIdsToAdd = classIds.filter((classId: number) => !currentClassIds.includes(classId));
+        const currentEntriesMap = new Map();
+        currentEntries.forEach((entry) => {
+          currentEntriesMap.set(entry.classId, entry);
+        });
+
+        // Map of new entries
+        const newEntriesMap = new Map();
+        entries.forEach((entry: { classId: any; }) => {
+          newEntriesMap.set(entry.classId, entry);
+        });
+
+        // Entries to delete (in currentEntries but not in newEntries)
+        const classIdsToDelete = currentEntries
+          .filter((entry) => !newEntriesMap.has(entry.classId))
+          .map((entry) => entry.classId);
+
+        // Entries to create (in newEntries but not in currentEntries)
+        const entriesToCreate = entries.filter(
+          (entry: { classId: any; }) => !currentEntriesMap.has(entry.classId)
+        );
+
+        // Entries to update (in both currentEntries and newEntries)
+        const entriesToUpdate = entries.filter((entry: { classId: number; }) =>
+          currentEntriesMap.has(entry.classId)
+        );
 
         // Delete entries
-        await prisma.semesterEntry.deleteMany({
-          where: {
-            semesterId: id,
-            classId: { in: classIdsToDelete },
-          },
-        });
+        if (classIdsToDelete.length > 0) {
+          await prisma.semesterEntry.deleteMany({
+            where: {
+              semesterId: id,
+              classId: { in: classIdsToDelete },
+            },
+          });
+        }
 
-        // Add new entries
-        await prisma.semesterEntry.createMany({
-          data: classIdsToAdd.map((classId: number) => ({
-            semesterId: id,
-            classId,
-          })),
-        });
+        // Create new entries
+        if (entriesToCreate.length > 0) {
+          await prisma.semesterEntry.createMany({
+            data: entriesToCreate.map((entry: { classId: number; index: number; }) => ({
+              semesterId: id,
+              classId: entry.classId,
+              index: entry.index,
+            })),
+          });
+        }
+
+        // Update existing entries if index has changed
+        for (const entry of entriesToUpdate) {
+          const currentEntry = currentEntriesMap.get(entry.classId);
+          if (currentEntry.index !== entry.index) {
+            await prisma.semesterEntry.update({
+              where: { id: currentEntry.id },
+              data: { index: entry.index },
+            });
+          }
+        }
 
         // Fetch and return updated semester
         return prisma.semester.findUnique({
           where: { id },
-          include: { entries: { include: { class: true } } },
+          include: {
+            entries: {
+              include: { class: true },
+              orderBy: { index: "asc" },
+            },
+          },
         });
       },
     });
@@ -255,22 +340,34 @@ export const SemesterMutation = extendType({
       args: {
         input: nonNull(AddClassToSemesterInput),
       },
-      resolve: (_, { input }, { prisma }) =>
-        prisma.SemesterEntry.create({
-          data: input,
+      resolve: async (_, { input }, { prisma }) => {
+        // Find the current max index
+        const maxIndexEntry = await prisma.semesterEntry.findFirst({
+          where: { semesterId: input.semesterId },
+          orderBy: { index: "desc" },
+        });
+        const newIndex = maxIndexEntry ? maxIndexEntry.index + 1 : 0;
+
+        return prisma.semesterEntry.create({
+          data: {
+            ...input,
+            index: newIndex,
+          },
           include: { class: true },
-        }),
+        });
+      },
     });
 
-    t.field('removeClassFromSemester', {
-      type: 'SemesterEntry',
+    t.field("removeClassFromSemester", {
+      type: "SemesterEntry",
       args: {
         input: nonNull(RemoveClassFromSemesterInput),
       },
-      resolve: (_, { input }, { prisma }) => prisma.SemesterEntry.delete({
-        where: { id: input.id },
-        include: { class: true }
-      })
+      resolve: (_, { input }, { prisma }) =>
+        prisma.semesterEntry.delete({
+          where: { id: input.classId },
+          include: { class: true },
+        }),
     });
   },
 });

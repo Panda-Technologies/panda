@@ -4,7 +4,7 @@ import { Semester } from "@components/degree/droppable-semester";
 import DegreeHeader from "@components/degree/header";
 import DegreeSearch from "@components/degree/search";
 import { DragEndEvent, DragOverEvent, DragStartEvent, MouseSensor, PointerSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { Class, DegreePlanner, DegreeSchedule } from "@graphql/generated/graphql";
+import { Class, DegreePlanner } from "@graphql/generated/graphql";
 import { GET_CLASSES_QUERY, GET_DEGREE_PLANNERS_QUERY } from "@graphql/queries";
 import { BaseKey, useCustom, useDelete, useGetIdentity, useUpdate } from "@refinedev/core";
 import React, { useCallback } from "react";
@@ -19,19 +19,12 @@ export interface Degree {
   numberOfCores: number;
   numberOfElectives: number;
 }
-export interface DegreeScheduleEntry {
-  id: number;
-  degreeScheduleId: number;
-  classId: number;
-  degreeSchedule: DegreeSchedule;
-  class: Class;
-}
 
 const DegreePage = (props: Props) => {
   const [activeId, setActiveId] = React.useState<number | null>(null);
-  const [activeSemester, setActiveSemester] = React.useState<String | null>(null);
+  const [activeSemester, setActiveSemester] = React.useState<number | null>(null);
   const [semesters, setSemesters] = React.useState<Semester[]>([]);
-  const [activePlanner, setActivePlanner] = React.useState<DegreeSchedule | null>(null);
+  const [activePlanner, setActivePlanner] = React.useState<DegreePlanner | null>(null);
 
   const { data: identity } = useGetIdentity<{ id: string }>();
   const userId = identity?.id;
@@ -69,7 +62,7 @@ const DegreePage = (props: Props) => {
   const handleDragOver = (event: DragOverEvent) => {
     const { over } = event;
     if (over && over.data.current && (over.data.current as any).type === 'semester') {
-      setActiveSemester(over.id as String);
+      setActiveSemester(over.id as number);
     } else {
       setActiveSemester(null);
     }
@@ -85,16 +78,16 @@ const DegreePage = (props: Props) => {
     }
 
     if ((over.data.current as any).type === 'semester') {
-      handleDropIntoSemester(activeId as number, over.id as String);
+      handleDropIntoSemester(activeId as number, over.id as number);
     } else {
-      handleReorderWithinSemester(active.id as number, over.id as String, (over.data.current as any).semesterId as String);
+      handleReorderWithinSemester(active.id as number, over.id as number, (over.data.current as any).semesterId as number);
     }
 
     setActiveId(null);
     setActiveSemester(null);
   }
 
-  const handleDropIntoSemester = useCallback((courseId: number, semesterId: String) => {
+  const handleDropIntoSemester = useCallback((courseId: number, semesterId: number) => {
     const course = coursesData?.data.getCourses.find((course) => course.id === courseId);
     if (!course) return null;
     
@@ -135,12 +128,6 @@ const DegreePage = (props: Props) => {
         },
         meta: {
           gqlMutation: UPDATE_SEMESTER_MUTATION,
-          variables: {
-            input: {
-              id: semesterId,
-              classIds: [...semesters.find(s => s.id === semesterId)?.courses.map(c => c.id) || [], courseId]
-            }
-          }
         }
       },
       {
@@ -166,6 +153,39 @@ const DegreePage = (props: Props) => {
       }
     );
   }, [coursesData, semesters, updatePlanner, refetchPlanners]);
+
+  const handleReorderWithinSemester = useCallback((activeId: number, overId: number, semesterId: number) => {
+    setSemesters((prevSemesters) => {
+      const updatedSemesters = prevSemesters.map((semester) => {
+        if (semester.id === semesterId) {
+          const oldIdx = semester.courses.findIndex((course) => course.id === activeId);
+          const newIdx = semester.courses.findIndex((course) => course.id === overId);
+
+          if (oldIdx !== -1 && newIdx !== -1) {
+            const newCourses = [...semester.courses];
+            const [reorderedItem] = newCourses.splice(oldIdx, 1);
+            newCourses.splice(newIdx, 0, reorderedItem);
+
+            return { ...semester, courses: newCourses };
+          }
+        }
+        return semester;
+      });
+
+      return updatedSemesters;
+    });
+
+    updatePlanner(
+      {
+        resource: "semesters",
+        id: semesterId as BaseKey,
+        values: {
+          id: semesterId,
+          classIds: semesters.find(s => s.id === semesterId)?.courses.map(c => c.id) || []
+        },
+      }
+    )
+  })
 
   return (
     <>

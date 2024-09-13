@@ -5,12 +5,12 @@ import React, { useState } from "react";
 type Props = {
   semester: Semester;
   children: React.ReactNode;
-  activeSemester: string | null;
+  activeSemester: number | null;
   setActiveSemester: (id: string) => void;
 };
 
 export interface Semester {
-  id: string;
+  id: number;
   name: string;
   courses: Class[];
   credits: number;
