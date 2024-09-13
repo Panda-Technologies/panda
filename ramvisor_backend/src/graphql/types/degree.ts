@@ -13,7 +13,7 @@ export const Degree = objectType({
     t.nonNull.string("name");
     t.nonNull.int("numberOfCores");
     t.nonNull.int("numberOfElectives");
-    t.list.field("degreeSchedules", { type: "DegreeSchedule" });
+    t.list.field("semesters", { type: "Semester" });
     t.list.field("users", { type: "User" });
   },
 });

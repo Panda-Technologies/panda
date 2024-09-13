@@ -33,7 +33,7 @@ model User {
   assignmentCompletionPercentage Float?
   tasks                          Task[]
   classSchedule                  ClassSchedule[]
-  Semester                       DegreePlanner[]
+  degreePlanners                 DegreePlanner[]
   degree                         Degree?         @relation(fields: [degreeId], references: [id])
 
   @@map("users")
@@ -99,6 +99,8 @@ model DegreePlanner {
   user     User       @relation(fields: [userId], references: [id])
   degree   Degree     @relation(fields: [degreeId], references: [id])
   Semester Semester[]
+
+  @@map("degree_planners")
 }
 
 model Semester {
@@ -110,7 +112,7 @@ model Semester {
   entries       SemesterEntry[]
   degreePlanner DegreePlanner   @relation(fields: [plannerId], references: [id])
 
-  @@map("degree_schedules")
+  @@map("semesters")
 }
 
 model SemesterEntry {
@@ -120,7 +122,7 @@ model SemesterEntry {
   Semester   Semester @relation(fields: [semesterId], references: [id])
   class      Class    @relation(fields: [classId], references: [id])
 
-  @@map("degree_schedule_entries")
+  @@map("semester_entries")
 }
 
 model Degree {

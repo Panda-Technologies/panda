@@ -15,7 +15,7 @@ export const User = objectType({
     t.int('degreeId');
     t.list.field('tasks', { type: 'Task' });
     t.list.field('classSchedules', { type: 'ClassSchedule' });
-    t.list.field('degreeSchedules', { type: 'DegreeSchedule' });
+    t.list.field('degreePlanners', { type: 'DegreePlanner' });
     t.field('degree', { type: 'Degree' });
   },
 });
