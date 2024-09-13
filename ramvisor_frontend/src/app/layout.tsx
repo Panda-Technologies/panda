@@ -25,11 +25,11 @@ export default function RootLayout({
 }>) {
   const cookieStore = cookies();
   const theme = cookieStore.get("theme");
-  const defaultMode = theme?.value === "dark" ? "dark" : "light";
+  const defaultMode = 'light';
 
   return (
     <html lang="en">
-      <Head>
+    <Head>
     <link href="https://cdn.syncfusion.com/ej2/26.1.35/ej2-base/styles/material.css" rel="stylesheet" />
     <link href="https://cdn.syncfusion.com/ej2/26.1.35/ej2-react-buttons/styles/material.css" rel="stylesheet" />
     <link href="https://cdn.syncfusion.com/ej2/26.1.35/ej2-react-calendars/styles/material.css" rel="stylesheet" />
@@ -38,7 +38,7 @@ export default function RootLayout({
     <link href="https://cdn.syncfusion.com/ej2/26.1.35/ej2-react-navigations/styles/material.css" rel="stylesheet" />
     <link href="https://cdn.syncfusion.com/ej2/26.1.35/ej2-react-popups/styles/material.css" rel="stylesheet" />
     <link href="https://cdn.syncfusion.com/ej2/26.1.35/ej2-react-schedule/styles/material.css" rel="stylesheet" />
-      </Head>
+    </Head>
       <body>
           <RefineKbarProvider>
             <AntdRegistry>

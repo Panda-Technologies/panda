@@ -19,7 +19,7 @@ export const Class = objectType({
     t.list.field('classSchedules', { type: 'ClassSchedule' });
   },
 });
-
+// Add class entries and class template, separate out for ease of access
 export const CreateClassInput = inputObjectType({
   name: 'CreateClassInput',
   definition(t) {

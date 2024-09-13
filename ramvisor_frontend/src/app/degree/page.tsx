@@ -93,7 +93,7 @@ const DegreePage = (props: Props) => {
     setActiveId(null);
     setActiveSemester(null);
   }
-  
+
   const handleDropIntoSemester = useCallback((courseId: number, semesterId: String) => {
     const course = coursesData?.data.getCourses.find((course) => course.id === courseId);
     if (!course) return null;
