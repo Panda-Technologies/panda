@@ -45,8 +45,8 @@ export const CREATE_CLASS_MUTATION = gql`
     createClass(input: $input) {
       id
       classCode
-      courseType
       credits
+      courseType
       title
       dayOfWeek
       startTime
@@ -55,6 +55,35 @@ export const CREATE_CLASS_MUTATION = gql`
       professor
       rateMyProfessorRating
       coreDegreeId
+      electiveDegreeId
+    }
+  }
+`;
+
+export const UPDATE_CLASS_MUTATION = gql`
+  mutation UpdateClass($input: UpdateClassInput!) {
+    updateClass(input: $input) {
+      id
+      classCode
+      credits
+      courseType
+      title
+      dayOfWeek
+      startTime
+      endTime
+      color
+      professor
+      rateMyProfessorRating
+      coreDegreeId
+      electiveDegreeId
+    }
+  }
+`;
+
+export const DELETE_CLASS_MUTATION = gql`
+  mutation DeleteClass($input: DeleteClassInput!) {
+    deleteClass(input: $input) {
+      id
     }
   }
 `;
@@ -105,63 +134,100 @@ export const DELETE_DEGREE_PLANNER_MUTATION = gql`
   }
 `;
 
-export const CREATE_DEGREE_SCHEDULE_MUTATION = gql`
-  mutation CreateDegreeSchedule($input: CreateDegreeScheduleInput!) {
-    createDegreeSchedule(input: $input) {
+export const CREATE_SEMESTER_MUTATION = gql`
+  mutation CreateSemester($input: CreateSemesterInput!) {
+    createSemester(input: $input) {
       id
+      name
       degreeId
-      semesterId
       plannerId
+      entries {
+        id
+        classId
+      }
     }
   }
 `;
 
-export const UPDATE_DEGREE_SCHEDULE_MUTATION = gql`
-  mutation UpdateDegreeSchedule($input: UpdateDegreeScheduleInput!) {
-    updateDegreeSchedule(input: $input) {
+export const UPDATE_SEMESTER_MUTATION = gql`
+  mutation UpdateSemester($input: UpdateSemesterInput!) {
+    updateSemester(input: $input) {
+      id
+      name
+      entries {
+        id
+        classId
+      }
+    }
+  }
+`;
+
+export const DELETE_SEMESTER_MUTATION = gql`
+  mutation DeleteSemester($id: Int!) {
+    deleteSemester(id: $id) {
+      id
+    }
+  }
+`;
+
+export const ADD_CLASS_TO_SEMESTER_MUTATION = gql`
+  mutation AddClassToSemester($input: AddClassToSemesterInput!) {
+    addClassToSemester(input: $input) {
       id
       semesterId
-    }
-  }
-`;
-
-export const DELETE_DEGREE_SCHEDULE_MUTATION = gql`
-  mutation DeleteDegreeSchedule($id: Int!) {
-    deleteDegreeSchedule(id: $id) {
-      id
-    }
-  }
-`;
-
-export const ADD_CLASS_TO_DEGREE_SCHEDULE_MUTATION = gql`
-  mutation AddClassToDegreeSchedule($input: AddClassToDegreeScheduleInput!) {
-    addClassToDegreeSchedule(input: $input) {
-      id
-      degreeScheduleId
       classId
     }
   }
 `;
 
-export const REMOVE_CLASS_FROM_DEGREE_SCHEDULE_MUTATION = gql`
-  mutation RemoveClassFromDegreeSchedule($input: RemoveClassFromDegreeScheduleInput!) {
-    removeClassFromDegreeSchedule(input: $input) {
+export const REMOVE_CLASS_FROM_SEMESTER_MUTATION = gql`
+  mutation RemoveClassFromSemester($input: RemoveClassFromSemesterInput!) {
+    removeClassFromSemester(input: $input) {
       id
     }
   }
 `;
 
+export const CREATE_DEGREE_MUTATION = gql`
+  mutation CreateDegree($input: CreateDegreeInput!) {
+    createDegree(input: $input) {
+      id
+      name
+      numberOfCores
+      numberOfElectives
+    }
+  }
+`;
+
+export const UPDATE_DEGREE_MUTATION = gql`
+  mutation UpdateDegree($input: UpdateDegreeInput!) {
+    updateDegree(input: $input) {
+      id
+      name
+      numberOfCores
+      numberOfElectives
+    }
+  }
+`;
+
+export const DELETE_DEGREE_MUTATION = gql`
+  mutation DeleteDegree($input: DeleteDegreeInput!) {
+    deleteDegree(input: $input) {
+      id
+    }
+  }
+`;
 
 export const CREATE_TASK_MUTATION = gql`
   mutation CreateTask($input: CreateTaskInput!) {
     createTask(input: $input) {
       id
-      title
-      description
+      userId
       dueDate
       stageId
-      userId
       classCode
+      description
+      title
     }
   }
 `;
@@ -172,6 +238,7 @@ export const UPDATE_TASK_MUTATION = gql`
       id
       dueDate
       stageId
+      classCode
       description
       title
     }

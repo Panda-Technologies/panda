@@ -107,7 +107,6 @@ model Semester {
   id            Int             @id @unique @default(autoincrement())
   degreeId      Int
   name          String
-  semesterId    String
   plannerId     Int
   entries       SemesterEntry[]
   degreePlanner DegreePlanner   @relation(fields: [plannerId], references: [id])

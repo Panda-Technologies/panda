@@ -2,7 +2,7 @@ export * from './user';
 export * from './task';
 export * from './class';
 export * from './classSchedule';
-export * from './degreeSchedule';
+export * from './degreePlanner';
 export * from './degree';
 export * from './login'
 export * from './register'

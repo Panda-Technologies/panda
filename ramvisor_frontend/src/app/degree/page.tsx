@@ -6,9 +6,10 @@ import DegreeSearch from "@components/degree/search";
 import { DragEndEvent, DragOverEvent, DragStartEvent, MouseSensor, PointerSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { Class, DegreePlanner, DegreeSchedule } from "@graphql/generated/graphql";
 import { GET_CLASSES_QUERY, GET_DEGREE_PLANNERS_QUERY } from "@graphql/queries";
-import { useCustom, useDelete, useGetIdentity, useUpdate } from "@refinedev/core";
+import { BaseKey, useCustom, useDelete, useGetIdentity, useUpdate } from "@refinedev/core";
 import React, { useCallback } from "react";
 import { message } from "antd";
+import { UPDATE_SEMESTER_MUTATION } from "@graphql/mutations";
 
 type Props = {};
 
@@ -97,7 +98,6 @@ const DegreePage = (props: Props) => {
     const course = coursesData?.data.getCourses.find((course) => course.id === courseId);
     if (!course) return null;
     
-    
     setSemesters((prevSemesters) => {
       return prevSemesters.map((semester) => {
         if (semester.id === semesterId) {
@@ -105,39 +105,67 @@ const DegreePage = (props: Props) => {
             message.error("Cannot add course. It would exceed the 18 credit limit.", 3);
             return semester;
           }
-
-          if (semester.courses.some((course) => course.id === courseId)) {
+  
+          if (semester.courses.some((c) => c.id === courseId)) {
             return semester;
           }
-
+  
           const updatedCourses = [...semester.courses, course];
-          const updatedCredits = updatedCourses.reduce((sum, course) => sum + course.credits, 0);
-
+          const updatedCredits = updatedCourses.reduce((sum, c) => sum + c.credits, 0);
+  
           message.success(`Added ${course.title} to ${semester.name}`, 3);
-
+  
           return {...semester, courses: updatedCourses, credits: updatedCredits};
         }
-
-        const updatedCourses = semester.courses.filter((course) => course.id !== courseId);
-        const updatedCredits = updatedCourses.reduce((sum, course) => sum + course.credits, 0);
-
+  
+        const updatedCourses = semester.courses.filter((c) => c.id !== courseId);
+        const updatedCredits = updatedCourses.reduce((sum, c) => sum + c.credits, 0);
+  
         return {...semester, courses: updatedCourses, credits: updatedCredits};
       });
     });
-
+  
     updatePlanner(
       {
-        resource: "degree",
-        id: activePlanner?.id as number,
+        resource: "semesters",
+        id: semesterId as BaseKey,
         values: {
-          id: activePlanner?.id,
+          id: semesterId,
+          classIds: [...semesters.find(s => s.id === semesterId)?.courses.map(c => c.id) || [], courseId]
         },
         meta: {
-
+          gqlMutation: UPDATE_SEMESTER_MUTATION,
+          variables: {
+            input: {
+              id: semesterId,
+              classIds: [...semesters.find(s => s.id === semesterId)?.courses.map(c => c.id) || [], courseId]
+            }
+          }
+        }
+      },
+      {
+        onSuccess: (data) => {
+          message.success("Course added to semester successfully");
+          refetchPlanners();
+        },
+        onError: (error) => {
+          message.error("Failed to add course to semester");
+          console.error('Error updating semester:', error);
+          // Revert the local state change
+          setSemesters((prevSemesters) => {
+            return prevSemesters.map((semester) => {
+              if (semester.id === semesterId) {
+                const updatedCourses = semester.courses.filter((c) => c.id !== courseId);
+                const updatedCredits = updatedCourses.reduce((sum, c) => sum + c.credits, 0);
+                return {...semester, courses: updatedCourses, credits: updatedCredits};
+              }
+              return semester;
+            });
+          });
         }
       }
-    )
-  });
+    );
+  }, [coursesData, semesters, updatePlanner, refetchPlanners]);
 
   return (
     <>
