@@ -11,50 +11,6 @@ export const GET_USER_QUERY = gql`
       attendancePercentage
       assignmentCompletionPercentage
       degreeId
-      tasks {
-        id
-        title
-        dueDate
-        stageId
-        classCode
-        description
-      }
-      classSchedules {
-        id
-        semesterId
-        entries {
-          id
-          classId
-          class {
-            id
-            classCode
-            title
-            dayOfWeek
-            startTime
-            endTime
-            color
-            professor
-          }
-        }
-      }
-      degreePlanners {
-        id
-        degreeId
-        Semester {
-          id
-          name
-          entries {
-            id
-            classId
-            class {
-              id
-              classCode
-              title
-              credits
-            }
-          }
-        }
-      }
       degree {
         id
         name
@@ -163,6 +119,7 @@ export const GET_DEGREE_PLANNERS_QUERY = gql`
         entries {
           id
           classId
+          index
           class {
             id
             classCode
@@ -185,6 +142,7 @@ export const GET_SEMESTERS_QUERY = gql`
       entries {
         id
         classId
+        index
         class {
           id
           classCode
@@ -206,6 +164,7 @@ export const GET_SEMESTER_QUERY = gql`
       entries {
         id
         classId
+        index
         class {
           id
           classCode

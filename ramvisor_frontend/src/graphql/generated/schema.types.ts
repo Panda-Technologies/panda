@@ -358,8 +358,14 @@ export type SemesterEntry = {
   class?: Maybe<Class>;
   classId: Scalars["Int"]["output"];
   id: Scalars["Int"]["output"];
+  index: Scalars["Int"]["output"];
   semester?: Maybe<Semester>;
   semesterId: Scalars["Int"]["output"];
+};
+
+export type SemesterEntryInput = {
+  classId: Scalars["Int"]["input"];
+  index: Scalars["Int"]["input"];
 };
 
 export type Task = {
@@ -411,7 +417,7 @@ export type UpdateDegreeInput = {
 };
 
 export type UpdateSemesterInput = {
-  classIds?: InputMaybe<Array<Scalars["Int"]["input"]>>;
+  entries?: InputMaybe<Array<SemesterEntryInput>>;
   id: Scalars["Int"]["input"];
   name?: InputMaybe<Scalars["String"]["input"]>;
 };

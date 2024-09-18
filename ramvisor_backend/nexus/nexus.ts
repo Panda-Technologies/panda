@@ -81,6 +81,10 @@ export interface NexusGenInputs {
   RemoveClassFromSemesterInput: { // input type
     classId: number; // Int!
   }
+  SemesterEntryInput: { // input type
+    classId: number; // Int!
+    index: number; // Int!
+  }
   TaskInputFields: { // input type
     classCode?: string | null; // String
     description?: string | null; // String
@@ -115,7 +119,7 @@ export interface NexusGenInputs {
     numberOfElectives?: number | null; // Int
   }
   UpdateSemesterInput: { // input type
-    classIds?: number[] | null; // [Int!]
+    entries?: NexusGenInputs['SemesterEntryInput'][] | null; // [SemesterEntryInput!]
     id: number; // Int!
     name?: string | null; // String
   }
@@ -205,6 +209,7 @@ export interface NexusGenObjects {
     class?: NexusGenRootTypes['Class'] | null; // Class
     classId: number; // Int!
     id: number; // Int!
+    index: number; // Int!
     semester?: NexusGenRootTypes['Semester'] | null; // Semester
     semesterId: number; // Int!
   }
@@ -344,6 +349,7 @@ export interface NexusGenFieldTypes {
     class: NexusGenRootTypes['Class'] | null; // Class
     classId: number; // Int!
     id: number; // Int!
+    index: number; // Int!
     semester: NexusGenRootTypes['Semester'] | null; // Semester
     semesterId: number; // Int!
   }
@@ -473,6 +479,7 @@ export interface NexusGenFieldTypeNames {
     class: 'Class'
     classId: 'Int'
     id: 'Int'
+    index: 'Int'
     semester: 'Semester'
     semesterId: 'Int'
   }

@@ -369,8 +369,14 @@ export type SemesterEntry = {
   class?: Maybe<Class>;
   classId: Scalars["Int"]["output"];
   id: Scalars["Int"]["output"];
+  index: Scalars["Int"]["output"];
   semester?: Maybe<Semester>;
   semesterId: Scalars["Int"]["output"];
+};
+
+export type SemesterEntryInput = {
+  classId: Scalars["Int"]["input"];
+  index: Scalars["Int"]["input"];
 };
 
 export type Task = {
@@ -423,7 +429,7 @@ export type UpdateDegreeInput = {
 };
 
 export type UpdateSemesterInput = {
-  classIds?: InputMaybe<Array<Scalars["Int"]["input"]>>;
+  entries?: InputMaybe<Array<SemesterEntryInput>>;
   id: Scalars["Int"]["input"];
   name?: InputMaybe<Scalars["String"]["input"]>;
 };
@@ -624,6 +630,23 @@ export type CreateDegreePlannerMutation = {
     id: number;
     userId: string;
     degreeId: number;
+    Semester?: Array<{
+      __typename?: "Semester";
+      id: number;
+      name: string;
+      entries?: Array<{
+        __typename?: "SemesterEntry";
+        id: number;
+        classId: number;
+        class?: {
+          __typename?: "Class";
+          id: number;
+          classCode: string;
+          title: string;
+          credits: number;
+        } | null;
+      } | null> | null;
+    } | null> | null;
   } | null;
 };
 
@@ -652,6 +675,14 @@ export type CreateSemesterMutation = {
       __typename?: "SemesterEntry";
       id: number;
       classId: number;
+      index: number;
+      class?: {
+        __typename?: "Class";
+        id: number;
+        classCode: string;
+        title: string;
+        credits: number;
+      } | null;
     } | null> | null;
   } | null;
 };
@@ -670,6 +701,14 @@ export type UpdateSemesterMutation = {
       __typename?: "SemesterEntry";
       id: number;
       classId: number;
+      index: number;
+      class?: {
+        __typename?: "Class";
+        id: number;
+        classCode: string;
+        title: string;
+        credits: number;
+      } | null;
     } | null> | null;
   } | null;
 };
@@ -694,6 +733,14 @@ export type AddClassToSemesterMutation = {
     id: number;
     semesterId: number;
     classId: number;
+    index: number;
+    class?: {
+      __typename?: "Class";
+      id: number;
+      classCode: string;
+      title: string;
+      credits: number;
+    } | null;
   } | null;
 };
 
@@ -805,58 +852,6 @@ export type GetUserQuery = {
     attendancePercentage?: number | null;
     assignmentCompletionPercentage?: number | null;
     degreeId?: number | null;
-    tasks?: Array<{
-      __typename?: "Task";
-      id: number;
-      title: string;
-      dueDate: string;
-      stageId: number;
-      classCode?: string | null;
-      description?: string | null;
-    } | null> | null;
-    classSchedules?: Array<{
-      __typename?: "ClassSchedule";
-      id: number;
-      semesterId: string;
-      entries?: Array<{
-        __typename?: "ClassScheduleEntry";
-        id: number;
-        classId: number;
-        class?: {
-          __typename?: "Class";
-          id: number;
-          classCode: string;
-          title: string;
-          dayOfWeek: string;
-          startTime: string;
-          endTime: string;
-          color: string;
-          professor: string;
-        } | null;
-      } | null> | null;
-    } | null> | null;
-    degreePlanners?: Array<{
-      __typename?: "DegreePlanner";
-      id: number;
-      degreeId: number;
-      Semester?: Array<{
-        __typename?: "Semester";
-        id: number;
-        name: string;
-        entries?: Array<{
-          __typename?: "SemesterEntry";
-          id: number;
-          classId: number;
-          class?: {
-            __typename?: "Class";
-            id: number;
-            classCode: string;
-            title: string;
-            credits: number;
-          } | null;
-        } | null> | null;
-      } | null> | null;
-    } | null> | null;
     degree?: {
       __typename?: "Degree";
       id: number;
@@ -989,6 +984,7 @@ export type GetDegreePlannersQuery = {
         __typename?: "SemesterEntry";
         id: number;
         classId: number;
+        index: number;
         class?: {
           __typename?: "Class";
           id: number;
@@ -1017,6 +1013,7 @@ export type GetSemestersQuery = {
       __typename?: "SemesterEntry";
       id: number;
       classId: number;
+      index: number;
       class?: {
         __typename?: "Class";
         id: number;
@@ -1044,6 +1041,7 @@ export type GetSemesterQuery = {
       __typename?: "SemesterEntry";
       id: number;
       classId: number;
+      index: number;
       class?: {
         __typename?: "Class";
         id: number;
@@ -1844,6 +1842,59 @@ export const CreateDegreePlannerDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "userId" } },
                 { kind: "Field", name: { kind: "Name", value: "degreeId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "Semester" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "entries" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "classId" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "class" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "id" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "classCode" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "title" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "credits" },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -1960,6 +2011,32 @@ export const CreateSemesterDocument = {
                         kind: "Field",
                         name: { kind: "Name", value: "classId" },
                       },
+                      { kind: "Field", name: { kind: "Name", value: "index" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "class" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "classCode" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "title" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "credits" },
+                            },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -2028,6 +2105,32 @@ export const UpdateSemesterDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "classId" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "index" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "class" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "classCode" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "title" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "credits" },
+                            },
+                          ],
+                        },
                       },
                     ],
                   },
@@ -2136,6 +2239,26 @@ export const AddClassToSemesterDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "semesterId" } },
                 { kind: "Field", name: { kind: "Name", value: "classId" } },
+                { kind: "Field", name: { kind: "Name", value: "index" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "class" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "classCode" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "title" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "credits" },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -2606,187 +2729,6 @@ export const GetUserDocument = {
                 { kind: "Field", name: { kind: "Name", value: "degreeId" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "tasks" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      { kind: "Field", name: { kind: "Name", value: "title" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "dueDate" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "stageId" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "classCode" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "description" },
-                      },
-                    ],
-                  },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "classSchedules" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "semesterId" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "entries" },
-                        selectionSet: {
-                          kind: "SelectionSet",
-                          selections: [
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "id" },
-                            },
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "classId" },
-                            },
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "class" },
-                              selectionSet: {
-                                kind: "SelectionSet",
-                                selections: [
-                                  {
-                                    kind: "Field",
-                                    name: { kind: "Name", value: "id" },
-                                  },
-                                  {
-                                    kind: "Field",
-                                    name: { kind: "Name", value: "classCode" },
-                                  },
-                                  {
-                                    kind: "Field",
-                                    name: { kind: "Name", value: "title" },
-                                  },
-                                  {
-                                    kind: "Field",
-                                    name: { kind: "Name", value: "dayOfWeek" },
-                                  },
-                                  {
-                                    kind: "Field",
-                                    name: { kind: "Name", value: "startTime" },
-                                  },
-                                  {
-                                    kind: "Field",
-                                    name: { kind: "Name", value: "endTime" },
-                                  },
-                                  {
-                                    kind: "Field",
-                                    name: { kind: "Name", value: "color" },
-                                  },
-                                  {
-                                    kind: "Field",
-                                    name: { kind: "Name", value: "professor" },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "degreePlanners" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "degreeId" },
-                      },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "Semester" },
-                        selectionSet: {
-                          kind: "SelectionSet",
-                          selections: [
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "id" },
-                            },
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "name" },
-                            },
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "entries" },
-                              selectionSet: {
-                                kind: "SelectionSet",
-                                selections: [
-                                  {
-                                    kind: "Field",
-                                    name: { kind: "Name", value: "id" },
-                                  },
-                                  {
-                                    kind: "Field",
-                                    name: { kind: "Name", value: "classId" },
-                                  },
-                                  {
-                                    kind: "Field",
-                                    name: { kind: "Name", value: "class" },
-                                    selectionSet: {
-                                      kind: "SelectionSet",
-                                      selections: [
-                                        {
-                                          kind: "Field",
-                                          name: { kind: "Name", value: "id" },
-                                        },
-                                        {
-                                          kind: "Field",
-                                          name: {
-                                            kind: "Name",
-                                            value: "classCode",
-                                          },
-                                        },
-                                        {
-                                          kind: "Field",
-                                          name: {
-                                            kind: "Name",
-                                            value: "title",
-                                          },
-                                        },
-                                        {
-                                          kind: "Field",
-                                          name: {
-                                            kind: "Name",
-                                            value: "credits",
-                                          },
-                                        },
-                                      ],
-                                    },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-                {
-                  kind: "Field",
                   name: { kind: "Name", value: "degree" },
                   selectionSet: {
                     kind: "SelectionSet",
@@ -3200,6 +3142,10 @@ export const GetDegreePlannersDocument = {
                             },
                             {
                               kind: "Field",
+                              name: { kind: "Name", value: "index" },
+                            },
+                            {
+                              kind: "Field",
                               name: { kind: "Name", value: "class" },
                               selectionSet: {
                                 kind: "SelectionSet",
@@ -3294,6 +3240,7 @@ export const GetSemestersDocument = {
                         kind: "Field",
                         name: { kind: "Name", value: "classId" },
                       },
+                      { kind: "Field", name: { kind: "Name", value: "index" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "class" },
@@ -3381,6 +3328,7 @@ export const GetSemesterDocument = {
                         kind: "Field",
                         name: { kind: "Name", value: "classId" },
                       },
+                      { kind: "Field", name: { kind: "Name", value: "index" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "class" },

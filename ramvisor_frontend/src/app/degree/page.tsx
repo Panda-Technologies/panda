@@ -124,7 +124,10 @@ const DegreePage = (props: Props) => {
         id: semesterId as BaseKey,
         values: {
           id: semesterId,
-          classIds: [...semesters.find(s => s.id === semesterId)?.courses.map(c => c.id) || [], courseId]
+          name: semesters.find(s => s.id === semesterId)?.name,
+          entries: semesters.map((entry, index) => ({
+            classId: entry.courses.
+          }))
         },
         meta: {
           gqlMutation: UPDATE_SEMESTER_MUTATION,
@@ -181,6 +184,7 @@ const DegreePage = (props: Props) => {
         id: semesterId as BaseKey,
         values: {
           id: semesterId,
+          name: 
           classIds: semesters.find(s => s.id === semesterId)?.courses.map(c => c.id) || []
         },
       }

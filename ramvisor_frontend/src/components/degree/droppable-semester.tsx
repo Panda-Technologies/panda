@@ -1,5 +1,5 @@
 import { useSortable } from "@dnd-kit/sortable";
-import { Class } from "@graphql/generated/graphql";
+import { Class, Semester } from "@graphql/generated/graphql";
 import React, { useState } from "react";
 
 type Props = {
@@ -8,13 +8,6 @@ type Props = {
   activeSemester: number | null;
   setActiveSemester: (id: string) => void;
 };
-
-export interface Semester {
-  id: number;
-  name: string;
-  courses: Class[];
-  credits: number;
-}
 
 const DroppableSemester = ({
   semester,

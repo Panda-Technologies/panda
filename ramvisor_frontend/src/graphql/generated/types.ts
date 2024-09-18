@@ -141,7 +141,30 @@ export type CreateDegreePlannerMutationVariables = Types.Exact<{
 
 export type CreateDegreePlannerMutation = {
   createDegreePlanner?: Types.Maybe<
-    Pick<Types.DegreePlanner, "id" | "userId" | "degreeId">
+    Pick<Types.DegreePlanner, "id" | "userId" | "degreeId"> & {
+      Semester?: Types.Maybe<
+        Array<
+          Types.Maybe<
+            Pick<Types.Semester, "id" | "name"> & {
+              entries?: Types.Maybe<
+                Array<
+                  Types.Maybe<
+                    Pick<Types.SemesterEntry, "id" | "classId"> & {
+                      class?: Types.Maybe<
+                        Pick<
+                          Types.Class,
+                          "id" | "classCode" | "title" | "credits"
+                        >
+                      >;
+                    }
+                  >
+                >
+              >;
+            }
+          >
+        >
+      >;
+    }
   >;
 };
 
@@ -161,7 +184,15 @@ export type CreateSemesterMutation = {
   createSemester?: Types.Maybe<
     Pick<Types.Semester, "id" | "name" | "degreeId" | "plannerId"> & {
       entries?: Types.Maybe<
-        Array<Types.Maybe<Pick<Types.SemesterEntry, "id" | "classId">>>
+        Array<
+          Types.Maybe<
+            Pick<Types.SemesterEntry, "id" | "classId" | "index"> & {
+              class?: Types.Maybe<
+                Pick<Types.Class, "id" | "classCode" | "title" | "credits">
+              >;
+            }
+          >
+        >
       >;
     }
   >;
@@ -175,7 +206,15 @@ export type UpdateSemesterMutation = {
   updateSemester?: Types.Maybe<
     Pick<Types.Semester, "id" | "name"> & {
       entries?: Types.Maybe<
-        Array<Types.Maybe<Pick<Types.SemesterEntry, "id" | "classId">>>
+        Array<
+          Types.Maybe<
+            Pick<Types.SemesterEntry, "id" | "classId" | "index"> & {
+              class?: Types.Maybe<
+                Pick<Types.Class, "id" | "classCode" | "title" | "credits">
+              >;
+            }
+          >
+        >
       >;
     }
   >;
@@ -195,7 +234,11 @@ export type AddClassToSemesterMutationVariables = Types.Exact<{
 
 export type AddClassToSemesterMutation = {
   addClassToSemester?: Types.Maybe<
-    Pick<Types.SemesterEntry, "id" | "semesterId" | "classId">
+    Pick<Types.SemesterEntry, "id" | "semesterId" | "classId" | "index"> & {
+      class?: Types.Maybe<
+        Pick<Types.Class, "id" | "classCode" | "title" | "credits">
+      >;
+    }
   >;
 };
 
@@ -292,80 +335,6 @@ export type GetUserQuery = {
       | "assignmentCompletionPercentage"
       | "degreeId"
     > & {
-      tasks?: Types.Maybe<
-        Array<
-          Types.Maybe<
-            Pick<
-              Types.Task,
-              | "id"
-              | "title"
-              | "dueDate"
-              | "stageId"
-              | "classCode"
-              | "description"
-            >
-          >
-        >
-      >;
-      classSchedules?: Types.Maybe<
-        Array<
-          Types.Maybe<
-            Pick<Types.ClassSchedule, "id" | "semesterId"> & {
-              entries?: Types.Maybe<
-                Array<
-                  Types.Maybe<
-                    Pick<Types.ClassScheduleEntry, "id" | "classId"> & {
-                      class?: Types.Maybe<
-                        Pick<
-                          Types.Class,
-                          | "id"
-                          | "classCode"
-                          | "title"
-                          | "dayOfWeek"
-                          | "startTime"
-                          | "endTime"
-                          | "color"
-                          | "professor"
-                        >
-                      >;
-                    }
-                  >
-                >
-              >;
-            }
-          >
-        >
-      >;
-      degreePlanners?: Types.Maybe<
-        Array<
-          Types.Maybe<
-            Pick<Types.DegreePlanner, "id" | "degreeId"> & {
-              Semester?: Types.Maybe<
-                Array<
-                  Types.Maybe<
-                    Pick<Types.Semester, "id" | "name"> & {
-                      entries?: Types.Maybe<
-                        Array<
-                          Types.Maybe<
-                            Pick<Types.SemesterEntry, "id" | "classId"> & {
-                              class?: Types.Maybe<
-                                Pick<
-                                  Types.Class,
-                                  "id" | "classCode" | "title" | "credits"
-                                >
-                              >;
-                            }
-                          >
-                        >
-                      >;
-                    }
-                  >
-                >
-              >;
-            }
-          >
-        >
-      >;
       degree?: Types.Maybe<
         Pick<
           Types.Degree,
@@ -510,7 +479,10 @@ export type GetDegreePlannersQuery = {
                   entries?: Types.Maybe<
                     Array<
                       Types.Maybe<
-                        Pick<Types.SemesterEntry, "id" | "classId"> & {
+                        Pick<
+                          Types.SemesterEntry,
+                          "id" | "classId" | "index"
+                        > & {
                           class?: Types.Maybe<
                             Pick<
                               Types.Class,
@@ -543,7 +515,7 @@ export type GetSemestersQuery = {
           entries?: Types.Maybe<
             Array<
               Types.Maybe<
-                Pick<Types.SemesterEntry, "id" | "classId"> & {
+                Pick<Types.SemesterEntry, "id" | "classId" | "index"> & {
                   class?: Types.Maybe<
                     Pick<Types.Class, "id" | "classCode" | "credits" | "title">
                   >;
@@ -567,7 +539,7 @@ export type GetSemesterQuery = {
       entries?: Types.Maybe<
         Array<
           Types.Maybe<
-            Pick<Types.SemesterEntry, "id" | "classId"> & {
+            Pick<Types.SemesterEntry, "id" | "classId" | "index"> & {
               class?: Types.Maybe<
                 Pick<Types.Class, "id" | "classCode" | "credits" | "title">
               >;

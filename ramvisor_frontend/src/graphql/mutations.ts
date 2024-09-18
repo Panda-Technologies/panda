@@ -122,6 +122,20 @@ export const CREATE_DEGREE_PLANNER_MUTATION = gql`
       id
       userId
       degreeId
+      Semester {
+        id
+        name
+        entries {
+          id
+          classId
+          class {
+            id
+            classCode
+            title
+            credits
+          }
+        }
+      }
     }
   }
 `;
@@ -144,6 +158,13 @@ export const CREATE_SEMESTER_MUTATION = gql`
       entries {
         id
         classId
+        index
+        class {
+          id
+          classCode
+          title
+          credits
+        }
       }
     }
   }
@@ -157,6 +178,13 @@ export const UPDATE_SEMESTER_MUTATION = gql`
       entries {
         id
         classId
+        index
+        class {
+          id
+          classCode
+          title
+          credits
+        }
       }
     }
   }
@@ -176,6 +204,13 @@ export const ADD_CLASS_TO_SEMESTER_MUTATION = gql`
       id
       semesterId
       classId
+      index
+      class {
+        id
+        classCode
+        title
+        credits
+      }
     }
   }
 `;

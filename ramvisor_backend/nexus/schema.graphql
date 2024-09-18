@@ -191,8 +191,14 @@ type SemesterEntry {
   class: Class
   classId: Int!
   id: Int!
+  index: Int!
   semester: Semester
   semesterId: Int!
+}
+
+input SemesterEntryInput {
+  classId: Int!
+  index: Int!
 }
 
 type Task {
@@ -244,7 +250,7 @@ input UpdateDegreeInput {
 }
 
 input UpdateSemesterInput {
-  classIds: [Int!]
+  entries: [SemesterEntryInput!]
   id: Int!
   name: String
 }
