@@ -20,6 +20,7 @@ export interface NexusGenInputs {
   }
   AddClassToSemesterInput: { // input type
     classId: number; // Int!
+    credits: number; // Int!
     semesterId: number; // Int!
   }
   CreateClassInput: { // input type
@@ -80,6 +81,8 @@ export interface NexusGenInputs {
   }
   RemoveClassFromSemesterInput: { // input type
     classId: number; // Int!
+    credits: number; // Int!
+    semesterId: number; // Int!
   }
   SemesterEntryInput: { // input type
     classId: number; // Int!
@@ -119,6 +122,7 @@ export interface NexusGenInputs {
     numberOfElectives?: number | null; // Int
   }
   UpdateSemesterInput: { // input type
+    credits: number; // Int!
     entries?: NexusGenInputs['SemesterEntryInput'][] | null; // [SemesterEntryInput!]
     id: number; // Int!
     name?: string | null; // String
@@ -198,6 +202,7 @@ export interface NexusGenObjects {
   Mutation: {};
   Query: {};
   Semester: { // root type
+    credits: number; // Int!
     degreeId: number; // Int!
     degreePlanner?: NexusGenRootTypes['DegreePlanner'] | null; // DegreePlanner
     entries?: Array<NexusGenRootTypes['SemesterEntry'] | null> | null; // [SemesterEntry]
@@ -338,6 +343,7 @@ export interface NexusGenFieldTypes {
     getUser: NexusGenRootTypes['User'] | null; // User
   }
   Semester: { // field return type
+    credits: number; // Int!
     degreeId: number; // Int!
     degreePlanner: NexusGenRootTypes['DegreePlanner'] | null; // DegreePlanner
     entries: Array<NexusGenRootTypes['SemesterEntry'] | null> | null; // [SemesterEntry]
@@ -468,6 +474,7 @@ export interface NexusGenFieldTypeNames {
     getUser: 'User'
   }
   Semester: { // field return type name
+    credits: 'Int'
     degreeId: 'Int'
     degreePlanner: 'DegreePlanner'
     entries: 'SemesterEntry'

@@ -9,6 +9,7 @@ input AddClassToScheduleInput {
 
 input AddClassToSemesterInput {
   classId: Int!
+  credits: Int!
   semesterId: Int!
 }
 
@@ -176,9 +177,12 @@ input RemoveClassFromScheduleInput {
 
 input RemoveClassFromSemesterInput {
   classId: Int!
+  credits: Int!
+  semesterId: Int!
 }
 
 type Semester {
+  credits: Int!
   degreeId: Int!
   degreePlanner: DegreePlanner
   entries: [SemesterEntry]
@@ -250,6 +254,7 @@ input UpdateDegreeInput {
 }
 
 input UpdateSemesterInput {
+  credits: Int!
   entries: [SemesterEntryInput!]
   id: Int!
   name: String

@@ -34,6 +34,7 @@ export type AddClassToScheduleInput = {
 
 export type AddClassToSemesterInput = {
   classId: Scalars["Int"]["input"];
+  credits: Scalars["Int"]["input"];
   semesterId: Scalars["Int"]["input"];
 };
 
@@ -343,9 +344,12 @@ export type RemoveClassFromScheduleInput = {
 
 export type RemoveClassFromSemesterInput = {
   classId: Scalars["Int"]["input"];
+  credits: Scalars["Int"]["input"];
+  semesterId: Scalars["Int"]["input"];
 };
 
 export type Semester = {
+  credits: Scalars["Int"]["output"];
   degreeId: Scalars["Int"]["output"];
   degreePlanner?: Maybe<DegreePlanner>;
   entries?: Maybe<Array<Maybe<SemesterEntry>>>;
@@ -417,6 +421,7 @@ export type UpdateDegreeInput = {
 };
 
 export type UpdateSemesterInput = {
+  credits: Scalars["Int"]["input"];
   entries?: InputMaybe<Array<SemesterEntryInput>>;
   id: Scalars["Int"]["input"];
   name?: InputMaybe<Scalars["String"]["input"]>;

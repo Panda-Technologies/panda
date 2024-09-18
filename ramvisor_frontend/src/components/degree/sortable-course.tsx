@@ -7,20 +7,20 @@ import {
 import React from "react";
 import { CSS } from "@dnd-kit/utilities";
 import { getClassColor } from "@utilities/helpers";
-import { Class, Degree, DegreeSchedule } from "@graphql/generated/graphql";
+import { Class, Degree, Semester } from "@graphql/generated/graphql";
 
 type Props = {
-  onRemoveFromSemester: (semesterId: String, courseId: number) => void;
+  onRemoveFromSemester: (semesterId: number, courseId: number) => void;
   course: Class;
   semesterId?: String;
-  DegreeSchedules?: DegreeSchedule[];
+  Semesters?: Semester[];
   degree: Degree;
 };
 
 export const SortableCourse = ({
   course,
   onRemoveFromSemester,
-  DegreeSchedules,
+  Semesters,
   degree,
 }: Props) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -29,10 +29,10 @@ export const SortableCourse = ({
     });
 
   const getSemesterId = () => {
-    if (DegreeSchedules) {
-      for (const schedule of DegreeSchedules) {
+    if (Semesters) {
+      for (const schedule of Semesters) {
         if (schedule.entries?.find((entry) => entry?.classId === course.id)) {
-          return schedule.semesterId;
+          return schedule.id;
         }
       }
     }
@@ -61,10 +61,10 @@ export const SortableCourse = ({
   };
 
   const getClassStatus = () => {
-    if (DegreeSchedules) {
-      for (const schedule of DegreeSchedules) {
+    if (Semesters) {
+      for (const schedule of Semesters) {
         if (schedule.entries?.find((entry) => entry?.classId === course.id)) {
-          return `Already added to ${schedule.semesterId}`;
+          return `Already added to ${schedule.id}`;
         }
       }
     }

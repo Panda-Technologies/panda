@@ -337,17 +337,23 @@ export const SemesterMutation = extendType({
         input: nonNull(AddClassToSemesterInput),
       },
       resolve: async (_, { input }, { prisma }) => {
-        // Find the current max index
+        const { classId, semesterId, credits } = input;
         const maxIndexEntry = await prisma.semesterEntry.findFirst({
           where: { semesterId: input.semesterId },
           orderBy: { index: "desc" },
         });
         const newIndex = maxIndexEntry ? maxIndexEntry.index + 1 : 0;
 
-        if (input)
+        if (credits) {
+          await prisma.semester.update({
+            where: { id: semesterId },
+            data: { credits: { increment: credits } },
+          })
+        }
         return prisma.semesterEntry.create({
           data: {
-            ...input,
+            classId,
+            semesterId,
             index: newIndex,
           },
           include: { class: true },
@@ -360,11 +366,20 @@ export const SemesterMutation = extendType({
       args: {
         input: nonNull(RemoveClassFromSemesterInput),
       },
-      resolve: (_, { input }, { prisma }) =>
-        prisma.semesterEntry.delete({
-          where: { id: input.classId },
+      resolve: (_, { input }, { prisma }) => {
+        const { classId, semesterId, credits } = input;
+
+        if (credits) {
+          prisma.semester.update({
+            where: { id: semesterId },
+            data: { credits: { decrement: credits } },
+          });
+        }
+        return prisma.semesterEntry.delete({
+          where: { id: classId },
           include: { class: true },
-        }),
+        });
+      },
     });
   },
 });

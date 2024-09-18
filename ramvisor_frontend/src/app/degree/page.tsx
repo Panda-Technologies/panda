@@ -1,11 +1,10 @@
 "use client";
 
-import { Semester } from "@components/degree/droppable-semester";
 import DegreeHeader from "@components/degree/header";
 import DegreeSearch from "@components/degree/search";
 import { DragEndEvent, DragOverEvent, DragStartEvent, MouseSensor, PointerSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { Class, DegreePlanner } from "@graphql/generated/graphql";
-import { GET_CLASSES_QUERY, GET_DEGREE_PLANNERS_QUERY } from "@graphql/queries";
+import { Class, DegreePlanner, Maybe, Semester, SemesterEntry } from "@graphql/generated/graphql";
+import { GET_CLASS_QUERY, GET_CLASSES_QUERY, GET_DEGREE_PLANNERS_QUERY } from "@graphql/queries";
 import { BaseKey, useCustom, useDelete, useGetIdentity, useUpdate } from "@refinedev/core";
 import React, { useCallback } from "react";
 import { message } from "antd";
@@ -20,7 +19,7 @@ export interface Degree {
   numberOfElectives: number;
 }
 
-const DegreePage = (props: Props) => {
+const DegreePage = (_props: Props) => {
   const [activeId, setActiveId] = React.useState<number | null>(null);
   const [activeSemester, setActiveSemester] = React.useState<number | null>(null);
   const [semesters, setSemesters] = React.useState<Semester[]>([]);
@@ -45,6 +44,18 @@ const DegreePage = (props: Props) => {
       gqlQuery: GET_CLASSES_QUERY,
     }
   });
+
+const fetchCourseData = (classId: number) => {
+  const { data: courseData, isLoading: courseLoading, refetch: refetchCourse } = useCustom<{ getCourse: Class }>({
+    url: "",
+    method: "get",
+    meta: {
+      gqlQuery: GET_CLASS_QUERY,
+      variables: { id: classId }
+    }
+  })
+  return {courseData, courseLoading, refetchCourse}
+};
 
   const { mutate: updatePlanner } = useUpdate();
   const { mutate: DeletePlanner } = useDelete();
@@ -77,7 +88,7 @@ const DegreePage = (props: Props) => {
       return;
     }
 
-    if ((over.data.current as any).type === 'semester') {
+    if ((over.data.current as any).type === 'Semester') {
       handleDropIntoSemester(activeId as number, over.id as number);
     } else {
       handleReorderWithinSemester(active.id as number, over.id as number, (over.data.current as any).semesterId as number);
@@ -99,11 +110,11 @@ const DegreePage = (props: Props) => {
             return semester;
           }
   
-          if (semester.courses.some((c) => c.id === courseId)) {
+          if (semester.entries?.some((c) => c?.classId === courseId)) {
             return semester;
           }
   
-          const updatedCourses = [...semester.courses, course];
+          const updatedCourses = [...(semester.entries ?? []), course];
           const updatedCredits = updatedCourses.reduce((sum, c) => sum + c.credits, 0);
   
           message.success(`Added ${course.title} to ${semester.name}`, 3);
@@ -111,8 +122,8 @@ const DegreePage = (props: Props) => {
           return {...semester, courses: updatedCourses, credits: updatedCredits};
         }
   
-        const updatedCourses = semester.courses.filter((c) => c.id !== courseId);
-        const updatedCredits = updatedCourses.reduce((sum, c) => sum + c.credits, 0);
+        const updatedCourses = semester.entries?.filter((c) => c?.id !== courseId);
+        const updatedCredits = updatedCourses?.reduce((sum, c) => sum + (c ?  : 0), 0);
   
         return {...semester, courses: updatedCourses, credits: updatedCredits};
       });
@@ -125,16 +136,14 @@ const DegreePage = (props: Props) => {
         values: {
           id: semesterId,
           name: semesters.find(s => s.id === semesterId)?.name,
-          entries: semesters.map((entry, index) => ({
-            classId: entry.courses.
-          }))
+          entries: {}
         },
         meta: {
           gqlMutation: UPDATE_SEMESTER_MUTATION,
         }
       },
       {
-        onSuccess: (data) => {
+        onSuccess: (_data) => {
           message.success("Course added to semester successfully");
           refetchPlanners();
         },
@@ -161,13 +170,13 @@ const DegreePage = (props: Props) => {
     setSemesters((prevSemesters) => {
       const updatedSemesters = prevSemesters.map((semester) => {
         if (semester.id === semesterId) {
-          const oldIdx = semester.courses.findIndex((course) => course.id === activeId);
-          const newIdx = semester.courses.findIndex((course) => course.id === overId);
+          const oldIdx = semester.entries?.findIndex((entry) => entry?.id === activeId);
+          const newIdx = semester.entries?.findIndex((entry) => entry?.id === overId);
 
           if (oldIdx !== -1 && newIdx !== -1) {
-            const newCourses = [...semester.courses];
+            const newCourses = [...semester.entries ?? []];
             const [reorderedItem] = newCourses.splice(oldIdx, 1);
-            newCourses.splice(newIdx, 0, reorderedItem);
+            newCourses.splice((newIdx ? newIdx : 0), 0, reorderedItem);
 
             return { ...semester, courses: newCourses };
           }
