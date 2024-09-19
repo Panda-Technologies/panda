@@ -8,6 +8,7 @@ export const Class = objectType({
     t.nonNull.int('credits');
     t.nonNull.string('courseType');
     t.nonNull.string('title');
+    t.nonNull.string('description');
     t.nonNull.string('dayOfWeek');
     t.nonNull.string('startTime');
     t.nonNull.string('endTime');
@@ -27,6 +28,7 @@ export const CreateClassInput = inputObjectType({
     t.nonNull.string('courseType');
     t.nonNull.int('credits');
     t.nonNull.string('title');
+    t.nonNull.string('description');
     t.nonNull.string('dayOfWeek');
     t.nonNull.string('startTime');
     t.nonNull.string('endTime');
@@ -47,6 +49,7 @@ export const UpdateClassInput = inputObjectType({
     t.int('credits');
     t.string('title');
     t.string('dayOfWeek');
+    t.string('description');
     t.string('startTime');
     t.string('endTime');
     t.string('color');

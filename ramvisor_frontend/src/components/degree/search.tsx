@@ -1,25 +1,25 @@
-import { Class } from "@app/degree/page";
+import { Class } from "@graphql/generated/graphql";
 import React from "react";
 import { SortableCourse } from "./sortable-course";
 import { BaseKey, useDelete } from "@refinedev/core";
-import { REMOVE_CLASS_FROM_DEGREE_SCHEDULE_MUTATION } from "@graphql/mutations";
-import { Degree, DegreeSchedule } from "@graphql/generated/graphql";
+import { REMOVE_CLASS_FROM_SEMESTER_MUTATION } from "@graphql/mutations";
+import { Degree, Semester } from "@graphql/generated/graphql";
 
 type Props = {
-  handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  getDegreeSchedules: () => DegreeSchedule[];
+  getSemesters: Semester[];
+  getClasses: () => Class[];
 };
 
-const DegreeSearch = ({ handleSearch, getDegreeSchedules }: Props) => {
+const DegreeSearch = ({ getClasses, getSemesters }: Props) => {
   const [searchTerm, setSearchTerm] = React.useState<string>("");
   const [searchResults, setSearchResults] = React.useState<Class[]>([]);
 
   const { mutate: removeClassFromSemester } = useDelete();
 
   const getDegreeScheduleEntryId = (courseId: number) => {
-    const degreeSchedules: DegreeSchedule[] = getDegreeSchedules();
-    if (degreeSchedules) {
-    const entry = degreeSchedules.flatMap(schedule => schedule.entries).find(entry => entry?.classId === courseId);
+    const Semesters: Semester[] = getSemesters;
+    if (Semesters) {
+    const entry = Semesters.flatMap(semester => semester.entries).find(entry => entry?.classId === courseId);
     return entry?.id;
   }
   };
@@ -32,9 +32,22 @@ const DegreeSearch = ({ handleSearch, getDegreeSchedules }: Props) => {
         id: getDegreeScheduleEntryId(courseId) ?? "" as BaseKey
       },
       meta: {
-        gqlMutation: REMOVE_CLASS_FROM_DEGREE_SCHEDULE_MUTATION
+        gqlMutation: REMOVE_CLASS_FROM_SEMESTER_MUTATION
       }
     });
+  };
+
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const term = event.target.value.toLowerCase();
+    setSearchTerm(term);
+    if (term) {
+      setSearchResults(
+        getClasses().filter(
+          (course) =>
+          (course.classCode.toLowerCase().includes(term) || course. ))
+        )
+      )
+    }
   };
 
   return (

@@ -1,5 +1,5 @@
 "use client";
-import { DegreeSchedule } from "@graphql/generated/graphql";
+import { DegreePlanner } from "@graphql/generated/graphql";
 import { Card } from "antd";
 import React from "react";
 
@@ -10,10 +10,10 @@ type Props = {
   saveCurrentPlanner: () => void;
   setShowAIPlanModal: (isActive: boolean) => void;
   resetPlanner: () => void;
-  getPlanners: () => DegreeSchedule[];
+  getPlanners: () => DegreePlanner[] | [];
   loadPlanner: (selectedPlannerId: number) => void;
-  activePlanner: DegreeSchedule | null;
-  setActivePlanner: (planner: DegreeSchedule) => void;
+  activePlanner: DegreePlanner | null;
+  setActivePlanner: (planner: DegreePlanner) => void;
 };
 
 const DegreeHeader = ({

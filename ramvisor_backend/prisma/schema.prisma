@@ -76,6 +76,7 @@ model Class {
   id                    Int                  @id @unique @default(autoincrement())
   classCode             String
   credits               Int
+  description           String
   courseType            String
   title                 String
   dayOfWeek             String
