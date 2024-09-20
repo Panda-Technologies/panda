@@ -30,6 +30,7 @@ export interface NexusGenInputs {
     courseType: string; // String!
     credits: number; // Int!
     dayOfWeek: string; // String!
+    description: string; // String!
     electiveDegreeId: Array<number | null>; // [Int]!
     endTime: string; // String!
     professor: string; // String!
@@ -103,6 +104,7 @@ export interface NexusGenInputs {
     courseType?: string | null; // String
     credits?: number | null; // Int
     dayOfWeek?: string | null; // String
+    description?: string | null; // String
     electiveDegreeId?: Array<number | null> | null; // [Int]
     endTime?: string | null; // String
     id: number; // Int!
@@ -161,6 +163,7 @@ export interface NexusGenObjects {
     courseType: string; // String!
     credits: number; // Int!
     dayOfWeek: string; // String!
+    description: string; // String!
     electiveDegreeId?: Array<number | null> | null; // [Int]
     endTime: string; // String!
     id: number; // Int!
@@ -263,6 +266,7 @@ export interface NexusGenFieldTypes {
     courseType: string; // String!
     credits: number; // Int!
     dayOfWeek: string; // String!
+    description: string; // String!
     electiveDegreeId: Array<number | null> | null; // [Int]
     endTime: string; // String!
     id: number; // Int!
@@ -394,6 +398,7 @@ export interface NexusGenFieldTypeNames {
     courseType: 'String'
     credits: 'Int'
     dayOfWeek: 'String'
+    description: 'String'
     electiveDegreeId: 'Int'
     endTime: 'String'
     id: 'Int'

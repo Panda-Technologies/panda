@@ -8,7 +8,7 @@ import {
   inputObjectType,
   stringArg,
 } from "nexus";
-
+// Destructure all inputs from prisma client into separate consts for readability
 export const DegreePlanner = objectType({
   name: "DegreePlanner",
   definition(t) {

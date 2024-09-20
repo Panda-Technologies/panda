@@ -29,9 +29,10 @@ import {
   useCustom,
   useDelete,
   useGetIdentity,
+  useList,
   useUpdate,
 } from "@refinedev/core";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { message } from "antd";
 import { UPDATE_SEMESTER_MUTATION } from "@graphql/mutations";
 
@@ -44,11 +45,27 @@ export interface Degree {
   numberOfElectives: number;
 }
 
+const handleApiError = (error: any, customMessage: string) => {
+  console.error(`${customMessage}:`, error);
+  if (error.response) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx
+    message.error(`Error ${error.response.status}: ${error.response.data.message || 'An error occurred'}`);
+  } else if (error.request) {
+    // The request was made but no response was received
+    message.error('No response received from server. Please check your connection.');
+  } else {
+    // Something happened in setting up the request that triggered an Error
+    message.error('An unexpected error occurred. Please try again later.');
+  }
+};
+
 const useFetchPlanners = (userId: string | undefined) => {
   const {
     data: plannerData,
     isLoading: plannerLoading,
     refetch: refetchPlanners,
+    error: plannerError,
   } = useCustom<{ getPlanners: DegreePlanner[] }>({
     url: "",
     method: "get",
@@ -57,6 +74,12 @@ const useFetchPlanners = (userId: string | undefined) => {
       variables: { userId: userId },
     },
   });
+
+  useEffect(() => {
+    if (plannerError) {
+      handleApiError(plannerError, 'Error fetching planners');
+    }
+  }, [plannerError]);
 
   return { plannerData, plannerLoading, refetchPlanners };
 };
@@ -83,33 +106,35 @@ const DegreePage = (_props: Props) => {
     }
   }, [plannerData]);
 
-  const {
-    data: coursesData,
+  const { 
+    data: coursesData, 
     isLoading: coursesLoading,
     refetch: refetchCourses,
-  } = useCustom<{ getCourses: Class[] }>({
-    url: "",
-    method: "get",
+    error: coursesError,
+  } = useList<Class>({
+    resource: "classes",
     meta: {
-      gqlQuery: GET_CLASSES_QUERY,
-    },
+      gqlQuery: GET_CLASSES_QUERY
+    }
   });
 
-  const UseFetchCourse = (classId: number) => {
-    const {
-      data: courseData,
-      isLoading: courseLoading,
-      refetch: refetchCourse,
-    } = useCustom<{ getCourse: Class }>({
-      url: "",
-      method: "get",
-      meta: {
-        gqlQuery: GET_CLASS_QUERY,
-        variables: { id: classId },
-      },
+  useEffect(() => {
+    if (coursesError) {
+      handleApiError(coursesError, 'Error fetching courses');
+    }
+  }, [coursesError]);
+
+  const coursesMap = useMemo(() => {
+    const map = new Map<number, Class>();
+    coursesData?.data.forEach(course => {
+      map.set(course.id, course);
     });
-    return { courseData, courseLoading, refetchCourse };
-  };
+    return map;
+  }, [coursesData]);
+
+  const getCourse = useCallback((classId: number) => {
+    return coursesMap.get(classId);
+  }, [coursesMap]);
 
   const { mutate: updatePlanner } = useUpdate();
   const { mutate: DeletePlanner } = useDelete();
@@ -156,9 +181,7 @@ const DegreePage = (_props: Props) => {
 
   const handleDropIntoSemester = useCallback(
     (courseId: number, semesterId: number) => {
-      const course = coursesData?.data.getCourses.find(
-        (course) => course.id === courseId
-      );
+      const course = getCourse(courseId); 
       if (!course) return null;
 
       setSemesters((prevSemesters) => {
@@ -179,7 +202,7 @@ const DegreePage = (_props: Props) => {
             const updatedCourses = [
               ...(semester.entries?.map((e) => {
                 if (e?.classId !== undefined) {
-                  return UseFetchCourse(e.classId).courseData!.data.getCourse;
+                  return getCourse(e.classId);
                 }
                 return null;
               }).filter((course) => course !== null) ?? []),
@@ -189,7 +212,7 @@ const DegreePage = (_props: Props) => {
               (sum, e) =>
                 sum +
                 (e
-                  ? UseFetchCourse(e.id).courseData!.data.getCourse.credits
+                  ? getCourse(e.id)!.credits
                   : 0),
               0
             );
@@ -210,7 +233,7 @@ const DegreePage = (_props: Props) => {
             (sum, e) =>
               sum +
               (e
-                ? UseFetchCourse(e.classId).courseData!.data.getCourse.credits
+                ? getCourse(e.classId)!.credits
                 : 0),
             0
           );
@@ -255,7 +278,7 @@ const DegreePage = (_props: Props) => {
                     (sum, e) =>
                       sum +
                       (e
-                        ? UseFetchCourse(e.classId).courseData!.data.getCourse.credits
+                        ? getCourse(e.classId)!.credits
                         : 0),
                     0
                   );
@@ -272,7 +295,7 @@ const DegreePage = (_props: Props) => {
         }
       );
     },
-    [coursesData, semesters, updatePlanner, refetchPlanners]
+    [getCourse, semesters, updatePlanner, refetchPlanners]
   );
 
   return (
@@ -292,7 +315,7 @@ const DegreePage = (_props: Props) => {
         />
       </div>
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        <DegreeSearch getSemesters={semesters} />
+        <DegreeSearch getSemesters={semesters} getClasses={coursesData?.data ?? []} />
       </div>
     </>
   );

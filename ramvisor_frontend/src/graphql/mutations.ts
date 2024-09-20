@@ -48,6 +48,7 @@ export const CREATE_CLASS_MUTATION = gql`
       credits
       courseType
       title
+      description
       dayOfWeek
       startTime
       endTime
@@ -68,6 +69,7 @@ export const UPDATE_CLASS_MUTATION = gql`
       credits
       courseType
       title
+      description
       dayOfWeek
       startTime
       endTime

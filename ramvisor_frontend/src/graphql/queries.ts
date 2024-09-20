@@ -29,6 +29,7 @@ export const GET_CLASSES_QUERY = gql`
       credits
       courseType
       title
+      description
       dayOfWeek
       startTime
       endTime
@@ -47,6 +48,7 @@ export const GET_CLASS_QUERY = gql`
       id
       classCode
       credits
+      description
       courseType
       title
       dayOfWeek

@@ -49,6 +49,7 @@ export type Class = {
   courseType: Scalars["String"]["output"];
   credits: Scalars["Int"]["output"];
   dayOfWeek: Scalars["String"]["output"];
+  description: Scalars["String"]["output"];
   electiveDegreeId?: Maybe<Array<Maybe<Scalars["Int"]["output"]>>>;
   endTime: Scalars["String"]["output"];
   id: Scalars["Int"]["output"];
@@ -83,6 +84,7 @@ export type CreateClassInput = {
   courseType: Scalars["String"]["input"];
   credits: Scalars["Int"]["input"];
   dayOfWeek: Scalars["String"]["input"];
+  description: Scalars["String"]["input"];
   electiveDegreeId: Array<InputMaybe<Scalars["Int"]["input"]>>;
   endTime: Scalars["String"]["input"];
   professor: Scalars["String"]["input"];
@@ -411,6 +413,7 @@ export type UpdateClassInput = {
   courseType?: InputMaybe<Scalars["String"]["input"]>;
   credits?: InputMaybe<Scalars["Int"]["input"]>;
   dayOfWeek?: InputMaybe<Scalars["String"]["input"]>;
+  description?: InputMaybe<Scalars["String"]["input"]>;
   electiveDegreeId?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
   endTime?: InputMaybe<Scalars["String"]["input"]>;
   id: Scalars["Int"]["input"];
@@ -540,6 +543,7 @@ export type CreateClassMutation = {
     credits: number;
     courseType: string;
     title: string;
+    description: string;
     dayOfWeek: string;
     startTime: string;
     endTime: string;
@@ -564,6 +568,7 @@ export type UpdateClassMutation = {
     credits: number;
     courseType: string;
     title: string;
+    description: string;
     dayOfWeek: string;
     startTime: string;
     endTime: string;
@@ -878,6 +883,7 @@ export type GetClassesQuery = {
     credits: number;
     courseType: string;
     title: string;
+    description: string;
     dayOfWeek: string;
     startTime: string;
     endTime: string;
@@ -900,6 +906,7 @@ export type GetClassQuery = {
     id: number;
     classCode: string;
     credits: number;
+    description: string;
     courseType: string;
     title: string;
     dayOfWeek: string;
@@ -1485,6 +1492,7 @@ export const CreateClassDocument = {
                 { kind: "Field", name: { kind: "Name", value: "credits" } },
                 { kind: "Field", name: { kind: "Name", value: "courseType" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "dayOfWeek" } },
                 { kind: "Field", name: { kind: "Name", value: "startTime" } },
                 { kind: "Field", name: { kind: "Name", value: "endTime" } },
@@ -1557,6 +1565,7 @@ export const UpdateClassDocument = {
                 { kind: "Field", name: { kind: "Name", value: "credits" } },
                 { kind: "Field", name: { kind: "Name", value: "courseType" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "dayOfWeek" } },
                 { kind: "Field", name: { kind: "Name", value: "startTime" } },
                 { kind: "Field", name: { kind: "Name", value: "endTime" } },
@@ -2780,6 +2789,7 @@ export const GetClassesDocument = {
                 { kind: "Field", name: { kind: "Name", value: "credits" } },
                 { kind: "Field", name: { kind: "Name", value: "courseType" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "dayOfWeek" } },
                 { kind: "Field", name: { kind: "Name", value: "startTime" } },
                 { kind: "Field", name: { kind: "Name", value: "endTime" } },
@@ -2844,6 +2854,7 @@ export const GetClassDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "classCode" } },
                 { kind: "Field", name: { kind: "Name", value: "credits" } },
+                { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "courseType" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "dayOfWeek" } },

@@ -7,7 +7,7 @@ import { Degree, Semester } from "@graphql/generated/graphql";
 
 type Props = {
   getSemesters: Semester[];
-  getClasses: () => Class[];
+  getClasses: Class[];
 };
 
 const DegreeSearch = ({ getClasses, getSemesters }: Props) => {
@@ -42,13 +42,24 @@ const DegreeSearch = ({ getClasses, getSemesters }: Props) => {
     setSearchTerm(term);
     if (term) {
       setSearchResults(
-        getClasses().filter(
+        getClasses.filter(
           (course) =>
-          (course.classCode.toLowerCase().includes(term) || course. ))
+            course.classCode.toLowerCase().includes(term) ||
+            course.description.toLowerCase().includes(term) &&
+            !isCourseTaken(course.id)
         )
-      )
+      );
+    } else {
+      setSearchResults([]);
     }
   };
+
+  const isCourseTaken = (courseId: number): boolean => {
+    return (
+    getSemesters.some((sem: Semester) => 
+      sem.entries?.some((entry) => entry?.classId === courseId)
+  ));
+  }
 
   return (
     <div

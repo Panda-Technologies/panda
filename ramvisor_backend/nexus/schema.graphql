@@ -21,6 +21,7 @@ type Class {
   courseType: String!
   credits: Int!
   dayOfWeek: String!
+  description: String!
   electiveDegreeId: [Int]
   endTime: String!
   id: Int!
@@ -53,6 +54,7 @@ input CreateClassInput {
   courseType: String!
   credits: Int!
   dayOfWeek: String!
+  description: String!
   electiveDegreeId: [Int]!
   endTime: String!
   professor: String!
@@ -232,6 +234,7 @@ input UpdateClassInput {
   courseType: String
   credits: Int
   dayOfWeek: String
+  description: String
   electiveDegreeId: [Int]
   endTime: String
   id: Int!
