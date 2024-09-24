@@ -15,9 +15,9 @@ export const Class = objectType({
     t.nonNull.string('color');
     t.nonNull.string('professor');
     t.nonNull.float('rateMyProfessorRating');
-    t.nonNull.int('coreDegreeId');
+    t.nonNull.list.int('coreDegreeId');
     t.list.int('electiveDegreeId');
-    t.list.field('classSchedules', { type: 'ClassSchedule' });
+    t.list.field('classSchedules', { type: 'classSchedule' });
   },
 });
 // Add class entries and class template, separate out for ease of access
@@ -60,14 +60,14 @@ export const UpdateClassInput = inputObjectType({
   },
 });
 
-export const DeleteClassInput = inputObjectType({
-  name: 'DeleteClassInput',
+export const deleteClassInput = inputObjectType({
+  name: 'deleteClassInput',
   definition(t) {
     t.nonNull.int('id');
   },
 });
 
-export const ClassQuery = extendType({
+export const classQuery = extendType({
   type: 'Query',
   definition(t) {
     t.list.field('getClasses', {
@@ -84,7 +84,7 @@ export const ClassQuery = extendType({
 });
 
 
-export const ClassMutation = extendType({
+export const classMutation = extendType({
   type: 'Mutation',
   definition(t) {
     t.field('createClass', {
@@ -109,7 +109,7 @@ export const ClassMutation = extendType({
     t.field('deleteClass', {
       type: 'Class',
       args: {
-        input: nonNull(DeleteClassInput),
+        input: nonNull(deleteClassInput),
       },
       resolve: (_, { input }, { prisma }) => prisma.class.delete({ where: { id: input.id } })
     });

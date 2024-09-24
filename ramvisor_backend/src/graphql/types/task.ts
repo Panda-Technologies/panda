@@ -6,8 +6,8 @@ import {
   stringArg,
 } from "nexus";
 
-export const Task = objectType({
-  name: "Task",
+export const task = objectType({
+  name: "task",
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.string("userId");
@@ -16,12 +16,12 @@ export const Task = objectType({
     t.string("classCode");
     t.string("description");
     t.nonNull.string("title");
-    t.field("user", { type: "User" });
+    t.field("user", { type: "user" });
   },
 });
 
-const TaskInputFields = inputObjectType({
-  name: "TaskInputFields",
+const taskInputFields = inputObjectType({
+  name: "taskInputFields",
   definition(t) {
     t.nonNull.string("title");
     t.int("stageId");
@@ -32,15 +32,15 @@ const TaskInputFields = inputObjectType({
   },
 });
 
-export const CreateTaskInput = inputObjectType({
-  name: "CreateTaskInput",
+export const createTaskInput = inputObjectType({
+  name: "createTaskInput",
   definition(t) {
-    t.field("task", { type: TaskInputFields });
+    t.field("task", { type: taskInputFields });
   },
 });
 
-const UpdateTaskFields = inputObjectType({
-  name: "UpdateTaskFields",
+const updateTaskFields = inputObjectType({
+  name: "updateTaskFields",
   definition(t) {
     t.nonNull.int("id");
     t.string("title");
@@ -51,26 +51,26 @@ const UpdateTaskFields = inputObjectType({
   },
 });
 
-export const UpdateTaskInput = inputObjectType({
-  name: "UpdateTaskInput",
+export const updateTaskInput = inputObjectType({
+  name: "updateTaskInput",
   definition(t) {
     t.nonNull.int("id");
-    t.field("update", { type: UpdateTaskFields });
+    t.field("update", { type: updateTaskFields });
   },
 });
 
-export const DeleteTaskInput = inputObjectType({
-  name: "DeleteTaskInput",
+export const deleteTaskInput = inputObjectType({
+  name: "deleteTaskInput",
   definition(t) {
     t.nonNull.int("id");
   },
 });
 
-export const TaskQuery = extendType({
+export const taskQuery = extendType({
   type: "Query",
   definition(t) {
     t.list.field("getTasks", {
-      type: "Task",
+      type: "task",
       args: { userId: nonNull(stringArg()) },
       resolve: (_, { userId }, { prisma }) =>
         prisma.task.findMany({ where: { userId } }),
@@ -78,13 +78,13 @@ export const TaskQuery = extendType({
   },
 });
 
-export const TaskMutation = extendType({
+export const taskMutation = extendType({
   type: "Mutation",
   definition(t) {
     t.field("createTask", {
-      type: "Task",
+      type: "task",
       args: {
-        input: CreateTaskInput,
+        input: createTaskInput,
       },
       resolve: async (_, { input }, { prisma }) => {
         const { task } = input;
@@ -102,9 +102,9 @@ export const TaskMutation = extendType({
     });
 
     t.field("updateTask", {
-      type: "Task",
+      type: "task",
       args: {
-        input: UpdateTaskInput,
+        input: updateTaskInput,
       },
       resolve: async (_, { input }, { prisma }) => {
         const { id, update } = input;
@@ -122,9 +122,9 @@ export const TaskMutation = extendType({
     });
 
     t.field("deleteTask", {
-      type: "Task",
+      type: "task",
       args: {
-        input: DeleteTaskInput,
+        input: deleteTaskInput,
       },
       resolve: (_, { input }, { prisma }) =>
         prisma.task.delete({ where: { id: input.id } }),

@@ -1,9 +1,9 @@
-import { User } from "@prisma/client";
+import { user } from "@prisma/client";
 import { IMyContext } from "../../interface";
 import { hashPassword } from "../../utils";
 import { generateUUID } from "../../utils";
 
-export const registerResolve = async (_: any, { input }: { input: Omit<User, 'id'> }, { prisma }: IMyContext) => {
+export const registerResolve = async (_: any, { input }: { input: Omit<user, 'id'> }, { prisma }: IMyContext) => {
     try {
         const { email, password } = input;
 
@@ -16,7 +16,7 @@ export const registerResolve = async (_: any, { input }: { input: Omit<User, 'id
         const newUser = await prisma.user.create({
             data: {
                 id: generateUUID(),
-                ...input,
+                email: input.email,
                 password: hashedPassword,
             },
         });

@@ -1,9 +1,9 @@
-import { objectType, extendType, nonNull, stringArg, intArg, floatArg } from "nexus";
+import { objectType, extendType, nonNull, stringArg, intArg, floatArg, list } from "nexus";
 import { loginResolve, logoutResolve } from "../resolvers/loginResolver";
 import { registerResolve } from "../resolvers/registerResolver";
 
-export const User = objectType({
-  name: 'User',
+export const user = objectType({
+  name: 'user',
   definition(t) {
     t.nonNull.string('id');
     t.nonNull.string('email');
@@ -13,25 +13,26 @@ export const User = objectType({
     t.float('attendancePercentage');
     t.float('assignmentCompletionPercentage');
     t.int('degreeId');
-    t.list.field('tasks', { type: 'Task' });
-    t.list.field('classSchedules', { type: 'ClassSchedule' });
-    t.list.field('degreePlanners', { type: 'DegreePlanner' });
-    t.field('degree', { type: 'Degree' });
+    t.list.int('takenClassIds');
+    t.list.field('tasks', { type: 'task' });
+    t.list.field('classSchedules', { type: 'classSchedule' });
+    t.list.field('degreePlanners', { type: 'degreePlanner' });
+    t.field('degree', { type: 'degree' });
   },
 });
 
-export const UserQuery = extendType({
+export const userQuery = extendType({
   type: 'Query',
   definition(t) {
     t.field('getUser', {
-      type: 'User',
+      type: 'user',
       args: { id: nonNull(stringArg()) },
       resolve: (_, { id }, { prisma }) => prisma.user.findUnique({ where: { id } })
     });
   },
 });
 
-export const UserMutation = extendType({
+export const userMutation = extendType({
   type: 'Mutation',
   definition(t) {
     t.field('login', {
@@ -58,7 +59,7 @@ export const UserMutation = extendType({
     });
 
     t.field('updateUserProfile', {
-      type: 'User',
+      type: 'user',
       args: {
         id: nonNull(stringArg()),
         university: nonNull(stringArg()),
@@ -72,12 +73,13 @@ export const UserMutation = extendType({
     });
 
     t.field('updateUserAcademicInfo', {
-      type: 'User',
+      type: 'user',
       args: {
         id: nonNull(stringArg()),
         gpa: floatArg(),
         attendancePercentage: floatArg(),
-        assignmentCompletionPercentage: floatArg()
+        assignmentCompletionPercentage: floatArg(),
+        takenClassIds: list(stringArg()),
       },
       resolve: (_, args, { prisma }) => prisma.user.update({
         where: { id: args.id },

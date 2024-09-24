@@ -10,16 +10,15 @@ import { getClassColor } from "@utilities/helpers";
 import { Class, Degree, Semester } from "@graphql/generated/graphql";
 
 type Props = {
-  onRemoveFromSemester: (semesterId: number, courseId: number) => void;
   course: Class;
-  semesterId?: String;
-  Semesters?: Semester[];
+  semesterId: String;
+  Semesters: Semester[];
   degree: Degree;
+  onRemoveFromSemester: (semesterId: number, courseId: number) => void;
 };
 
 export const SortableCourse = ({
   course,
-  onRemoveFromSemester,
   Semesters,
   degree,
 }: Props) => {
@@ -38,6 +37,7 @@ export const SortableCourse = ({
     }
     return null;
   };
+  
 
   const semesterId = getSemesterId();
 

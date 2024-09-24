@@ -5,21 +5,22 @@ import {
   objectType,
   inputObjectType,
 } from "nexus";
+import { Class as PrismaClass } from "@prisma/client";
 
-export const Degree = objectType({
-  name: "Degree",
+export const degree = objectType({
+  name: "degree",
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.string("name");
     t.nonNull.int("numberOfCores");
     t.nonNull.int("numberOfElectives");
-    t.list.field("semesters", { type: "Semester" });
-    t.list.field("users", { type: "User" });
+    t.list.field("semesters", { type: "semester" });
+    t.list.field("users", { type: "user" });
   },
 });
 
-export const CreateDegreeInput = inputObjectType({
-  name: "CreateDegreeInput",
+export const createDegreeInput = inputObjectType({
+  name: "createDegreeInput",
   definition(t) {
     t.nonNull.string("name");
     t.nonNull.int("numberOfCores");
@@ -27,8 +28,8 @@ export const CreateDegreeInput = inputObjectType({
   },
 });
 
-export const UpdateDegreeInput = inputObjectType({
-  name: "UpdateDegreeInput",
+export const updateDegreeInput = inputObjectType({
+  name: "updateDegreeInput",
   definition(t) {
     t.nonNull.int("id");
     t.string("name");
@@ -37,61 +38,88 @@ export const UpdateDegreeInput = inputObjectType({
   },
 });
 
-export const DeleteDegreeInput = inputObjectType({
-  name: 'DeleteDegreeInput',
+export const deleteDegreeInput = inputObjectType({
+  name: "deleteDegreeInput",
   definition(t) {
-    t.nonNull.int('id');
+    t.nonNull.int("id");
   },
 });
 
-export const DegreeQuery = extendType({
+export const degreeQuery = extendType({
   type: "Query",
   definition(t) {
-    t.list.field("getAllDegrees", {
-      type: "Degree",
+    t.list.field("getAlldegrees", {
+      type: "degree",
       resolve: (_, __, { prisma }) => prisma.degree.findMany(),
     });
 
     t.field("getDegree", {
-      type: "Degree",
+      type: "degree",
       args: {
         id: nonNull(intArg()),
       },
       resolve: (_, { id }, { prisma }) =>
         prisma.degree.findUnique({ where: { id } }),
     });
+
+    t.field("getDegreeRequirements", {
+      type: "degree",
+      args: {
+        id: nonNull(intArg()),
+      },
+      resolve: async (_, { id }, { prisma }) => {
+        const coreCourses: PrismaClass[] = await prisma.Class.findMany({
+          where: { coredegreeId: { has: id } },
+        });
+        const electiveCourses: PrismaClass[] = await prisma.Class.findMany({
+          where: { electivedegreeId: { has: id } },
+        });
+
+        const requirements = new Map<PrismaClass, String>();
+        coreCourses.forEach((course) => {
+          requirements.set(course, "Core");
+        });
+        electiveCourses.forEach((course) => {
+          requirements.set(course, "Elective");
+        });
+
+        return requirements;
+      },
+    });
   },
 });
 
-
-export const DegreeMutation = extendType({
-  type: 'Mutation',
+export const degreeMutation = extendType({
+  type: "Mutation",
   definition(t) {
-    t.field('createDegree', {
-      type: 'Degree',
+    t.field("createDegree", {
+      type: "degree",
       args: {
-        input: nonNull(CreateDegreeInput),
+        input: nonNull(createDegreeInput),
       },
-      resolve: (_, { input }, { prisma }) => prisma.degree.create({ data: input })
+      resolve: (_, { input }, { prisma }) =>
+        prisma.degree.create({ data: input }),
     });
 
-    t.field('updateDegree', {
-      type: 'Degree',
+    t.field("updateDegree", {
+      type: "degree",
       args: {
-        input: nonNull(UpdateDegreeInput),
+        input: nonNull(updateDegreeInput),
       },
-      resolve: (_, { input }, { prisma }) => prisma.degree.update({
-        where: { id: input.id },
-        data: input
-      })
+      resolve: (_, { input }, { prisma }) =>
+        prisma.degree.update({
+          where: { id: input.id },
+          data: input,
+        }),
     });
 
-    t.field('deleteDegree', {
-      type: 'Degree',
+    t.field("deleteDegree", {
+      type: "degree",
       args: {
-        input: nonNull(DeleteDegreeInput),
+        input: nonNull(deleteDegreeInput),
       },
-      resolve: (_, { input }, { prisma }) => prisma.degree.delete({ where: { id: input.id } })
+      resolve: (_, { input }, { prisma }) =>
+        prisma.degree.delete({ where: { id: input.id } }),
     });
-  }
+  },
 });

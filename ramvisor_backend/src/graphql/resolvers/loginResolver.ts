@@ -1,9 +1,9 @@
-import { User } from "@prisma/client";
+import { user } from "@prisma/client";
 import { IMyContext, ISession } from "../../interface";
 import { isAuthenticated, verifyPassword } from "../../utils";
 import { INVALID_CREDENTIALS, NOT_AUTHENTICATED, NOT_AUTHORIZED } from "../../constants";
 
-export const loginResolve = async (_: any, { input }: { input: Pick<User, 'email' | 'password'> },  {prisma, session}: IMyContext) => {
+export const loginResolve = async (_: any, { input }: { input: Pick<user, 'email' | 'password'> },  {prisma, session}: IMyContext) => {
     const { email, password } = input;
     
     try {

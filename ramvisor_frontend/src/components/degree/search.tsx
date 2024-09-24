@@ -8,34 +8,14 @@ import { Degree, Semester } from "@graphql/generated/graphql";
 type Props = {
   getSemesters: Semester[];
   getClasses: Class[];
+  getClass: (classId: number) => Class | undefined;
+  removeFromSemester: (semesterId: string, courseId: number) => void;
+  getDegreeScheduleEntryId: (courseId: number) => number | undefined;
 };
 
-const DegreeSearch = ({ getClasses, getSemesters }: Props) => {
+const DegreeSearch = ({ getClasses, getSemesters, getClass }: Props) => {
   const [searchTerm, setSearchTerm] = React.useState<string>("");
   const [searchResults, setSearchResults] = React.useState<Class[]>([]);
-
-  const { mutate: removeClassFromSemester } = useDelete();
-
-  const getDegreeScheduleEntryId = (courseId: number) => {
-    const Semesters: Semester[] = getSemesters;
-    if (Semesters) {
-    const entry = Semesters.flatMap(semester => semester.entries).find(entry => entry?.classId === courseId);
-    return entry?.id;
-  }
-  };
-
-  const removeFromSemester = (semesterId: string, courseId: number) => {
-    removeClassFromSemester({
-      resource: "degree",
-      id: getDegreeScheduleEntryId(courseId) ?? "" as BaseKey,
-      values: {
-        id: getDegreeScheduleEntryId(courseId) ?? "" as BaseKey
-      },
-      meta: {
-        gqlMutation: REMOVE_CLASS_FROM_SEMESTER_MUTATION
-      }
-    });
-  };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value.toLowerCase();

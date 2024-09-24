@@ -22,13 +22,6 @@ const IconWrapper = ({
   );
 };
 
-// import {
-//   BusinessType,
-//   CompanySize,
-//   Contact,
-//   Industry,
-// } from "@/graphql/schema.types";
-
 export type TotalCountType = "attendance" | "gpa" | "sleep";
 
 export const totalCountVariants: {

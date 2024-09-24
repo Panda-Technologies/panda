@@ -11,6 +11,7 @@ export const GET_USER_QUERY = gql`
       attendancePercentage
       assignmentCompletionPercentage
       degreeId
+      takenClassIds
       degree {
         id
         name
@@ -65,7 +66,7 @@ export const GET_CLASS_QUERY = gql`
 
 export const GET_CLASS_SCHEDULES_QUERY = gql`
   query GetClassSchedules($userId: String!) {
-    getClassSchedules(userId: $userId) {
+    getclassSchedules(userId: $userId) {
       id
       userId
       semesterId
@@ -111,11 +112,11 @@ export const GET_CLASS_SCHEDULE_ENTRIES_QUERY = gql`
 
 export const GET_DEGREE_PLANNERS_QUERY = gql`
   query GetDegreePlanners($userId: String!) {
-    getDegreePlanners(userId: $userId) {
+    getdegreePlanners(userId: $userId) {
       id
       userId
       degreeId
-      Semester {
+      semester {
         id
         name
         entries {
@@ -136,7 +137,7 @@ export const GET_DEGREE_PLANNERS_QUERY = gql`
 
 export const GET_SEMESTERS_QUERY = gql`
   query GetSemesters($plannerId: Int!) {
-    getSemesters(plannerId: $plannerId) {
+    getsemesters(plannerId: $plannerId) {
       id
       name
       degreeId
@@ -180,7 +181,7 @@ export const GET_SEMESTER_QUERY = gql`
 
 export const GET_ALL_DEGREES_QUERY = gql`
   query GetAllDegrees {
-    getAllDegrees {
+    getAlldegrees {
       id
       name
       numberOfCores
@@ -192,6 +193,17 @@ export const GET_ALL_DEGREES_QUERY = gql`
 export const GET_DEGREE_QUERY = gql`
   query GetDegree($id: Int!) {
     getDegree(id: $id) {
+      id
+      name
+      numberOfCores
+      numberOfElectives
+    }
+  }
+`;
+
+export const GET_DEGREE_REQUIREMENTS_QUERY = gql`
+  query GetDegreeRequirements($id: Int!) {
+    getDegreeRequirements(id: $id) {
       id
       name
       numberOfCores

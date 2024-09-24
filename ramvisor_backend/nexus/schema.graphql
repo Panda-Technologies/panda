@@ -2,22 +2,11 @@
 ### Do not make changes to this file directly
 
 
-input AddClassToScheduleInput {
-  classId: Int!
-  classScheduleId: Int!
-}
-
-input AddClassToSemesterInput {
-  classId: Int!
-  credits: Int!
-  semesterId: Int!
-}
-
 type Class {
   classCode: String!
-  classSchedules: [ClassSchedule]
+  classSchedules: [classSchedule]
   color: String!
-  coreDegreeId: Int!
+  coreDegreeId: [Int]!
   courseType: String!
   credits: Int!
   dayOfWeek: String!
@@ -29,22 +18,6 @@ type Class {
   rateMyProfessorRating: Float!
   startTime: String!
   title: String!
-}
-
-type ClassSchedule {
-  entries: [ClassScheduleEntry]
-  id: Int!
-  semesterId: String!
-  user: User
-  userId: String!
-}
-
-type ClassScheduleEntry {
-  class: Class
-  classId: Int!
-  classSchedule: ClassSchedule
-  classScheduleId: Int!
-  id: Int!
 }
 
 input CreateClassInput {
@@ -63,168 +36,58 @@ input CreateClassInput {
   title: String!
 }
 
-input CreateClassScheduleInput {
-  semesterId: String!
-  userId: String!
-}
-
-input CreateDegreeInput {
-  name: String!
-  numberOfCores: Int!
-  numberOfElectives: Int!
-}
-
-input CreateDegreePlannerInput {
-  degreeId: Int!
-  userId: String!
-}
-
-input CreateSemesterInput {
-  classIds: [Int!]
-  degreeId: Int!
-  name: String!
-  plannerId: Int!
-}
-
-input CreateTaskInput {
-  task: TaskInputFields
-}
-
-type Degree {
-  id: Int!
-  name: String!
-  numberOfCores: Int!
-  numberOfElectives: Int!
-  semesters: [Semester]
-  users: [User]
-}
-
-type DegreePlanner {
-  Semester: [Semester]
-  degree: Degree
-  degreeId: Int!
-  id: Int!
-  user: User
-  userId: String!
-}
-
-input DeleteClassInput {
-  id: Int!
-}
-
-input DeleteDegreeInput {
-  id: Int!
-}
-
-input DeleteTaskInput {
-  id: Int!
-}
-
 input LoginInput {
   email: String!
   password: String!
 }
 
 type Mutation {
-  addClassToClassSchedule(input: AddClassToScheduleInput!): ClassScheduleEntry
-  addClassToSemester(input: AddClassToSemesterInput!): SemesterEntry
+  addClassToClassSchedule(input: addClassToScheduleInput!): classScheduleEntry
+  addClassTosemester(input: addClassToSemesterInput!): semesterEntry
   createClass(input: CreateClassInput!): Class
-  createClassSchedule(input: CreateClassScheduleInput!): ClassSchedule
-  createDegree(input: CreateDegreeInput!): Degree
-  createDegreePlanner(input: CreateDegreePlannerInput!): DegreePlanner
-  createSemester(input: CreateSemesterInput!): Semester
-  createTask(input: CreateTaskInput): Task
-  deleteClass(input: DeleteClassInput!): Class
-  deleteClassSchedule(id: Int!): ClassSchedule
-  deleteDegree(input: DeleteDegreeInput!): Degree
-  deleteDegreePlanner(id: Int!): DegreePlanner
-  deleteSemester(id: Int!): Semester
-  deleteTask(input: DeleteTaskInput): Task
+  createClassSchedule(input: createClassScheduleInput!): classSchedule
+  createDegree(input: createDegreeInput!): degree
+  createDegreePlanner(input: createDegreePlannerInput!): degreePlanner
+  createSemester(input: createSemesterInput!): semester
+  createTask(input: createTaskInput): task
+  deleteClass(input: deleteClassInput!): Class
+  deleteClassSchedule(id: Int!): classSchedule
+  deleteDegree(input: deleteDegreeInput!): degree
+  deleteDegreePlanner(id: Int!): degreePlanner
+  deleteTask(input: deleteTaskInput): task
+  deletesemester(id: Int!): semester
   login(input: LoginInput!): String
   logout: Boolean
   register(input: RegisterInput!): String
-  removeClassFromClassSchedule(input: RemoveClassFromScheduleInput!): ClassScheduleEntry
-  removeClassFromSemester(input: RemoveClassFromSemesterInput!): SemesterEntry
+  removeClassFromClassSchedule(input: removeClassFromScheduleInput!): classScheduleEntry
+  removeClassFromsemester(input: removeClassFromSemesterInput!): semesterEntry
   updateClass(input: UpdateClassInput!): Class
-  updateClassSchedule(input: UpdateClassScheduleInput!): ClassSchedule
-  updateDegree(input: UpdateDegreeInput!): Degree
-  updateSemester(input: UpdateSemesterInput!): Semester
-  updateTask(input: UpdateTaskInput): Task
-  updateUserAcademicInfo(assignmentCompletionPercentage: Float, attendancePercentage: Float, gpa: Float, id: String!): User
-  updateUserProfile(degreeId: Int!, id: String!, university: String!, yearInUniversity: Int!): User
+  updateClassSchedule(input: updateClassScheduleInput!): classSchedule
+  updateDegree(input: updateDegreeInput!): degree
+  updateSemester(input: updateSemesterInput!): semester
+  updateTask(input: updateTaskInput): task
+  updateUserAcademicInfo(assignmentCompletionPercentage: Float, attendancePercentage: Float, gpa: Float, id: String!, takenClassIds: [String]): user
+  updateUserProfile(degreeId: Int!, id: String!, university: String!, yearInUniversity: Int!): user
 }
 
 type Query {
-  getAllDegrees: [Degree]
+  getAlldegrees: [degree]
   getClass(id: Int!): Class
-  getClassScheduleEntries(classScheduleId: Int!): [ClassScheduleEntry]
-  getClassSchedules(userId: String!): [ClassSchedule]
+  getClassScheduleEntries(classScheduleId: Int!): [classScheduleEntry]
   getClasses: [Class]
-  getDegree(id: Int!): Degree
-  getDegreePlanners(userId: String!): [DegreePlanner]
-  getSemester(id: Int!): Semester
-  getSemesters(plannerId: Int!): [Semester]
-  getTasks(userId: String!): [Task]
-  getUser(id: String!): User
+  getDegree(id: Int!): degree
+  getDegreeRequirements(id: Int!): degree
+  getSemester(id: Int!): semester
+  getTasks(userId: String!): [task]
+  getUser(id: String!): user
+  getclassSchedules(userId: String!): [classSchedule]
+  getdegreePlanners(userId: String!): [degreePlanner]
+  getsemesters(plannerId: Int!): [semester]
 }
 
 input RegisterInput {
   email: String!
   password: String!
-}
-
-input RemoveClassFromScheduleInput {
-  id: Int!
-}
-
-input RemoveClassFromSemesterInput {
-  classId: Int!
-  credits: Int!
-  semesterId: Int!
-}
-
-type Semester {
-  credits: Int!
-  degreeId: Int!
-  degreePlanner: DegreePlanner
-  entries: [SemesterEntry]
-  id: Int!
-  name: String!
-  plannerId: Int!
-}
-
-type SemesterEntry {
-  class: Class
-  classId: Int!
-  id: Int!
-  index: Int!
-  semester: Semester
-  semesterId: Int!
-}
-
-input SemesterEntryInput {
-  classId: Int!
-  index: Int!
-}
-
-type Task {
-  classCode: String
-  description: String
-  dueDate: String!
-  id: Int!
-  stageId: Int!
-  title: String!
-  user: User
-  userId: String!
-}
-
-input TaskInputFields {
-  classCode: String
-  description: String
-  dueDate: String!
-  stageId: Int
-  title: String!
-  userId: String!
 }
 
 input UpdateClassInput {
@@ -244,26 +107,164 @@ input UpdateClassInput {
   title: String
 }
 
-input UpdateClassScheduleInput {
+input addClassToScheduleInput {
+  classId: Int!
+  classScheduleId: Int!
+}
+
+input addClassToSemesterInput {
+  classId: Int!
+  credits: Int!
+  semesterId: Int!
+}
+
+type classSchedule {
+  entries: [classScheduleEntry]
+  id: Int!
+  semesterId: String!
+  user: user
+  userId: String!
+}
+
+type classScheduleEntry {
+  class: Class
+  classId: Int!
+  classSchedule: classSchedule
+  classScheduleId: Int!
+  id: Int!
+}
+
+input createClassScheduleInput {
+  semesterId: String!
+  userId: String!
+}
+
+input createDegreeInput {
+  name: String!
+  numberOfCores: Int!
+  numberOfElectives: Int!
+}
+
+input createDegreePlannerInput {
+  degreeId: Int!
+  userId: String!
+}
+
+input createSemesterInput {
+  classIds: [Int!]
+  degreeId: Int!
+  name: String!
+  plannerId: Int!
+}
+
+input createTaskInput {
+  task: taskInputFields
+}
+
+type degree {
+  id: Int!
+  name: String!
+  numberOfCores: Int!
+  numberOfElectives: Int!
+  semesters: [semester]
+  users: [user]
+}
+
+type degreePlanner {
+  degree: degree
+  degreeId: Int!
+  id: Int!
+  semester: [semester]
+  user: user
+  userId: String!
+}
+
+input deleteClassInput {
+  id: Int!
+}
+
+input deleteDegreeInput {
+  id: Int!
+}
+
+input deleteTaskInput {
+  id: Int!
+}
+
+input removeClassFromScheduleInput {
+  id: Int!
+}
+
+input removeClassFromSemesterInput {
+  classId: Int!
+  credits: Int!
+  semesterId: Int!
+}
+
+type semester {
+  credits: Int!
+  degreeId: Int!
+  degreePlanner: degreePlanner
+  entries: [semesterEntry]
+  id: Int!
+  name: String!
+  plannerId: Int!
+}
+
+type semesterEntry {
+  class: Class
+  classId: Int!
+  id: Int!
+  index: Int!
+  semester: semester
+  semesterId: Int!
+}
+
+input semesterEntryInput {
+  classId: Int!
+  index: Int!
+}
+
+type task {
+  classCode: String
+  description: String
+  dueDate: String!
+  id: Int!
+  stageId: Int!
+  title: String!
+  user: user
+  userId: String!
+}
+
+input taskInputFields {
+  classCode: String
+  description: String
+  dueDate: String!
+  stageId: Int
+  title: String!
+  userId: String!
+}
+
+input updateClassScheduleInput {
   id: Int!
   semesterId: String
 }
 
-input UpdateDegreeInput {
+input updateDegreeInput {
   id: Int!
   name: String
   numberOfCores: Int
   numberOfElectives: Int
 }
 
-input UpdateSemesterInput {
+input updateSemesterInput {
   credits: Int!
-  entries: [SemesterEntryInput!]
+  entries: [semesterEntryInput!]
   id: Int!
   name: String
 }
 
-input UpdateTaskFields {
+input updateTaskFields {
   classCode: String
   description: String
   dueDate: String
@@ -272,22 +273,23 @@ input UpdateTaskFields {
   title: String
 }
 
-input UpdateTaskInput {
+input updateTaskInput {
   id: Int!
-  update: UpdateTaskFields
+  update: updateTaskFields
 }
 
-type User {
+type user {
   assignmentCompletionPercentage: Float
   attendancePercentage: Float
-  classSchedules: [ClassSchedule]
-  degree: Degree
+  classSchedules: [classSchedule]
+  degree: degree
   degreeId: Int
-  degreePlanners: [DegreePlanner]
+  degreePlanners: [degreePlanner]
   email: String!
   gpa: Float
   id: String!
-  tasks: [Task]
+  takenClassIds: [Int]
+  tasks: [task]
   university: String
   yearInUniversity: Int
 }

@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { SemesterEntry as PrismaSemesterEntry } from "@prisma/client";
+import { semesterEntry as prismaSemesterEntry } from "@prisma/client";
 import {
   extendType,
   nonNull,
@@ -9,53 +9,53 @@ import {
   stringArg,
 } from "nexus";
 // Destructure all inputs from prisma client into separate consts for readability
-export const DegreePlanner = objectType({
-  name: "DegreePlanner",
+export const degreePlanner = objectType({
+  name: "degreePlanner",
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.string("userId");
     t.nonNull.int("degreeId");
-    t.field("user", { type: "User" });
-    t.field("degree", { type: "Degree" });
-    t.list.field("Semester", { type: "Semester" });
+    t.field("user", { type: "user" });
+    t.field("degree", { type: "degree" });
+    t.list.field("semester", { type: "semester" });
   },
 });
 
-export const Semester = objectType({
-  name: "Semester",
+export const semester = objectType({
+  name: "semester",
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.string("name");
     t.nonNull.int("credits");
     t.nonNull.int("degreeId");
     t.nonNull.int("plannerId");
-    t.field("degreePlanner", { type: "DegreePlanner" });
-    t.list.field("entries", { type: "SemesterEntry" });
+    t.field("degreePlanner", { type: "degreePlanner" });
+    t.list.field("entries", { type: "semesterEntry" });
   },
 });
 
-export const SemesterEntry = objectType({
-  name: "SemesterEntry",
+export const semesterEntry = objectType({
+  name: "semesterEntry",
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.int("semesterId");
     t.nonNull.int("classId");
     t.nonNull.int("index");
-    t.field("semester", { type: "Semester" });
+    t.field("semester", { type: "semester" });
     t.field("class", { type: "Class" });
   },
 });
 
-export const CreateDegreePlannerInput = inputObjectType({
-  name: "CreateDegreePlannerInput",
+export const createDegreePlannerInput = inputObjectType({
+  name: "createDegreePlannerInput",
   definition(t) {
     t.nonNull.string("userId");
     t.nonNull.int("degreeId");
   },
 });
 
-export const CreateSemesterInput = inputObjectType({
-  name: "CreateSemesterInput",
+export const createSemesterInput = inputObjectType({
+  name: "createSemesterInput",
   definition(t) {
     t.nonNull.string("name");
     t.nonNull.int("degreeId");
@@ -64,26 +64,26 @@ export const CreateSemesterInput = inputObjectType({
   },
 });
 
-export const SemesterEntryInput = inputObjectType({
-  name: "SemesterEntryInput",
+export const semesterEntryInput = inputObjectType({
+  name: "semesterEntryInput",
   definition(t) {
     t.nonNull.int("classId");
     t.nonNull.int("index");
   },
 });
 
-export const UpdateSemesterInput = inputObjectType({
-  name: "UpdateSemesterInput",
+export const updateSemesterInput = inputObjectType({
+  name: "updateSemesterInput",
   definition(t) {
     t.nonNull.int("id");
     t.string("name");
     t.nonNull.int("credits");
-    t.list.nonNull.field("entries", { type: nonNull(SemesterEntryInput) });
+    t.list.nonNull.field("entries", { type: nonNull(semesterEntryInput) });
   },
 });
 
-export const AddClassToSemesterInput = inputObjectType({
-  name: "AddClassToSemesterInput",
+export const addClassToSemesterInput = inputObjectType({
+  name: "addClassToSemesterInput",
   definition(t) {
     t.nonNull.int("semesterId");
     t.nonNull.int("credits");
@@ -91,8 +91,8 @@ export const AddClassToSemesterInput = inputObjectType({
   },
 });
 
-export const RemoveClassFromSemesterInput = inputObjectType({
-  name: "RemoveClassFromSemesterInput",
+export const removeClassFromSemesterInput = inputObjectType({
+  name: "removeClassFromSemesterInput",
   definition(t) {
     t.nonNull.int("semesterId");
     t.nonNull.int("classId");
@@ -100,11 +100,11 @@ export const RemoveClassFromSemesterInput = inputObjectType({
   },
 });
 
-export const DegreePlannerQuery = extendType({
+export const degreePlannerQuery = extendType({
   type: "Query",
   definition(t) {
-    t.list.field("getDegreePlanners", {
-      type: "DegreePlanner",
+    t.list.field("getdegreePlanners", {
+      type: "degreePlanner",
       args: {
         userId: nonNull(stringArg()),
       },
@@ -112,7 +112,7 @@ export const DegreePlannerQuery = extendType({
         prisma.degreePlanner.findMany({
           where: { userId },
           include: {
-            Semester: {
+            semester: {
               include: {
                 entries: {
                   include: { classId: true, index: true },
@@ -126,11 +126,11 @@ export const DegreePlannerQuery = extendType({
   },
 });
 
-export const SemesterQuery = extendType({
+export const semesterQuery = extendType({
   type: "Query",
   definition(t) {
-    t.list.field("getSemesters", {
-      type: "Semester",
+    t.list.field("getsemesters", {
+      type: "semester",
       args: {
         plannerId: nonNull(intArg()),
       },
@@ -147,7 +147,7 @@ export const SemesterQuery = extendType({
     });
 
     t.field("getSemester", {
-      type: "Semester",
+      type: "semester",
       args: {
         id: nonNull(intArg()),
       },
@@ -165,42 +165,42 @@ export const SemesterQuery = extendType({
   },
 });
 
-export const DegreePlannerMutation = extendType({
+export const degreePlannerMutation = extendType({
   type: "Mutation",
   definition(t) {
     t.field("createDegreePlanner", {
-      type: "DegreePlanner",
+      type: "degreePlanner",
       args: {
-        input: nonNull(CreateDegreePlannerInput),
+        input: nonNull(createDegreePlannerInput),
       },
       resolve: (_, { input }, { prisma }) =>
         prisma.degreePlanner.create({
           data: input,
-          include: { Semester: true },
+          include: { semester: true },
         }),
     });
 
     t.field("deleteDegreePlanner", {
-      type: "DegreePlanner",
+      type: "degreePlanner",
       args: {
         id: nonNull(intArg()),
       },
       resolve: (_, { id }, { prisma }) =>
         prisma.degreePlanner.delete({
           where: { id },
-          include: { Semester: true },
+          include: { semester: true },
         }),
     });
   },
 });
 
-export const SemesterMutation = extendType({
+export const semesterMutation = extendType({
   type: "Mutation",
   definition(t) {
     t.field("createSemester", {
-      type: "Semester",
+      type: "semester",
       args: {
-        input: nonNull(CreateSemesterInput),
+        input: nonNull(createSemesterInput),
       },
       resolve: async (_, { input }, { prisma }: { prisma: PrismaClient }) => {
         const { name, degreeId, plannerId, classIds, credits } = input;
@@ -231,9 +231,9 @@ export const SemesterMutation = extendType({
     });
 
     t.field("updateSemester", {
-      type: "Semester",
+      type: "semester",
       args: {
-        input: nonNull(UpdateSemesterInput),
+        input: nonNull(updateSemesterInput),
       },
       resolve: async (_, { input }, { prisma }: { prisma: PrismaClient }) => {
         const { id, name, entries, credits } = input;
@@ -255,7 +255,7 @@ export const SemesterMutation = extendType({
         });
 
         const newEntriesMap = new Map();
-        entries.forEach((entry: PrismaSemesterEntry) => {
+        entries.forEach((entry: prismaSemesterEntry) => {
           newEntriesMap.set(entry.classId, entry);
         });
 
@@ -265,11 +265,11 @@ export const SemesterMutation = extendType({
 
         // Entries to create (in newEntries but not in currentEntries)
         const entriesToCreate = entries.filter(
-          (entry: PrismaSemesterEntry) => !currentEntriesMap.has(entry.classId)
+          (entry: prismaSemesterEntry) => !currentEntriesMap.has(entry.classId)
         );
 
         // Entries to update (in both currentEntries and newEntries)
-        const entriesToUpdate = entries.filter((entry: PrismaSemesterEntry) =>
+        const entriesToUpdate = entries.filter((entry: prismaSemesterEntry) =>
           currentEntriesMap.has(entry.classId)
         );
 
@@ -286,7 +286,7 @@ export const SemesterMutation = extendType({
         // Create new entries
         if (entriesToCreate.length > 0) {
           await prisma.semesterEntry.createMany({
-            data: entriesToCreate.map((entry: PrismaSemesterEntry) => ({
+            data: entriesToCreate.map((entry: prismaSemesterEntry) => ({
               semesterId: id,
               classId: entry.classId,
               index: entry.index,
@@ -319,8 +319,8 @@ export const SemesterMutation = extendType({
       },
     });
 
-    t.field("deleteSemester", {
-      type: "Semester",
+    t.field("deletesemester", {
+      type: "semester",
       args: {
         id: nonNull(intArg()),
       },
@@ -331,10 +331,10 @@ export const SemesterMutation = extendType({
         }),
     });
 
-    t.field("addClassToSemester", {
-      type: "SemesterEntry",
+    t.field("addClassTosemester", {
+      type: "semesterEntry",
       args: {
-        input: nonNull(AddClassToSemesterInput),
+        input: nonNull(addClassToSemesterInput),
       },
       resolve: async (_, { input }, { prisma }) => {
         const { classId, semesterId, credits } = input;
@@ -361,10 +361,10 @@ export const SemesterMutation = extendType({
       },
     });
 
-    t.field("removeClassFromSemester", {
-      type: "SemesterEntry",
+    t.field("removeClassFromsemester", {
+      type: "semesterEntry",
       args: {
-        input: nonNull(RemoveClassFromSemesterInput),
+        input: nonNull(removeClassFromSemesterInput),
       },
       resolve: (_, { input }, { prisma }) => {
         const { classId, semesterId, credits } = input;

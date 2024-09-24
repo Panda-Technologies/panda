@@ -20,26 +20,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model user {
   id                             String          @id @default(uuid())
   email                          String          @unique
   password                       String
   university                     String?
   yearInUniversity               Int?
   degreeId                       Int?
-  currentSemesterScheduleId      Int?
+  currentsemesterScheduleId      Int?
   gpa                            Float?
   attendancePercentage           Float?
   assignmentCompletionPercentage Float?
-  tasks                          Task[]
-  classSchedule                  ClassSchedule[]
-  degreePlanners                 DegreePlanner[]
-  degree                         Degree?         @relation(fields: [degreeId], references: [id])
+  tasks                          task[]
+  classSchedule                  classSchedule[]
+  degreePlanners                 degreePlanner[]
+  takenClasses                   String[]
+  degree                         degree?         @relation(fields: [degreeId], references: [id])
 
   @@map("users")
 }
 
-model Task {
+model task {
   id          Int     @id @unique @default(autoincrement())
   userId      String
   dueDate     String?
@@ -47,26 +48,26 @@ model Task {
   classCode   String?
   description String?
   title       String
-  user        User    @relation(fields: [userId], references: [id])
+  user        user    @relation(fields: [userId], references: [id])
 
   @@map("tasks")
 }
 
-model ClassSchedule {
+model classSchedule {
   id         Int                  @id @unique @default(autoincrement())
   userId     String
   semesterId String
-  user       User                 @relation(fields: [userId], references: [id])
-  entries    ClassScheduleEntry[]
+  user       user                 @relation(fields: [userId], references: [id])
+  entries    classScheduleEntry[]
 
   @@map("class_schedules")
 }
 
-model ClassScheduleEntry {
+model classScheduleEntry {
   id              Int           @id @unique @default(autoincrement())
   classScheduleId Int
   classId         Int
-  classSchedule   ClassSchedule @relation(fields: [classScheduleId], references: [id])
+  classSchedule   classSchedule @relation(fields: [classScheduleId], references: [id])
   class           Class         @relation(fields: [classId], references: [id])
 
   @@map("class_schedule_entries")
@@ -85,55 +86,55 @@ model Class {
   color                 String
   professor             String
   rateMyProfessorRating Float
-  coreDegreeId          Int
-  electiveDegreeId      Int[]
-  classScheduleEntries  ClassScheduleEntry[]
-  SemesterEntries       SemesterEntry[]
+  coredegreeId          Int[]
+  electivedegreeId      Int[]
+  classScheduleEntries  classScheduleEntry[]
+  semesterEntries       semesterEntry[]
 
   @@map("classes")
 }
 
-model DegreePlanner {
+model degreePlanner {
   id       Int        @id @unique @default(autoincrement())
   userId   String
   degreeId Int
-  user     User       @relation(fields: [userId], references: [id])
-  degree   Degree     @relation(fields: [degreeId], references: [id])
-  Semester Semester[]
+  user     user       @relation(fields: [userId], references: [id])
+  degree   degree     @relation(fields: [degreeId], references: [id])
+  semester semester[]
 
   @@map("degree_planners")
 }
 
-model Semester {
+model semester {
   id            Int             @id @unique @default(autoincrement())
   degreeId      Int
   name          String
   credits       Int
   plannerId     Int
-  entries       SemesterEntry[]
-  degreePlanner DegreePlanner   @relation(fields: [plannerId], references: [id])
+  entries       semesterEntry[]
+  degreePlanner degreePlanner   @relation(fields: [plannerId], references: [id])
 
   @@map("semesters")
 }
 
-model SemesterEntry {
+model semesterEntry {
   id         Int      @id @unique @default(autoincrement())
   semesterId Int
   classId    Int
   index      Int
-  Semester   Semester @relation(fields: [semesterId], references: [id])
+  semester   semester @relation(fields: [semesterId], references: [id])
   class      Class    @relation(fields: [classId], references: [id])
 
   @@map("semester_entries")
 }
 
-model Degree {
+model degree {
   id                Int             @id @unique @default(autoincrement())
   name              String
   numberOfCores     Int
   numberOfElectives Int
-  degreePlanners    DegreePlanner[]
-  user              User[]
+  degreePlanners    degreePlanner[]
+  user              user[]
 
   @@map("degrees")
 }
