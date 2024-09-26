@@ -61,7 +61,6 @@ export interface ApCredits {
 export interface Requirement {
   id: number;
   name: String;
-  course: Class;
   completed: number;
   required: number;
   isElective?: boolean;
@@ -204,6 +203,41 @@ const DegreePage = () => {
       );
     }
   }, [plannerData]);
+
+  useEffect(() => {
+    const majorReqMap = new Map<Degree, Requirement[]>();
+  
+    // Check if degrees and requirements data are available
+    if (degreesData?.data?.getDegrees && firstMajorReq?.data?.getRequirements && secondMajorReq?.data?.getRequirements) {
+      const firstDegree = degreesData.data.getDegrees[0];
+      const secondDegree = degreesData.data.getDegrees[1];
+  
+      // Function to convert Map<Class, String> to Requirement[]
+      const convertToRequirements = (reqMap: Map<Class, String>): Requirement[] => {
+        return Array.from(reqMap).map(([course, type]) => ({
+          id: course.id,
+          name: course.classCode,
+          completed: 0,
+          required: 1,
+          isElective: type === "Elective",
+        }));
+      };
+  
+      // Map requirements for the first degree
+      if (firstDegree) {
+        const firstDegreeRequirements = convertToRequirements(firstMajorReq.data.getRequirements);
+        majorReqMap.set(firstDegree, firstDegreeRequirements);
+      }
+  
+      // Map requirements for the second degree (if it exists)
+      if (secondDegree) {
+        const secondDegreeRequirements = convertToRequirements(secondMajorReq.data.getRequirements);
+        majorReqMap.set(secondDegree, secondDegreeRequirements);
+      }
+    }
+  
+    setMajorRequirements(majorReqMap);
+  }, [degreesData, firstMajorReq, secondMajorReq]);
 
   const {
     data: coursesData,

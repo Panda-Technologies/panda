@@ -1,9 +1,14 @@
+('use client');
+
 import { Class } from "@graphql/generated/graphql";
-import React from "react";
+import React, { isValidElement, useCallback, useMemo } from "react";
 import { SortableCourse } from "./sortable-course";
 import { BaseKey, useDelete } from "@refinedev/core";
 import { REMOVE_CLASS_FROM_SEMESTER_MUTATION } from "@graphql/mutations";
 import { Degree, Semester } from "@graphql/generated/graphql";
+import { Requirement } from "@app/degree/page";
+import { ExceptionMap } from "antd/es/result";
+import { get } from "http";
 
 type Props = {
   getSemesters: Semester[];
@@ -11,11 +16,25 @@ type Props = {
   getClass: (classId: number) => Class | undefined;
   removeFromSemester: (semesterId: string, courseId: number) => void;
   getDegreeScheduleEntryId: (courseId: number) => number | undefined;
+  requirements: Requirement[];
+  setShowRequirementDetails: (show: boolean) => void;
 };
 
-const DegreeSearch = ({ getClasses, getSemesters, getClass }: Props) => {
+const DegreeSearch = ({
+  getClasses,
+  getSemesters,
+  getClass,
+  requirements,
+  setShowRequirementDetails,
+}: Props) => {
   const [searchTerm, setSearchTerm] = React.useState<string>("");
   const [searchResults, setSearchResults] = React.useState<Class[]>([]);
+
+  const isCourseTaken = useCallback((courseId: number): boolean => {
+    return getSemesters.some((sem: Semester) =>
+      sem.entries?.some((entry) => entry?.classId === courseId)
+    );
+  }, [getSemesters]);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value.toLowerCase();
@@ -25,8 +44,8 @@ const DegreeSearch = ({ getClasses, getSemesters, getClass }: Props) => {
         getClasses.filter(
           (course) =>
             course.classCode.toLowerCase().includes(term) ||
-            course.description.toLowerCase().includes(term) &&
-            !isCourseTaken(course.id)
+            (course.description.toLowerCase().includes(term) &&
+              !isCourseTaken(course.id))
         )
       );
     } else {
@@ -34,12 +53,34 @@ const DegreeSearch = ({ getClasses, getSemesters, getClass }: Props) => {
     }
   };
 
-  const isCourseTaken = (courseId: number): boolean => {
-    return (
-    getSemesters.some((sem: Semester) => 
-      sem.entries?.some((entry) => entry?.classId === courseId)
-  ));
-  }
+  const getUniqueFilteredCourses = useCallback((requirements: Requirement[]): Class[] => {
+    const uniqueCoursesMap = new Map<number, Class>();
+
+    requirements.forEach((req) => {
+      if (!isCourseTaken(req.id)) {
+        const course = getClass(req.id);
+        if (course) {
+          uniqueCoursesMap.set(course.id, course);
+        }
+      }
+    });
+
+    return Array.from(uniqueCoursesMap.values());
+  }, [getClass, isCourseTaken]);
+
+  const uniqueFilteredCourses = useMemo(
+    () => getUniqueFilteredCourses(requirements),
+    [requirements, getUniqueFilteredCourses]
+  );
+
+  const handleFindCourses = (requirements: Requirement[]) => {
+    if (!requirements || !requirements.length) {
+      throw new Error("Invalid requirement object");
+    }
+
+    setSearchResults(uniqueFilteredCourses);
+    setShowRequirementDetails(false);
+  };
 
   return (
     <div
@@ -66,12 +107,12 @@ const DegreeSearch = ({ getClasses, getSemesters, getClass }: Props) => {
           color: "#111827",
         }}
       />
-      <div style={{ marginBottom: '8px', color: '#4B5563' }}>
+      <div style={{ marginBottom: "8px", color: "#4B5563" }}>
         Total items: {searchResults.length}
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column'}}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
         {searchResults.map((course) => (
-            <SortableCourse />
+          <SortableCourse />
         ))}
       </div>
     </div>
