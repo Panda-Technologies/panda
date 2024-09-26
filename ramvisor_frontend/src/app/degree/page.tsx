@@ -67,6 +67,12 @@ export interface Requirement {
   isElective?: boolean;
 }
 
+export interface CollapsibleRequirement {
+  degreeId: number;
+  name: String;
+  subRequirements: Requirement[];
+}
+
 const handleApiError = (error: any, customMessage: string) => {
   console.error(`${customMessage}:`, error);
   if (error.response) {
