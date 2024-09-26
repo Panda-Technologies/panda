@@ -15,6 +15,7 @@ declare global {
 
 export interface NexusGenInputs {
   CreateClassInput: { // input type
+    category: string; // String!
     classCode: string; // String!
     color: string; // String!
     coreDegreeId: number; // Int!
@@ -38,6 +39,7 @@ export interface NexusGenInputs {
     password: string; // String!
   }
   UpdateClassInput: { // input type
+    category?: string | null; // String
     classCode?: string | null; // String
     color?: string | null; // String
     coreDegreeId?: number | null; // Int
@@ -70,6 +72,7 @@ export interface NexusGenInputs {
     name: string; // String!
     numberOfCores: number; // Int!
     numberOfElectives: number; // Int!
+    reqCategories: Array<string | null>; // [String]!
   }
   createDegreePlannerInput: { // input type
     degreeId: number; // Int!
@@ -122,6 +125,7 @@ export interface NexusGenInputs {
     name?: string | null; // String
     numberOfCores?: number | null; // Int
     numberOfElectives?: number | null; // Int
+    reqCategories?: Array<string | null> | null; // [String]
   }
   updateSemesterInput: { // input type
     credits: number; // Int!
@@ -156,6 +160,7 @@ export interface NexusGenScalars {
 
 export interface NexusGenObjects {
   Class: { // root type
+    category: string; // String!
     classCode: string; // String!
     classSchedules?: Array<NexusGenRootTypes['classSchedule'] | null> | null; // [classSchedule]
     color: string; // String!
@@ -193,6 +198,7 @@ export interface NexusGenObjects {
     name: string; // String!
     numberOfCores: number; // Int!
     numberOfElectives: number; // Int!
+    reqCategories: Array<string | null>; // [String]!
     semesters?: Array<NexusGenRootTypes['semester'] | null> | null; // [semester]
     users?: Array<NexusGenRootTypes['user'] | null> | null; // [user]
   }
@@ -260,6 +266,7 @@ export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars
 
 export interface NexusGenFieldTypes {
   Class: { // field return type
+    category: string; // String!
     classCode: string; // String!
     classSchedules: Array<NexusGenRootTypes['classSchedule'] | null> | null; // [classSchedule]
     color: string; // String!
@@ -305,6 +312,7 @@ export interface NexusGenFieldTypes {
     updateUserProfile: NexusGenRootTypes['user'] | null; // user
   }
   Query: { // field return type
+    classTaken: boolean | null; // Boolean
     getAlldegrees: Array<NexusGenRootTypes['degree'] | null> | null; // [degree]
     getClass: NexusGenRootTypes['Class'] | null; // Class
     getClassScheduleEntries: Array<NexusGenRootTypes['classScheduleEntry'] | null> | null; // [classScheduleEntry]
@@ -337,6 +345,7 @@ export interface NexusGenFieldTypes {
     name: string; // String!
     numberOfCores: number; // Int!
     numberOfElectives: number; // Int!
+    reqCategories: Array<string | null>; // [String]!
     semesters: Array<NexusGenRootTypes['semester'] | null> | null; // [semester]
     users: Array<NexusGenRootTypes['user'] | null> | null; // [user]
   }
@@ -394,6 +403,7 @@ export interface NexusGenFieldTypes {
 
 export interface NexusGenFieldTypeNames {
   Class: { // field return type name
+    category: 'String'
     classCode: 'String'
     classSchedules: 'classSchedule'
     color: 'String'
@@ -439,6 +449,7 @@ export interface NexusGenFieldTypeNames {
     updateUserProfile: 'user'
   }
   Query: { // field return type name
+    classTaken: 'Boolean'
     getAlldegrees: 'degree'
     getClass: 'Class'
     getClassScheduleEntries: 'classScheduleEntry'
@@ -471,6 +482,7 @@ export interface NexusGenFieldTypeNames {
     name: 'String'
     numberOfCores: 'Int'
     numberOfElectives: 'Int'
+    reqCategories: 'String'
     semesters: 'semester'
     users: 'user'
   }
@@ -612,6 +624,10 @@ export interface NexusGenArgTypes {
     }
   }
   Query: {
+    classTaken: { // args
+      classId: number; // Int!
+      id: string; // String!
+    }
     getClass: { // args
       id: number; // Int!
     }
@@ -708,11 +724,71 @@ declare global {
   interface NexusGenPluginInputTypeConfig<TypeName extends string> {
   }
   interface NexusGenPluginFieldConfig<TypeName extends string, FieldName extends string> {
+    /**
+     * Whether the type can be null
+     * @default (depends on whether nullability is configured in type or schema)
+     * @see declarativeWrappingPlugin
+     */
+    nullable?: boolean
+    /**
+     * Whether the type is list of values, or just a single value.
+     * If list is true, we assume the type is a list. If list is an array,
+     * we'll assume that it's a list with the depth. The boolean indicates whether
+     * the type is required (non-null), where true = nonNull, false = nullable.
+     * @see declarativeWrappingPlugin
+     */
+    list?: true | boolean[]
+    /**
+     * Whether the type should be non null, `required: true` = `nullable: false`
+     * @default (depends on whether nullability is configured in type or schema)
+     * @see declarativeWrappingPlugin
+     */
+    required?: boolean
   }
   interface NexusGenPluginInputFieldConfig<TypeName extends string, FieldName extends string> {
+    /**
+     * Whether the type can be null
+     * @default (depends on whether nullability is configured in type or schema)
+     * @see declarativeWrappingPlugin
+     */
+    nullable?: boolean
+    /**
+     * Whether the type is list of values, or just a single value.
+     * If list is true, we assume the type is a list. If list is an array,
+     * we'll assume that it's a list with the depth. The boolean indicates whether
+     * the type is required (non-null), where true = nonNull, false = nullable.
+     * @see declarativeWrappingPlugin
+     */
+    list?: true | boolean[]
+    /**
+     * Whether the type should be non null, `required: true` = `nullable: false`
+     * @default (depends on whether nullability is configured in type or schema)
+     * @see declarativeWrappingPlugin
+     */
+    required?: boolean
   }
   interface NexusGenPluginSchemaConfig {
   }
   interface NexusGenPluginArgConfig {
+    /**
+     * Whether the type can be null
+     * @default (depends on whether nullability is configured in type or schema)
+     * @see declarativeWrappingPlugin
+     */
+    nullable?: boolean
+    /**
+     * Whether the type is list of values, or just a single value.
+     * If list is true, we assume the type is a list. If list is an array,
+     * we'll assume that it's a list with the depth. The boolean indicates whether
+     * the type is required (non-null), where true = nonNull, false = nullable.
+     * @see declarativeWrappingPlugin
+     */
+    list?: true | boolean[]
+    /**
+     * Whether the type should be non null, `required: true` = `nullable: false`
+     * @default (depends on whether nullability is configured in type or schema)
+     * @see declarativeWrappingPlugin
+     */
+    required?: boolean
   }
 }

@@ -28,6 +28,7 @@ export type Scalars = {
 };
 
 export type Class = {
+  category: Scalars["String"]["output"];
   classCode: Scalars["String"]["output"];
   classSchedules?: Maybe<Array<Maybe<ClassSchedule>>>;
   color: Scalars["String"]["output"];
@@ -46,6 +47,7 @@ export type Class = {
 };
 
 export type CreateClassInput = {
+  category: Scalars["String"]["input"];
   classCode: Scalars["String"]["input"];
   color: Scalars["String"]["input"];
   coreDegreeId: Scalars["Int"]["input"];
@@ -203,6 +205,7 @@ export type MutationUpdateUserProfileArgs = {
 };
 
 export type Query = {
+  classTaken?: Maybe<Scalars["Boolean"]["output"]>;
   getAlldegrees?: Maybe<Array<Maybe<Degree>>>;
   getClass?: Maybe<Class>;
   getClassScheduleEntries?: Maybe<Array<Maybe<ClassScheduleEntry>>>;
@@ -215,6 +218,11 @@ export type Query = {
   getclassSchedules?: Maybe<Array<Maybe<ClassSchedule>>>;
   getdegreePlanners?: Maybe<Array<Maybe<DegreePlanner>>>;
   getsemesters?: Maybe<Array<Maybe<Semester>>>;
+};
+
+export type QueryClassTakenArgs = {
+  classId: Scalars["Int"]["input"];
+  id: Scalars["String"]["input"];
 };
 
 export type QueryGetClassArgs = {
@@ -263,6 +271,7 @@ export type RegisterInput = {
 };
 
 export type UpdateClassInput = {
+  category?: InputMaybe<Scalars["String"]["input"]>;
   classCode?: InputMaybe<Scalars["String"]["input"]>;
   color?: InputMaybe<Scalars["String"]["input"]>;
   coreDegreeId?: InputMaybe<Scalars["Int"]["input"]>;
@@ -315,6 +324,7 @@ export type CreateDegreeInput = {
   name: Scalars["String"]["input"];
   numberOfCores: Scalars["Int"]["input"];
   numberOfElectives: Scalars["Int"]["input"];
+  reqCategories: Array<InputMaybe<Scalars["String"]["input"]>>;
 };
 
 export type CreateDegreePlannerInput = {
@@ -338,6 +348,7 @@ export type Degree = {
   name: Scalars["String"]["output"];
   numberOfCores: Scalars["Int"]["output"];
   numberOfElectives: Scalars["Int"]["output"];
+  reqCategories: Array<Maybe<Scalars["String"]["output"]>>;
   semesters?: Maybe<Array<Maybe<Semester>>>;
   users?: Maybe<Array<Maybe<User>>>;
 };
@@ -427,6 +438,7 @@ export type UpdateDegreeInput = {
   name?: InputMaybe<Scalars["String"]["input"]>;
   numberOfCores?: InputMaybe<Scalars["Int"]["input"]>;
   numberOfElectives?: InputMaybe<Scalars["Int"]["input"]>;
+  reqCategories?: InputMaybe<Array<InputMaybe<Scalars["String"]["input"]>>>;
 };
 
 export type UpdateSemesterInput = {

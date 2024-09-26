@@ -3,6 +3,7 @@
 
 
 type Class {
+  category: String!
   classCode: String!
   classSchedules: [classSchedule]
   color: String!
@@ -21,6 +22,7 @@ type Class {
 }
 
 input CreateClassInput {
+  category: String!
   classCode: String!
   color: String!
   coreDegreeId: Int!
@@ -71,6 +73,7 @@ type Mutation {
 }
 
 type Query {
+  classTaken(classId: Int!, id: String!): Boolean
   getAlldegrees: [degree]
   getClass(id: Int!): Class
   getClassScheduleEntries(classScheduleId: Int!): [classScheduleEntry]
@@ -91,6 +94,7 @@ input RegisterInput {
 }
 
 input UpdateClassInput {
+  category: String
   classCode: String
   color: String
   coreDegreeId: Int
@@ -143,6 +147,7 @@ input createDegreeInput {
   name: String!
   numberOfCores: Int!
   numberOfElectives: Int!
+  reqCategories: [String]!
 }
 
 input createDegreePlannerInput {
@@ -166,6 +171,7 @@ type degree {
   name: String!
   numberOfCores: Int!
   numberOfElectives: Int!
+  reqCategories: [String]!
   semesters: [semester]
   users: [user]
 }
@@ -255,6 +261,7 @@ input updateDegreeInput {
   name: String
   numberOfCores: Int
   numberOfElectives: Int
+  reqCategories: [String]
 }
 
 input updateSemesterInput {

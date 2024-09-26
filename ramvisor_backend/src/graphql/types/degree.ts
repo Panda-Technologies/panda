@@ -12,6 +12,7 @@ export const degree = objectType({
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.string("name");
+    t.nonNull.list.string("reqCategories");
     t.nonNull.int("numberOfCores");
     t.nonNull.int("numberOfElectives");
     t.list.field("semesters", { type: "semester" });
@@ -24,6 +25,7 @@ export const createDegreeInput = inputObjectType({
   definition(t) {
     t.nonNull.string("name");
     t.nonNull.int("numberOfCores");
+    t.nonNull.list.string("reqCategories");
     t.nonNull.int("numberOfElectives");
   },
 });
@@ -33,6 +35,7 @@ export const updateDegreeInput = inputObjectType({
   definition(t) {
     t.nonNull.int("id");
     t.string("name");
+    t.list.string("reqCategories");
     t.int("numberOfCores");
     t.int("numberOfElectives");
   },

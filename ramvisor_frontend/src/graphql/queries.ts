@@ -15,6 +15,7 @@ export const GET_USER_QUERY = gql`
       degree {
         id
         name
+        reqCategories
         numberOfCores
         numberOfElectives
       }
@@ -50,6 +51,7 @@ export const GET_CLASS_QUERY = gql`
       classCode
       credits
       description
+      category
       courseType
       title
       dayOfWeek
@@ -184,6 +186,7 @@ export const GET_ALL_DEGREES_QUERY = gql`
     getAlldegrees {
       id
       name
+      reqCategories
       numberOfCores
       numberOfElectives
     }
@@ -195,6 +198,7 @@ export const GET_DEGREE_QUERY = gql`
     getDegree(id: $id) {
       id
       name
+      reqCategories
       numberOfCores
       numberOfElectives
     }

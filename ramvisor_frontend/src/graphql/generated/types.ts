@@ -66,6 +66,7 @@ export type CreateClassMutation = {
       | "id"
       | "classCode"
       | "credits"
+      | "category"
       | "courseType"
       | "title"
       | "description"
@@ -95,6 +96,7 @@ export type UpdateClassMutation = {
       | "courseType"
       | "title"
       | "description"
+      | "category"
       | "dayOfWeek"
       | "startTime"
       | "endTime"
@@ -266,7 +268,10 @@ export type CreateDegreeMutationVariables = Types.Exact<{
 
 export type CreateDegreeMutation = {
   createDegree?: Types.Maybe<
-    Pick<Types.Degree, "id" | "name" | "numberOfCores" | "numberOfElectives">
+    Pick<
+      Types.Degree,
+      "id" | "name" | "reqCategories" | "numberOfCores" | "numberOfElectives"
+    >
   >;
 };
 
@@ -276,7 +281,10 @@ export type UpdateDegreeMutationVariables = Types.Exact<{
 
 export type UpdateDegreeMutation = {
   updateDegree?: Types.Maybe<
-    Pick<Types.Degree, "id" | "name" | "numberOfCores" | "numberOfElectives">
+    Pick<
+      Types.Degree,
+      "id" | "name" | "reqCategories" | "numberOfCores" | "numberOfElectives"
+    >
   >;
 };
 
@@ -349,7 +357,11 @@ export type GetUserQuery = {
       degree?: Types.Maybe<
         Pick<
           Types.Degree,
-          "id" | "name" | "numberOfCores" | "numberOfElectives"
+          | "id"
+          | "name"
+          | "reqCategories"
+          | "numberOfCores"
+          | "numberOfElectives"
         >
       >;
     }
@@ -396,6 +408,7 @@ export type GetClassQuery = {
       | "classCode"
       | "credits"
       | "description"
+      | "category"
       | "courseType"
       | "title"
       | "dayOfWeek"
@@ -572,7 +585,11 @@ export type GetAllDegreesQuery = {
       Types.Maybe<
         Pick<
           Types.Degree,
-          "id" | "name" | "numberOfCores" | "numberOfElectives"
+          | "id"
+          | "name"
+          | "reqCategories"
+          | "numberOfCores"
+          | "numberOfElectives"
         >
       >
     >
@@ -585,7 +602,10 @@ export type GetDegreeQueryVariables = Types.Exact<{
 
 export type GetDegreeQuery = {
   getDegree?: Types.Maybe<
-    Pick<Types.Degree, "id" | "name" | "numberOfCores" | "numberOfElectives">
+    Pick<
+      Types.Degree,
+      "id" | "name" | "reqCategories" | "numberOfCores" | "numberOfElectives"
+    >
   >;
 };
 

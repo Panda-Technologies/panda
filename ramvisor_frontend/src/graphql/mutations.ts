@@ -47,6 +47,7 @@ export const CREATE_CLASS_MUTATION = gql`
       id
       classCode
       credits
+      category
       courseType
       title
       description
@@ -71,6 +72,7 @@ export const UPDATE_CLASS_MUTATION = gql`
       courseType
       title
       description
+      category
       dayOfWeek
       startTime
       endTime
@@ -231,6 +233,7 @@ export const CREATE_DEGREE_MUTATION = gql`
     createDegree(input: $input) {
       id
       name
+      reqCategories
       numberOfCores
       numberOfElectives
     }
@@ -242,6 +245,7 @@ export const UPDATE_DEGREE_MUTATION = gql`
     updateDegree(input: $input) {
       id
       name
+      reqCategories
       numberOfCores
       numberOfElectives
     }

@@ -31,6 +31,7 @@ export type Scalars = {
 
 export type Class = {
   __typename?: "Class";
+  category: Scalars["String"]["output"];
   classCode: Scalars["String"]["output"];
   classSchedules?: Maybe<Array<Maybe<ClassSchedule>>>;
   color: Scalars["String"]["output"];
@@ -49,6 +50,7 @@ export type Class = {
 };
 
 export type CreateClassInput = {
+  category: Scalars["String"]["input"];
   classCode: Scalars["String"]["input"];
   color: Scalars["String"]["input"];
   coreDegreeId: Scalars["Int"]["input"];
@@ -208,6 +210,7 @@ export type MutationUpdateUserProfileArgs = {
 
 export type Query = {
   __typename?: "Query";
+  classTaken?: Maybe<Scalars["Boolean"]["output"]>;
   getAlldegrees?: Maybe<Array<Maybe<Degree>>>;
   getClass?: Maybe<Class>;
   getClassScheduleEntries?: Maybe<Array<Maybe<ClassScheduleEntry>>>;
@@ -220,6 +223,11 @@ export type Query = {
   getclassSchedules?: Maybe<Array<Maybe<ClassSchedule>>>;
   getdegreePlanners?: Maybe<Array<Maybe<DegreePlanner>>>;
   getsemesters?: Maybe<Array<Maybe<Semester>>>;
+};
+
+export type QueryClassTakenArgs = {
+  classId: Scalars["Int"]["input"];
+  id: Scalars["String"]["input"];
 };
 
 export type QueryGetClassArgs = {
@@ -268,6 +276,7 @@ export type RegisterInput = {
 };
 
 export type UpdateClassInput = {
+  category?: InputMaybe<Scalars["String"]["input"]>;
   classCode?: InputMaybe<Scalars["String"]["input"]>;
   color?: InputMaybe<Scalars["String"]["input"]>;
   coreDegreeId?: InputMaybe<Scalars["Int"]["input"]>;
@@ -322,6 +331,7 @@ export type CreateDegreeInput = {
   name: Scalars["String"]["input"];
   numberOfCores: Scalars["Int"]["input"];
   numberOfElectives: Scalars["Int"]["input"];
+  reqCategories: Array<InputMaybe<Scalars["String"]["input"]>>;
 };
 
 export type CreateDegreePlannerInput = {
@@ -346,6 +356,7 @@ export type Degree = {
   name: Scalars["String"]["output"];
   numberOfCores: Scalars["Int"]["output"];
   numberOfElectives: Scalars["Int"]["output"];
+  reqCategories: Array<Maybe<Scalars["String"]["output"]>>;
   semesters?: Maybe<Array<Maybe<Semester>>>;
   users?: Maybe<Array<Maybe<User>>>;
 };
@@ -439,6 +450,7 @@ export type UpdateDegreeInput = {
   name?: InputMaybe<Scalars["String"]["input"]>;
   numberOfCores?: InputMaybe<Scalars["Int"]["input"]>;
   numberOfElectives?: InputMaybe<Scalars["Int"]["input"]>;
+  reqCategories?: InputMaybe<Array<InputMaybe<Scalars["String"]["input"]>>>;
 };
 
 export type UpdateSemesterInput = {
@@ -553,6 +565,7 @@ export type CreateClassMutation = {
     id: number;
     classCode: string;
     credits: number;
+    category: string;
     courseType: string;
     title: string;
     description: string;
@@ -581,6 +594,7 @@ export type UpdateClassMutation = {
     courseType: string;
     title: string;
     description: string;
+    category: string;
     dayOfWeek: string;
     startTime: string;
     endTime: string;
@@ -785,6 +799,7 @@ export type CreateDegreeMutation = {
     __typename?: "degree";
     id: number;
     name: string;
+    reqCategories: Array<string | null>;
     numberOfCores: number;
     numberOfElectives: number;
   } | null;
@@ -800,6 +815,7 @@ export type UpdateDegreeMutation = {
     __typename?: "degree";
     id: number;
     name: string;
+    reqCategories: Array<string | null>;
     numberOfCores: number;
     numberOfElectives: number;
   } | null;
@@ -879,6 +895,7 @@ export type GetUserQuery = {
       __typename?: "degree";
       id: number;
       name: string;
+      reqCategories: Array<string | null>;
       numberOfCores: number;
       numberOfElectives: number;
     } | null;
@@ -920,6 +937,7 @@ export type GetClassQuery = {
     classCode: string;
     credits: number;
     description: string;
+    category: string;
     courseType: string;
     title: string;
     dayOfWeek: string;
@@ -1086,6 +1104,7 @@ export type GetAllDegreesQuery = {
     __typename?: "degree";
     id: number;
     name: string;
+    reqCategories: Array<string | null>;
     numberOfCores: number;
     numberOfElectives: number;
   } | null> | null;
@@ -1101,6 +1120,7 @@ export type GetDegreeQuery = {
     __typename?: "degree";
     id: number;
     name: string;
+    reqCategories: Array<string | null>;
     numberOfCores: number;
     numberOfElectives: number;
   } | null;
@@ -1544,6 +1564,7 @@ export const CreateClassDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "classCode" } },
                 { kind: "Field", name: { kind: "Name", value: "credits" } },
+                { kind: "Field", name: { kind: "Name", value: "category" } },
                 { kind: "Field", name: { kind: "Name", value: "courseType" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
@@ -1620,6 +1641,7 @@ export const UpdateClassDocument = {
                 { kind: "Field", name: { kind: "Name", value: "courseType" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
+                { kind: "Field", name: { kind: "Name", value: "category" } },
                 { kind: "Field", name: { kind: "Name", value: "dayOfWeek" } },
                 { kind: "Field", name: { kind: "Name", value: "startTime" } },
                 { kind: "Field", name: { kind: "Name", value: "endTime" } },
@@ -2438,6 +2460,10 @@ export const CreateDegreeDocument = {
                 { kind: "Field", name: { kind: "Name", value: "name" } },
                 {
                   kind: "Field",
+                  name: { kind: "Name", value: "reqCategories" },
+                },
+                {
+                  kind: "Field",
                   name: { kind: "Name", value: "numberOfCores" },
                 },
                 {
@@ -2499,6 +2525,10 @@ export const UpdateDegreeDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "reqCategories" },
+                },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "numberOfCores" },
@@ -2809,6 +2839,10 @@ export const GetUserDocument = {
                       { kind: "Field", name: { kind: "Name", value: "name" } },
                       {
                         kind: "Field",
+                        name: { kind: "Name", value: "reqCategories" },
+                      },
+                      {
+                        kind: "Field",
                         name: { kind: "Name", value: "numberOfCores" },
                       },
                       {
@@ -2913,6 +2947,7 @@ export const GetClassDocument = {
                 { kind: "Field", name: { kind: "Name", value: "classCode" } },
                 { kind: "Field", name: { kind: "Name", value: "credits" } },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
+                { kind: "Field", name: { kind: "Name", value: "category" } },
                 { kind: "Field", name: { kind: "Name", value: "courseType" } },
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "dayOfWeek" } },
@@ -3459,6 +3494,10 @@ export const GetAllDegreesDocument = {
                 { kind: "Field", name: { kind: "Name", value: "name" } },
                 {
                   kind: "Field",
+                  name: { kind: "Name", value: "reqCategories" },
+                },
+                {
+                  kind: "Field",
                   name: { kind: "Name", value: "numberOfCores" },
                 },
                 {
@@ -3511,6 +3550,10 @@ export const GetDegreeDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "name" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "reqCategories" },
+                },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "numberOfCores" },
