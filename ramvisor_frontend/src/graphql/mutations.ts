@@ -47,10 +47,10 @@ export const CREATE_CLASS_MUTATION = gql`
       id
       classCode
       credits
-      category
       courseType
       title
       description
+      category
       dayOfWeek
       startTime
       endTime
@@ -127,20 +127,6 @@ export const CREATE_DEGREE_PLANNER_MUTATION = gql`
       id
       userId
       degreeId
-      semester {
-        id
-        name
-        entries {
-          id
-          classId
-          class {
-            id
-            classCode
-            title
-            credits
-          }
-        }
-      }
     }
   }
 `;
@@ -158,6 +144,7 @@ export const CREATE_SEMESTER_MUTATION = gql`
     createSemester(input: $input) {
       id
       name
+      credits
       degreeId
       plannerId
       entries {
@@ -180,6 +167,7 @@ export const UPDATE_SEMESTER_MUTATION = gql`
     updateSemester(input: $input) {
       id
       name
+      credits
       entries {
         id
         classId
@@ -233,7 +221,8 @@ export const CREATE_DEGREE_MUTATION = gql`
     createDegree(input: $input) {
       id
       name
-      reqCategories
+      coreCategories
+      electiveCategories
       numberOfCores
       numberOfElectives
     }
@@ -245,7 +234,8 @@ export const UPDATE_DEGREE_MUTATION = gql`
     updateDegree(input: $input) {
       id
       name
-      reqCategories
+      coreCategories
+      electiveCategories
       numberOfCores
       numberOfElectives
     }
@@ -257,6 +247,12 @@ export const DELETE_DEGREE_MUTATION = gql`
     deleteDegree(input: $input) {
       id
     }
+  }
+`;
+
+export const CREATE_DEGREE_REQUIREMENTS_MUTATION = gql`
+  mutation CreateDegreeRequirements($degreeId: Int!) {
+    createDegreeRequirements(degreeId: $degreeId)
   }
 `;
 
@@ -278,11 +274,11 @@ export const UPDATE_TASK_MUTATION = gql`
   mutation UpdateTask($input: updateTaskInput!) {
     updateTask(input: $input) {
       id
+      title
       dueDate
       stageId
       classCode
       description
-      title
     }
   }
 `;
@@ -291,6 +287,30 @@ export const DELETE_TASK_MUTATION = gql`
   mutation DeleteTask($input: deleteTaskInput!) {
     deleteTask(input: $input) {
       id
+    }
+  }
+`;
+
+export const CREATE_REQUIREMENT_MUTATION = gql`
+  mutation CreateRequirement($data: CreateRequirementInput!) {
+    createRequirement(data: $data) {
+      id
+      category
+      isElective
+      classIds
+      degreeId
+    }
+  }
+`;
+
+export const UPDATE_REQUIREMENT_MUTATION = gql`
+  mutation UpdateRequirement($data: UpdateRequirementInput!) {
+    updateRequirement(data: $data) {
+      id
+      category
+      isElective
+      classIds
+      degreeId
     }
   }
 `;

@@ -15,10 +15,20 @@ export const GET_USER_QUERY = gql`
       degree {
         id
         name
-        reqCategories
+        coreCategories
+        electiveCategories
         numberOfCores
         numberOfElectives
       }
+    }
+  }
+`;
+
+export const CLASS_TAKEN_QUERY = gql`
+  query ClassTaken($input: classTakenInput!) {
+    classTaken(input: $input) {
+      classId
+      taken
     }
   }
 `;
@@ -32,6 +42,7 @@ export const GET_CLASSES_QUERY = gql`
       courseType
       title
       description
+      category
       dayOfWeek
       startTime
       endTime
@@ -50,10 +61,10 @@ export const GET_CLASS_QUERY = gql`
       id
       classCode
       credits
-      description
-      category
       courseType
       title
+      description
+      category
       dayOfWeek
       startTime
       endTime
@@ -121,6 +132,7 @@ export const GET_DEGREE_PLANNERS_QUERY = gql`
       semester {
         id
         name
+        credits
         entries {
           id
           classId
@@ -142,6 +154,7 @@ export const GET_SEMESTERS_QUERY = gql`
     getsemesters(plannerId: $plannerId) {
       id
       name
+      credits
       degreeId
       plannerId
       entries {
@@ -164,6 +177,7 @@ export const GET_SEMESTER_QUERY = gql`
     getSemester(id: $id) {
       id
       name
+      credits
       degreeId
       plannerId
       entries {
@@ -186,7 +200,8 @@ export const GET_ALL_DEGREES_QUERY = gql`
     getAlldegrees {
       id
       name
-      reqCategories
+      coreCategories
+      electiveCategories
       numberOfCores
       numberOfElectives
     }
@@ -198,18 +213,8 @@ export const GET_DEGREE_QUERY = gql`
     getDegree(id: $id) {
       id
       name
-      reqCategories
-      numberOfCores
-      numberOfElectives
-    }
-  }
-`;
-
-export const GET_DEGREE_REQUIREMENTS_QUERY = gql`
-  query GetDegreeRequirements($id: Int!) {
-    getDegreeRequirements(id: $id) {
-      id
-      name
+      coreCategories
+      electiveCategories
       numberOfCores
       numberOfElectives
     }
@@ -226,6 +231,30 @@ export const GET_TASKS_QUERY = gql`
       classCode
       description
       title
+    }
+  }
+`;
+
+export const GET_REQUIREMENT_QUERY = gql`
+  query GetRequirement($category: String!, $degreeId: Int!) {
+    getRequirement(category: $category, degreeId: $degreeId) {
+      id
+      category
+      isElective
+      classIds
+      degreeId
+    }
+  }
+`;
+
+export const GET_REQUIREMENTS_QUERY = gql`
+  query GetRequirements($degreeId: Int!) {
+    getRequirements(degreeId: $degreeId) {
+      id
+      category
+      isElective
+      classIds
+      degreeId
     }
   }
 `;
