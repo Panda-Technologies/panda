@@ -6,6 +6,7 @@ import {
   intArg,
   floatArg,
   list,
+  inputObjectType,
 } from "nexus";
 import { loginResolve, logoutResolve } from "../resolvers/loginResolver";
 import { registerResolve } from "../resolvers/registerResolver";
@@ -30,6 +31,22 @@ export const user = objectType({
   },
 });
 
+export const classTakenInput = inputObjectType({
+  name: "classTakenInput",
+  definition(t) {
+      t.nonNull.string("id")
+      t.nonNull.list.int("classIds")
+  },
+})
+
+export const classTakenResult = objectType({
+  name: "classTakenResult",
+  definition(t) {
+    t.nonNull.int("classId"),
+    t.nonNull.boolean("taken")
+  }
+})
+
 export const userQuery = extendType({
   type: "Query",
   definition(t) {
@@ -40,23 +57,27 @@ export const userQuery = extendType({
         prisma.user.findUnique({ where: { id } }),
     });
 
-    t.field("classTaken", {
-      type: "Boolean",
+
+    t.nonNull.list.nonNull.field("classTaken", {
+      type: "classTakenResult",
       args: {
-        id: nonNull(stringArg()),
-        classId: nonNull(intArg()),
+        input: nonNull(classTakenInput)
       },
-      resolve: async (_, { id, classId }, { prisma }: { prisma: PrismaClient }) => {
+      resolve: async (_, { input }, { prisma }: { prisma: PrismaClient }) => {
+        const { id, classIds } = input
         const user = await prisma.user.findUnique({
           where: { id },
-          select: { takenClassIds: true },
-        });
+          select: { takenClassIds: true }
+        }); 
 
         if (!user) {
           throw new Error("User not found");
         }
 
-        return user.takenClassIds.includes(classId);
+        return classIds.map((classId: number) => ({
+          classId,
+          taken: user.takenClassIds.includes(classId)
+        }));
       },
     });
   },
