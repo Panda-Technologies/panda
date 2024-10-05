@@ -1,3 +1,4 @@
+import { PrismaClient } from "@prisma/client";
 import {
   extendType,
   nonNull,
@@ -5,14 +6,14 @@ import {
   objectType,
   inputObjectType,
 } from "nexus";
-import { Class as PrismaClass } from "@prisma/client";
 
 export const degree = objectType({
   name: "degree",
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.string("name");
-    t.nonNull.list.string("reqCategories");
+    t.nonNull.list.string("coreCategories");
+    t.nonNull.list.string("electiveCategories");
     t.nonNull.int("numberOfCores");
     t.nonNull.int("numberOfElectives");
     t.list.field("semesters", { type: "semester" });
@@ -25,7 +26,8 @@ export const createDegreeInput = inputObjectType({
   definition(t) {
     t.nonNull.string("name");
     t.nonNull.int("numberOfCores");
-    t.nonNull.list.string("reqCategories");
+    t.nonNull.list.string("coreCategories");
+    t.nonNull.list.string("electiveCategories");
     t.nonNull.int("numberOfElectives");
   },
 });
@@ -35,7 +37,8 @@ export const updateDegreeInput = inputObjectType({
   definition(t) {
     t.nonNull.int("id");
     t.string("name");
-    t.list.string("reqCategories");
+    t.list.string("coreCategories");
+    t.list.string("electiveCategories");
     t.int("numberOfCores");
     t.int("numberOfElectives");
   },
@@ -63,31 +66,6 @@ export const degreeQuery = extendType({
       },
       resolve: (_, { id }, { prisma }) =>
         prisma.degree.findUnique({ where: { id } }),
-    });
-
-    t.field("getDegreeRequirements", {
-      type: "degree",
-      args: {
-        id: nonNull(intArg()),
-      },
-      resolve: async (_, { id }, { prisma }) => {
-        const coreCourses: PrismaClass[] = await prisma.Class.findMany({
-          where: { coredegreeId: { has: id } },
-        });
-        const electiveCourses: PrismaClass[] = await prisma.Class.findMany({
-          where: { electivedegreeId: { has: id } },
-        });
-
-        const requirements = new Map<PrismaClass, String>();
-        coreCourses.forEach((course) => {
-          requirements.set(course, "Core");
-        });
-        electiveCourses.forEach((course) => {
-          requirements.set(course, "Elective");
-        });
-
-        return requirements;
-      },
     });
   },
 });
@@ -123,6 +101,62 @@ export const degreeMutation = extendType({
       },
       resolve: (_, { input }, { prisma }) =>
         prisma.degree.delete({ where: { id: input.id } }),
+    });
+
+    t.field("createDegreeRequirements", {
+      type: "Boolean",
+      args: {
+        degreeId: nonNull(intArg()),
+      },
+      resolve: async (
+        _,
+        { degreeId },
+        { prisma }: { prisma: PrismaClient }
+      ) => {
+        try {
+          const degree = await prisma.degree.findUnique({
+            where: { id: degreeId },
+            select: {
+              name: true,
+              coreCategories: true,
+              electiveCategories: true,
+            },
+          });
+
+          if (!degree) {
+            throw new Error(`Degree with id ${degreeId} not found`);
+          }
+
+          const createRequirement = async (
+            categories: string[],
+            isElective: boolean
+          ) => {
+            await Promise.all( // Used to run multiple promises concurrently on each element in the map
+              categories.map(async (category) => {
+                const classes = await prisma.class.findMany({
+                  where: { category: category },
+                });
+                await prisma.requirement.create({
+                  data: {
+                    category,
+                    classIds: classes.map((cls) => cls.id),
+                    isElective,
+                    degreeId,
+                  },
+                });
+              })
+            );
+          };
+
+          await createRequirement(degree.coreCategories, false);
+          await createRequirement(degree.electiveCategories, true);
+
+          return true;
+        } catch (error) {
+          console.error("Error creating degree requirements:", error);
+          return false;
+        }
+      },
     });
   },
 });
