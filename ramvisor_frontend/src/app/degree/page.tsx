@@ -16,6 +16,7 @@ import {
   Class,
   DegreePlanner,
   Maybe,
+  Requirement,
   Semester,
   SemesterEntry,
 } from "@graphql/generated/graphql";
@@ -24,7 +25,8 @@ import {
   GET_CLASSES_QUERY,
   GET_DEGREE_PLANNERS_QUERY,
   GET_DEGREE_QUERY,
-  GET_DEGREE_REQUIREMENTS_QUERY,
+  GET_REQUIREMENTS_QUERY,
+  GET_REQUIREMENT_QUERY
 } from "@graphql/queries";
 import {
   BaseKey,
@@ -57,15 +59,6 @@ export interface ApCredits {
   biology: boolean;
   environmentalScience: boolean;
 }
-
-export interface Requirement {
-  id: number;
-  name: String;
-  completed: number;
-  required: number;
-  isElective?: boolean;
-}
-
 export interface CollapsibleRequirement {
   degreeId: number;
   name: String;
@@ -123,11 +116,11 @@ const useFetchRequirements = (degreeId: number) => {
     isLoading: requirementsLoading,
     refetch: refetchRequirements,
     error: requirementsError,
-  } = useCustom<{ getRequirements: Map<Class, String> }>({
+  } = useCustom<{ getRequirements: Requirement[]}>({
     url: "",
     method: "get",
     meta: {
-      gqlQuery: GET_DEGREE_REQUIREMENTS_QUERY,
+      gqlQuery: GET_REQUIREMENTS_QUERY,
       variables: { degreeId: degreeId },
     },
   });
@@ -139,6 +132,30 @@ const useFetchRequirements = (degreeId: number) => {
   }, [requirementsError]);
 
   return { requirementsData, requirementsLoading, refetchRequirements };
+};
+
+const useFetchRequirement = (degreeId: number, category: String) => {
+  const {
+    data: requirementData,
+    isLoading: requirementLoading,
+    refetch: refetchRequirement,
+    error: requirementError,
+  } = useCustom<{ getRequirement: Requirement}>({
+    url: "",
+    method: "get",
+    meta: {
+      gqlQuery: GET_REQUIREMENT_QUERY,
+      variables: { degreeId: degreeId, category: category },
+    },
+  });
+
+  useEffect(() => {
+    if (requirementError) {
+      handleApiError(requirementError, "Error fetching requirements");
+    }
+  }, [requirementError]);
+
+  return { requirementData, requirementLoading, refetchRequirement };
 };
 
 const useFetchDegrees = (userId: string | undefined) => {
@@ -212,26 +229,15 @@ const DegreePage = () => {
       const firstDegree = degreesData.data.getDegrees[0];
       const secondDegree = degreesData.data.getDegrees[1];
   
-      // Function to convert Map<Class, String> to Requirement[]
-      const convertToRequirements = (reqMap: Map<Class, String>): Requirement[] => {
-        return Array.from(reqMap).map(([course, type]) => ({
-          id: course.id,
-          name: course.classCode,
-          completed: 0,
-          required: 1,
-          isElective: type === "Elective",
-        }));
-      };
-  
       // Map requirements for the first degree
       if (firstDegree) {
-        const firstDegreeRequirements = convertToRequirements(firstMajorReq.data.getRequirements);
+        const firstDegreeRequirements = firstMajorReq.data.getRequirements;
         majorReqMap.set(firstDegree, firstDegreeRequirements);
       }
   
       // Map requirements for the second degree (if it exists)
       if (secondDegree) {
-        const secondDegreeRequirements = convertToRequirements(secondMajorReq.data.getRequirements);
+        const secondDegreeRequirements = secondMajorReq.data.getRequirements;
         majorReqMap.set(secondDegree, secondDegreeRequirements);
       }
     }
@@ -452,6 +458,10 @@ const DegreePage = () => {
     setSelectedRequirement(requirement);
     setShowRequirementDetails(true);
   };
+
+  const handleGetRequirementCredits = (requirement: Requirement) => {
+
+  }
 
   return (
     <>

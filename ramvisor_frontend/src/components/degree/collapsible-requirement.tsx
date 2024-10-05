@@ -28,7 +28,15 @@ const CollapsibleRequirement = ({ requirement, onRequirementClick }: Props) => {
         <span>{isOpen ? "▲" : "▼"}</span>
       </h3>
       {isOpen && (
-        
+        <div style={{ marginLeft: "16px", marginTop: "8px" }}>
+          {requirement.subRequirements.map((subReq) => (
+            <RequirementItem
+              key={subReq.id}
+              requirement={subReq}
+              onRequirementClick={onRequirementClick}
+            />
+          ))}
+        </div>
       )}
     </>
   );

@@ -168,7 +168,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           {classCode && (
             <Tooltip title={classCode}>
               <Text style={{ 
-                color: getClassColor(classCode),
+                color: 'orange',
                 fontSize: "14px", 
                 fontWeight: "600",
                 marginRight: "8px",
