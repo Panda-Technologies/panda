@@ -30,6 +30,12 @@ export interface NexusGenInputs {
     startTime: string; // String!
     title: string; // String!
   }
+  CreateRequirementInput: { // input type
+    category: string; // String!
+    classIds: Array<number | null>; // [Int]!
+    degreeId: number; // Int!
+    isElective: boolean; // Boolean!
+  }
   LoginInput: { // input type
     email: string; // String!
     password: string; // String!
@@ -55,6 +61,13 @@ export interface NexusGenInputs {
     startTime?: string | null; // String
     title?: string | null; // String
   }
+  UpdateRequirementInput: { // input type
+    category?: string | null; // String
+    classIds?: Array<number | null> | null; // [Int]
+    degreeId?: number | null; // Int
+    id: number; // Int!
+    isElective?: boolean | null; // Boolean
+  }
   addClassToScheduleInput: { // input type
     classId: number; // Int!
     classScheduleId: number; // Int!
@@ -64,15 +77,20 @@ export interface NexusGenInputs {
     credits: number; // Int!
     semesterId: number; // Int!
   }
+  classTakenInput: { // input type
+    classIds: Array<number | null>; // [Int]!
+    id: string; // String!
+  }
   createClassScheduleInput: { // input type
     semesterId: string; // String!
     userId: string; // String!
   }
   createDegreeInput: { // input type
+    coreCategories: Array<string | null>; // [String]!
+    electiveCategories: Array<string | null>; // [String]!
     name: string; // String!
     numberOfCores: number; // Int!
     numberOfElectives: number; // Int!
-    reqCategories: Array<string | null>; // [String]!
   }
   createDegreePlannerInput: { // input type
     degreeId: number; // Int!
@@ -121,11 +139,12 @@ export interface NexusGenInputs {
     semesterId?: string | null; // String
   }
   updateDegreeInput: { // input type
+    coreCategories?: Array<string | null> | null; // [String]
+    electiveCategories?: Array<string | null> | null; // [String]
     id: number; // Int!
     name?: string | null; // String
     numberOfCores?: number | null; // Int
     numberOfElectives?: number | null; // Int
-    reqCategories?: Array<string | null> | null; // [String]
   }
   updateSemesterInput: { // input type
     credits: number; // Int!
@@ -193,12 +212,17 @@ export interface NexusGenObjects {
     classScheduleId: number; // Int!
     id: number; // Int!
   }
+  classTakenResult: { // root type
+    classId: number; // Int!
+    taken: boolean; // Boolean!
+  }
   degree: { // root type
+    coreCategories: Array<string | null>; // [String]!
+    electiveCategories: Array<string | null>; // [String]!
     id: number; // Int!
     name: string; // String!
     numberOfCores: number; // Int!
     numberOfElectives: number; // Int!
-    reqCategories: Array<string | null>; // [String]!
     semesters?: Array<NexusGenRootTypes['semester'] | null> | null; // [semester]
     users?: Array<NexusGenRootTypes['user'] | null> | null; // [user]
   }
@@ -209,6 +233,13 @@ export interface NexusGenObjects {
     semester?: Array<NexusGenRootTypes['semester'] | null> | null; // [semester]
     user?: NexusGenRootTypes['user'] | null; // user
     userId: string; // String!
+  }
+  requirement: { // root type
+    category: string; // String!
+    classIds: Array<number | null>; // [Int]!
+    degreeId: number; // Int!
+    id: number; // Int!
+    isElective: boolean; // Boolean!
   }
   semester: { // root type
     credits: number; // Int!
@@ -290,6 +321,8 @@ export interface NexusGenFieldTypes {
     createClassSchedule: NexusGenRootTypes['classSchedule'] | null; // classSchedule
     createDegree: NexusGenRootTypes['degree'] | null; // degree
     createDegreePlanner: NexusGenRootTypes['degreePlanner'] | null; // degreePlanner
+    createDegreeRequirements: boolean | null; // Boolean
+    createRequirement: NexusGenRootTypes['requirement'] | null; // requirement
     createSemester: NexusGenRootTypes['semester'] | null; // semester
     createTask: NexusGenRootTypes['task'] | null; // task
     deleteClass: NexusGenRootTypes['Class'] | null; // Class
@@ -306,19 +339,21 @@ export interface NexusGenFieldTypes {
     updateClass: NexusGenRootTypes['Class'] | null; // Class
     updateClassSchedule: NexusGenRootTypes['classSchedule'] | null; // classSchedule
     updateDegree: NexusGenRootTypes['degree'] | null; // degree
+    updateRequirement: NexusGenRootTypes['requirement'] | null; // requirement
     updateSemester: NexusGenRootTypes['semester'] | null; // semester
     updateTask: NexusGenRootTypes['task'] | null; // task
     updateUserAcademicInfo: NexusGenRootTypes['user'] | null; // user
     updateUserProfile: NexusGenRootTypes['user'] | null; // user
   }
   Query: { // field return type
-    classTaken: boolean | null; // Boolean
+    classTaken: NexusGenRootTypes['classTakenResult'][]; // [classTakenResult!]!
     getAlldegrees: Array<NexusGenRootTypes['degree'] | null> | null; // [degree]
     getClass: NexusGenRootTypes['Class'] | null; // Class
     getClassScheduleEntries: Array<NexusGenRootTypes['classScheduleEntry'] | null> | null; // [classScheduleEntry]
     getClasses: Array<NexusGenRootTypes['Class'] | null> | null; // [Class]
     getDegree: NexusGenRootTypes['degree'] | null; // degree
-    getDegreeRequirements: NexusGenRootTypes['degree'] | null; // degree
+    getRequirement: Array<NexusGenRootTypes['requirement'] | null> | null; // [requirement]
+    getRequirements: Array<NexusGenRootTypes['requirement'] | null> | null; // [requirement]
     getSemester: NexusGenRootTypes['semester'] | null; // semester
     getTasks: Array<NexusGenRootTypes['task'] | null> | null; // [task]
     getUser: NexusGenRootTypes['user'] | null; // user
@@ -340,12 +375,17 @@ export interface NexusGenFieldTypes {
     classScheduleId: number; // Int!
     id: number; // Int!
   }
+  classTakenResult: { // field return type
+    classId: number; // Int!
+    taken: boolean; // Boolean!
+  }
   degree: { // field return type
+    coreCategories: Array<string | null>; // [String]!
+    electiveCategories: Array<string | null>; // [String]!
     id: number; // Int!
     name: string; // String!
     numberOfCores: number; // Int!
     numberOfElectives: number; // Int!
-    reqCategories: Array<string | null>; // [String]!
     semesters: Array<NexusGenRootTypes['semester'] | null> | null; // [semester]
     users: Array<NexusGenRootTypes['user'] | null> | null; // [user]
   }
@@ -356,6 +396,13 @@ export interface NexusGenFieldTypes {
     semester: Array<NexusGenRootTypes['semester'] | null> | null; // [semester]
     user: NexusGenRootTypes['user'] | null; // user
     userId: string; // String!
+  }
+  requirement: { // field return type
+    category: string; // String!
+    classIds: Array<number | null>; // [Int]!
+    degreeId: number; // Int!
+    id: number; // Int!
+    isElective: boolean; // Boolean!
   }
   semester: { // field return type
     credits: number; // Int!
@@ -427,6 +474,8 @@ export interface NexusGenFieldTypeNames {
     createClassSchedule: 'classSchedule'
     createDegree: 'degree'
     createDegreePlanner: 'degreePlanner'
+    createDegreeRequirements: 'Boolean'
+    createRequirement: 'requirement'
     createSemester: 'semester'
     createTask: 'task'
     deleteClass: 'Class'
@@ -443,19 +492,21 @@ export interface NexusGenFieldTypeNames {
     updateClass: 'Class'
     updateClassSchedule: 'classSchedule'
     updateDegree: 'degree'
+    updateRequirement: 'requirement'
     updateSemester: 'semester'
     updateTask: 'task'
     updateUserAcademicInfo: 'user'
     updateUserProfile: 'user'
   }
   Query: { // field return type name
-    classTaken: 'Boolean'
+    classTaken: 'classTakenResult'
     getAlldegrees: 'degree'
     getClass: 'Class'
     getClassScheduleEntries: 'classScheduleEntry'
     getClasses: 'Class'
     getDegree: 'degree'
-    getDegreeRequirements: 'degree'
+    getRequirement: 'requirement'
+    getRequirements: 'requirement'
     getSemester: 'semester'
     getTasks: 'task'
     getUser: 'user'
@@ -477,12 +528,17 @@ export interface NexusGenFieldTypeNames {
     classScheduleId: 'Int'
     id: 'Int'
   }
+  classTakenResult: { // field return type name
+    classId: 'Int'
+    taken: 'Boolean'
+  }
   degree: { // field return type name
+    coreCategories: 'String'
+    electiveCategories: 'String'
     id: 'Int'
     name: 'String'
     numberOfCores: 'Int'
     numberOfElectives: 'Int'
-    reqCategories: 'String'
     semesters: 'semester'
     users: 'user'
   }
@@ -493,6 +549,13 @@ export interface NexusGenFieldTypeNames {
     semester: 'semester'
     user: 'user'
     userId: 'String'
+  }
+  requirement: { // field return type name
+    category: 'String'
+    classIds: 'Int'
+    degreeId: 'Int'
+    id: 'Int'
+    isElective: 'Boolean'
   }
   semester: { // field return type name
     credits: 'Int'
@@ -558,6 +621,12 @@ export interface NexusGenArgTypes {
     createDegreePlanner: { // args
       input: NexusGenInputs['createDegreePlannerInput']; // createDegreePlannerInput!
     }
+    createDegreeRequirements: { // args
+      degreeId: number; // Int!
+    }
+    createRequirement: { // args
+      data: NexusGenInputs['CreateRequirementInput']; // CreateRequirementInput!
+    }
     createSemester: { // args
       input: NexusGenInputs['createSemesterInput']; // createSemesterInput!
     }
@@ -603,6 +672,9 @@ export interface NexusGenArgTypes {
     updateDegree: { // args
       input: NexusGenInputs['updateDegreeInput']; // updateDegreeInput!
     }
+    updateRequirement: { // args
+      data: NexusGenInputs['UpdateRequirementInput']; // UpdateRequirementInput!
+    }
     updateSemester: { // args
       input: NexusGenInputs['updateSemesterInput']; // updateSemesterInput!
     }
@@ -625,8 +697,7 @@ export interface NexusGenArgTypes {
   }
   Query: {
     classTaken: { // args
-      classId: number; // Int!
-      id: string; // String!
+      input: NexusGenInputs['classTakenInput']; // classTakenInput!
     }
     getClass: { // args
       id: number; // Int!
@@ -637,8 +708,12 @@ export interface NexusGenArgTypes {
     getDegree: { // args
       id: number; // Int!
     }
-    getDegreeRequirements: { // args
-      id: number; // Int!
+    getRequirement: { // args
+      category: string; // String!
+      degreeId: number; // Int!
+    }
+    getRequirements: { // args
+      degreeId: number; // Int!
     }
     getSemester: { // args
       id: number; // Int!

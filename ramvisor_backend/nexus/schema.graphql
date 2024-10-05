@@ -38,6 +38,13 @@ input CreateClassInput {
   title: String!
 }
 
+input CreateRequirementInput {
+  category: String!
+  classIds: [Int]!
+  degreeId: Int!
+  isElective: Boolean!
+}
+
 input LoginInput {
   email: String!
   password: String!
@@ -50,6 +57,8 @@ type Mutation {
   createClassSchedule(input: createClassScheduleInput!): classSchedule
   createDegree(input: createDegreeInput!): degree
   createDegreePlanner(input: createDegreePlannerInput!): degreePlanner
+  createDegreeRequirements(degreeId: Int!): Boolean
+  createRequirement(data: CreateRequirementInput!): requirement
   createSemester(input: createSemesterInput!): semester
   createTask(input: createTaskInput): task
   deleteClass(input: deleteClassInput!): Class
@@ -66,6 +75,7 @@ type Mutation {
   updateClass(input: UpdateClassInput!): Class
   updateClassSchedule(input: updateClassScheduleInput!): classSchedule
   updateDegree(input: updateDegreeInput!): degree
+  updateRequirement(data: UpdateRequirementInput!): requirement
   updateSemester(input: updateSemesterInput!): semester
   updateTask(input: updateTaskInput): task
   updateUserAcademicInfo(assignmentCompletionPercentage: Float, attendancePercentage: Float, gpa: Float, id: String!, takenClassIds: [String]): user
@@ -73,13 +83,14 @@ type Mutation {
 }
 
 type Query {
-  classTaken(classId: Int!, id: String!): Boolean
+  classTaken(input: classTakenInput!): [classTakenResult!]!
   getAlldegrees: [degree]
   getClass(id: Int!): Class
   getClassScheduleEntries(classScheduleId: Int!): [classScheduleEntry]
   getClasses: [Class]
   getDegree(id: Int!): degree
-  getDegreeRequirements(id: Int!): degree
+  getRequirement(category: String!, degreeId: Int!): [requirement]
+  getRequirements(degreeId: Int!): [requirement]
   getSemester(id: Int!): semester
   getTasks(userId: String!): [task]
   getUser(id: String!): user
@@ -111,6 +122,14 @@ input UpdateClassInput {
   title: String
 }
 
+input UpdateRequirementInput {
+  category: String
+  classIds: [Int]
+  degreeId: Int
+  id: Int!
+  isElective: Boolean
+}
+
 input addClassToScheduleInput {
   classId: Int!
   classScheduleId: Int!
@@ -138,16 +157,27 @@ type classScheduleEntry {
   id: Int!
 }
 
+input classTakenInput {
+  classIds: [Int]!
+  id: String!
+}
+
+type classTakenResult {
+  classId: Int!
+  taken: Boolean!
+}
+
 input createClassScheduleInput {
   semesterId: String!
   userId: String!
 }
 
 input createDegreeInput {
+  coreCategories: [String]!
+  electiveCategories: [String]!
   name: String!
   numberOfCores: Int!
   numberOfElectives: Int!
-  reqCategories: [String]!
 }
 
 input createDegreePlannerInput {
@@ -167,11 +197,12 @@ input createTaskInput {
 }
 
 type degree {
+  coreCategories: [String]!
+  electiveCategories: [String]!
   id: Int!
   name: String!
   numberOfCores: Int!
   numberOfElectives: Int!
-  reqCategories: [String]!
   semesters: [semester]
   users: [user]
 }
@@ -205,6 +236,14 @@ input removeClassFromSemesterInput {
   classId: Int!
   credits: Int!
   semesterId: Int!
+}
+
+type requirement {
+  category: String!
+  classIds: [Int]!
+  degreeId: Int!
+  id: Int!
+  isElective: Boolean!
 }
 
 type semester {
@@ -257,11 +296,12 @@ input updateClassScheduleInput {
 }
 
 input updateDegreeInput {
+  coreCategories: [String]
+  electiveCategories: [String]
   id: Int!
   name: String
   numberOfCores: Int
   numberOfElectives: Int
-  reqCategories: [String]
 }
 
 input updateSemesterInput {
