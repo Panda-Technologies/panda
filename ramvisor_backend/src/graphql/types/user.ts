@@ -7,6 +7,7 @@ import {
   floatArg,
   list,
   inputObjectType,
+  booleanArg,
 } from "nexus";
 import { loginResolve, logoutResolve } from "../resolvers/loginResolver";
 import { registerResolve } from "../resolvers/registerResolver";
@@ -18,6 +19,7 @@ export const user = objectType({
     t.nonNull.string("id");
     t.nonNull.string("email");
     t.string("university");
+    t.boolean("isPremium");
     t.int("yearInUniversity");
     t.float("gpa");
     t.float("attendancePercentage");
@@ -58,7 +60,7 @@ export const userQuery = extendType({
     });
 
 
-    t.nonNull.list.nonNull.field("classTaken", {
+    t.field("classTaken", {
       type: "classTakenResult",
       args: {
         input: nonNull(classTakenInput)
@@ -139,5 +141,20 @@ export const userMutation = extendType({
           data: args,
         }),
     });
+
+    t.field("updatePremiumStatus", {
+      type: "user",
+      args: {
+        id: nonNull(stringArg()),
+        isPremium: nonNull(booleanArg()),
+      },
+      resolve: (_, { id, isPremium }, { prisma }: { prisma: PrismaClient }) =>
+        prisma.user.update({
+          where: { id: id },
+          data: {
+            isPremium
+          },
+        }),
+    })
   },
 });
