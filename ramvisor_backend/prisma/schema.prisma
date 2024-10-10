@@ -27,6 +27,7 @@ model user {
   university                     String?
   yearInUniversity               Int?
   degreeId                       Int?
+  isPremium                      Boolean
   currentsemesterScheduleId      Int?
   gpa                            Float?
   attendancePercentage           Float?
@@ -132,7 +133,6 @@ model semesterEntry {
   id         Int      @id @unique @default(autoincrement())
   semesterId Int
   classId    Int
-  index      Int
   semester   semester @relation(fields: [semesterId], references: [id])
   class      Class    @relation(fields: [classId], references: [id])
 
