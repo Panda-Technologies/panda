@@ -363,6 +363,7 @@ export type ClassTakenInput = {
 };
 
 export type ClassTakenResult = {
+  results: any;
   __typename?: "classTakenResult";
   classId: Scalars["Int"]["output"];
   taken: Scalars["Boolean"]["output"];
