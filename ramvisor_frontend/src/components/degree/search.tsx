@@ -1,12 +1,11 @@
 ('use client');
 
-import { Class } from "@graphql/generated/graphql";
+import { Class, Requirement } from "@graphql/generated/graphql";
 import React, { isValidElement, useCallback, useMemo } from "react";
 import { SortableCourse } from "./sortable-course";
 import { BaseKey, useDelete } from "@refinedev/core";
 import { REMOVE_CLASS_FROM_SEMESTER_MUTATION } from "@graphql/mutations";
 import { Degree, Semester } from "@graphql/generated/graphql";
-import { Requirement } from "@app/degree/page";
 import { ExceptionMap } from "antd/es/result";
 import { get } from "http";
 
@@ -16,7 +15,7 @@ type Props = {
   getClass: (classId: number) => Class | undefined;
   removeFromSemester: (semesterId: string, courseId: number) => void;
   getDegreeScheduleEntryId: (courseId: number) => number | undefined;
-  requirements: Requirement[];
+  requirement: Requirement;
   setShowRequirementDetails: (show: boolean) => void;
 };
 
@@ -24,7 +23,7 @@ const DegreeSearch = ({
   getClasses,
   getSemesters,
   getClass,
-  requirements,
+  requirement,
   setShowRequirementDetails,
 }: Props) => {
   const [searchTerm, setSearchTerm] = React.useState<string>("");
@@ -53,29 +52,31 @@ const DegreeSearch = ({
     }
   };
 
-  const getUniqueFilteredCourses = useCallback((requirements: Requirement[]): Class[] => {
+  const getUniqueFilteredCourses = useCallback((requirement: Requirement): Class[] => {
     const uniqueCoursesMap = new Map<number, Class>();
 
-    requirements.forEach((req) => {
-      if (!isCourseTaken(req.id)) {
-        const course = getClass(req.id);
+    requirement.classIds.forEach((req) => {
+      if (req) {
+      if (!isCourseTaken(req)) {
+        const course = getClass(req);
         if (course) {
           uniqueCoursesMap.set(course.id, course);
         }
       }
+    }
     });
 
     return Array.from(uniqueCoursesMap.values());
   }, [getClass, isCourseTaken]);
 
   const uniqueFilteredCourses = useMemo(
-    () => getUniqueFilteredCourses(requirements),
-    [requirements, getUniqueFilteredCourses]
+    () => getUniqueFilteredCourses(requirement),
+    [requirement, getUniqueFilteredCourses]
   );
 
-  const handleFindCourses = (requirements: Requirement[]) => {
-    if (!requirements || !requirements.length) {
-      throw new Error("Invalid requirement object");
+  const handleFindCourses = (requirement: Requirement) => {
+    if (!requirement || !requirement.classIds) {
+      throw new Error("Invalid requirement object: " + requirement);
     }
 
     setSearchResults(uniqueFilteredCourses);

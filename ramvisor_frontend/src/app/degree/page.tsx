@@ -14,6 +14,7 @@ import {
 } from "@dnd-kit/core";
 import {
   Class,
+  ClassTakenResult,
   DegreePlanner,
   Maybe,
   Requirement,
@@ -26,7 +27,8 @@ import {
   GET_DEGREE_PLANNERS_QUERY,
   GET_DEGREE_QUERY,
   GET_REQUIREMENTS_QUERY,
-  GET_REQUIREMENT_QUERY
+  GET_REQUIREMENT_QUERY,
+  CLASS_TAKEN_QUERY,
 } from "@graphql/queries";
 import {
   BaseKey,
@@ -48,21 +50,6 @@ export interface Degree {
   name: String;
   numberOfCores: number;
   numberOfElectives: number;
-}
-
-export interface ApCredits {
-  calculus: boolean;
-  statistics: boolean;
-  computerScience: boolean;
-  physics: boolean;
-  chemistry: boolean;
-  biology: boolean;
-  environmentalScience: boolean;
-}
-export interface CollapsibleRequirement {
-  degreeId: number;
-  name: String;
-  subRequirements: Requirement[];
 }
 
 const handleApiError = (error: any, customMessage: string) => {
@@ -116,7 +103,7 @@ const useFetchRequirements = (degreeId: number) => {
     isLoading: requirementsLoading,
     refetch: refetchRequirements,
     error: requirementsError,
-  } = useCustom<{ getRequirements: Requirement[]}>({
+  } = useCustom<{ getRequirements: Requirement[] }>({
     url: "",
     method: "get",
     meta: {
@@ -140,7 +127,7 @@ const useFetchRequirement = (degreeId: number, category: String) => {
     isLoading: requirementLoading,
     refetch: refetchRequirement,
     error: requirementError,
-  } = useCustom<{ getRequirement: Requirement}>({
+  } = useCustom<{ getRequirement: Requirement }>({
     url: "",
     method: "get",
     meta: {
@@ -182,6 +169,30 @@ const useFetchDegrees = (userId: string | undefined) => {
   return { degreesData, degreesLoading, refetchDegrees };
 };
 
+const useCheckClassTaken = (userId: string | undefined, classList: Class[]) => {
+  const {
+    data: classTakenData,
+    isLoading: classTakenLoading,
+    refetch: refetchClassTaken,
+    error: classTakenError,
+  } = useCustom<{ getClassesTaken: ClassTakenResult[] }>({
+    url: "",
+    method: "get",
+    meta: {
+      gqlQuery: CLASS_TAKEN_QUERY,
+      variables: { userId: userId, classIds: classList.map((cls) => cls.id) },
+    },
+  });
+
+  useEffect(() => {
+    if (classTakenError) {
+      handleApiError(classTakenError, "Error fetching degrees");
+    }
+  }, [classTakenError]);
+
+  return { classTakenData, classTakenLoading, refetchClassTaken };
+};
+
 const DegreePage = () => {
   const [activeId, setActiveId] = React.useState<number | null>(null);
   const [activeSemester, setActiveSemester] = React.useState<number | null>(
@@ -197,16 +208,28 @@ const DegreePage = () => {
   const [majorRequirements, setMajorRequirements] = React.useState<
     Map<Degree, Requirement[]>
   >(new Map());
+  const [activeDegree, setActiveDegree] = React.useState<Degree | null>(null);
+  const [activeView, setActiveView] = React.useState<"basic" | "premium">(
+    "basic"
+  );
 
   const { data: identity } = useGetIdentity<{ id: string }>();
   const userId = identity?.id;
 
   const { plannerData, plannerLoading, refetchPlanners } =
     useFetchPlanners(userId);
-  const { degreesData, degreesLoading, refetchDegrees } = useFetchDegrees(userId);
-  const { requirementsData: firstMajorReq, requirementsLoading: firstMajorReqLoading, refetchRequirements: refetchFirstMajorReq } = useFetchRequirements(degreesData?.data?.getDegrees[0].id!);
-  const { requirementsData: secondMajorReq, requirementsLoading: secondMajorReqLoading, refetchRequirements: refetchSecondMajorReq } = useFetchRequirements(degreesData?.data?.getDegrees[1].id!);
-
+  const { degreesData, degreesLoading, refetchDegrees } =
+    useFetchDegrees(userId);
+  const {
+    requirementsData: firstMajorReq,
+    requirementsLoading: firstMajorReqLoading,
+    refetchRequirements: refetchFirstMajorReq,
+  } = useFetchRequirements(degreesData?.data?.getDegrees[0].id!);
+  const {
+    requirementsData: secondMajorReq,
+    requirementsLoading: secondMajorReqLoading,
+    refetchRequirements: refetchSecondMajorReq,
+  } = useFetchRequirements(degreesData?.data?.getDegrees[1].id!);
 
   useEffect(() => {
     // Make sure to update the semesters when the planner data changes
@@ -223,25 +246,29 @@ const DegreePage = () => {
 
   useEffect(() => {
     const majorReqMap = new Map<Degree, Requirement[]>();
-  
+
     // Check if degrees and requirements data are available
-    if (degreesData?.data?.getDegrees && firstMajorReq?.data?.getRequirements && secondMajorReq?.data?.getRequirements) {
+    if (
+      degreesData?.data?.getDegrees &&
+      firstMajorReq?.data?.getRequirements &&
+      secondMajorReq?.data?.getRequirements
+    ) {
       const firstDegree = degreesData.data.getDegrees[0];
       const secondDegree = degreesData.data.getDegrees[1];
-  
+
       // Map requirements for the first degree
       if (firstDegree) {
         const firstDegreeRequirements = firstMajorReq.data.getRequirements;
         majorReqMap.set(firstDegree, firstDegreeRequirements);
       }
-  
+
       // Map requirements for the second degree (if it exists)
       if (secondDegree) {
         const secondDegreeRequirements = secondMajorReq.data.getRequirements;
         majorReqMap.set(secondDegree, secondDegreeRequirements);
       }
     }
-  
+
     setMajorRequirements(majorReqMap);
   }, [degreesData, firstMajorReq, secondMajorReq]);
 
@@ -390,7 +417,7 @@ const DegreePage = () => {
           values: {
             id: semesterId,
             name: semesters.find((s) => s.id === semesterId)?.name,
-            entries: {},
+            entries: semesters.find((s) => s.id === semesterId)?.entries,
           },
           meta: {
             gqlMutation: UPDATE_SEMESTER_MUTATION,
@@ -460,8 +487,17 @@ const DegreePage = () => {
   };
 
   const handleGetRequirementCredits = (requirement: Requirement) => {
-
-  }
+    let credits = 0;
+    requirement.classIds.forEach((classId) => {
+      if (classId) {
+        const course = getCourse(classId);
+        if (course) {
+          credits += course.credits;
+        }
+      }
+    });
+    return credits;
+  };
 
   return (
     <>

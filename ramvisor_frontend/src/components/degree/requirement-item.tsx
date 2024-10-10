@@ -1,4 +1,8 @@
-import { Class, Requirement } from "@graphql/generated/graphql";
+import {
+  Class,
+  ClassTakenResult,
+  Requirement,
+} from "@graphql/generated/graphql";
 import React from "react";
 
 type Props = {
@@ -6,9 +10,30 @@ type Props = {
   onRequirementClick: (requirement: Requirement) => void;
   getClass: (classId: number) => Class;
   getTotalCredits: (requirement: Requirement) => number;
+  checkClassTaken: (classIds: number[]) => ClassTakenResult[];
 };
 
-const RequirementItem = ({ requirement, onRequirementClick, getClass }: Props) => {
+const RequirementItem = ({
+  requirement,
+  onRequirementClick,
+  getClass,
+  checkClassTaken,
+  getTotalCredits,
+}: Props) => {
+  const calculateCreditsTaken = (requirement: Requirement) => {
+    const classIds: number[] = requirement.classIds as number[];
+    const classTakenResult = checkClassTaken(classIds);
+
+    let credits = 0;
+    classTakenResult.forEach((result) => {
+      if (result.taken) {
+        credits += getClass(result.classId).credits;
+      }
+    });
+
+    return credits;
+  };
+
   return (
     <div
       style={{ cursor: "pointer", marginBottom: "8px" }}
@@ -24,9 +49,35 @@ const RequirementItem = ({ requirement, onRequirementClick, getClass }: Props) =
       >
         <span>{requirement.category}</span>
         <span>
-          {requirement.isElective ? `${getClass().credits} credits` : }
+          {requirement.isElective
+            ? `${calculateCreditsTaken(requirement)}/${getTotalCredits(
+                requirement
+              )} credits`
+            : `${calculateCreditsTaken(requirement)}/${getTotalCredits(
+                requirement
+              )}`}
         </span>
       </h3>
+      <div
+        style={{
+          width: "100%",
+          backgroundColor: "#e5e7eb",
+          borderRadius: "9999px",
+          height: "10px",
+          marginTop: "4px",
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: "#2563eb",
+            height: "10px",
+            borderRadius: "9999px",
+            width: `${
+              calculateCreditsTaken(requirement) / getTotalCredits(requirement)
+            }`,
+          }}
+        ></div>
+      </div>
     </div>
   );
 };
