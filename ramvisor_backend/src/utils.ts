@@ -3,13 +3,11 @@ import { ISession } from './interface';
 import { v4 as uuidv4 } from 'uuid';
 
 export const hashPassword = async (password: string): Promise<string> => {
-        const hashedPassword = await Argon.hash(password);
-        return hashedPassword;
+        return await Argon.hash(password);
 };
 
 export const verifyPassword = async(password: string, hashedPassword: string) => {
-    const isCorrect = await Argon.verify(hashedPassword, password) as boolean;
-    return isCorrect;
+    return await Argon.verify(hashedPassword, password) as boolean;
 };
 
 export const isProd = () => process.env.NODE_ENV === 'production';

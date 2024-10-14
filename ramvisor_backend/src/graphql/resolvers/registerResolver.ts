@@ -18,6 +18,8 @@ export const registerResolve = async (_: any, { input }: { input: Omit<user, 'id
                 id: generateUUID(),
                 email: input.email,
                 password: hashedPassword,
+                graduationSemesterName: null,
+                isPremium: false,
             },
         });
 

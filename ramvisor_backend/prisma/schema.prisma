@@ -28,7 +28,7 @@ model user {
   yearInUniversity               Int?
   degreeId                       Int?
   isPremium                      Boolean
-  currentsemesterScheduleId      Int?
+  graduationSemesterName         String?
   gpa                            Float?
   attendancePercentage           Float?
   assignmentCompletionPercentage Float?
@@ -107,8 +107,9 @@ model requirement {
 }
 
 model degreePlanner {
-  id       Int        @id @unique @default(autoincrement())
+  id       Int        @id @default(autoincrement())
   userId   String
+  title    String
   degreeId Int
   user     user       @relation(fields: [userId], references: [id])
   degree   degree     @relation(fields: [degreeId], references: [id])

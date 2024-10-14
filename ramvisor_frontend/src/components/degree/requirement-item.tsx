@@ -8,8 +8,8 @@ import React from "react";
 type Props = {
   requirement: Requirement;
   onRequirementClick: (requirement: Requirement) => void;
-  getClass: (classId: number) => Class;
-  getTotalCredits: (requirement: Requirement) => number;
+  getClass: (classId: number) => Class | undefined;
+  getTotalCredits: (requirement: Requirement) => number | null;
   checkClassTaken: (classIds: number[]) => ClassTakenResult[];
 };
 
@@ -27,7 +27,7 @@ const RequirementItem = ({
     let credits = 0;
     classTakenResult.forEach((result) => {
       if (result.taken) {
-        credits += getClass(result.classId).credits;
+        credits += getClass(result.classId)!.credits;
       }
     });
 
@@ -73,7 +73,7 @@ const RequirementItem = ({
             height: "10px",
             borderRadius: "9999px",
             width: `${
-              calculateCreditsTaken(requirement) / getTotalCredits(requirement)
+              calculateCreditsTaken(requirement) / getTotalCredits(requirement)!
             }`,
           }}
         ></div>
