@@ -11,9 +11,9 @@ import { Class, Degree, Semester } from "@graphql/generated/graphql";
 
 type Props = {
   course: Class;
-  semesterId: String;
+  semesterId: number | undefined;
   Semesters: Semester[];
-  degree: Degree;
+  degree: Degree | null;
   onRemoveFromSemester: (semesterId: number, courseId: number) => void;
 };
 
@@ -21,6 +21,7 @@ export const SortableCourse = ({
   course,
   Semesters,
   degree,
+  onRemoveFromSemester,
 }: Props) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
