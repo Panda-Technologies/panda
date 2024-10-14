@@ -5,6 +5,7 @@ import {
   intArg,
   objectType,
   inputObjectType,
+  stringArg,
 } from "nexus";
 
 export const degree = objectType({
@@ -62,10 +63,12 @@ export const degreeQuery = extendType({
     t.field("getDegree", {
       type: "degree",
       args: {
-        id: nonNull(intArg()),
+        userId: nonNull(stringArg()),
       },
       resolve: (_, { id }, { prisma }) =>
         prisma.degree.findUnique({ where: { id } }),
+      resolve: (_, { userId }, { prisma }) =>
+        prisma.degree.findMany({ where: { user: { some: { id: userId } } } }),
     });
   },
 });
