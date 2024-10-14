@@ -86,8 +86,8 @@ export const getClassColor = (course: Class, degree: Degree): React.CSSPropertie
   };
 
   if (!course.electiveDegreeId || course.electiveDegreeId.length === 0) return colors.default;
-  if (course.coreDegreeId === degree.id) return colors.core;
-  if (course.electiveDegreeId.includes(degree.id)) return colors.elective;
+  if (course.category.includes('core')) return colors.core;
+  if (course.category.includes('elective')) return colors.elective;
 
   return colors.default;
 };
