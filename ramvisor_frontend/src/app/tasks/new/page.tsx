@@ -10,7 +10,6 @@ import { CREATE_TASK_MUTATION } from "@/graphql/mutations";
 const TasksCreatePage = () => {
   const router = useRouter();
   const [stageId, setStageId] = useState<number | null>(null);
-  const { list } = useNavigation();
   const { data: identity } = useGetIdentity<{ id: string }>();
 
   useEffect(() => {
