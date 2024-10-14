@@ -65,8 +65,6 @@ export const degreeQuery = extendType({
       args: {
         userId: nonNull(stringArg()),
       },
-      resolve: (_, { id }, { prisma }) =>
-        prisma.degree.findUnique({ where: { id } }),
       resolve: (_, { userId }, { prisma }) =>
         prisma.degree.findMany({ where: { user: { some: { id: userId } } } }),
     });
