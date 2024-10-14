@@ -5,9 +5,8 @@ import React from "react";
 
 type Props = {
   isPremium: boolean;
-  gradSemesterId: number;
+  gradSemesterId: number | null | undefined;
   setShowNewPlannerModal: (isActive: boolean) => void;
-  saveCurrentPlanner: () => void;
   setShowAIPlanModal: (isActive: boolean) => void;
   resetPlanner: () => void;
   getPlanners: () => DegreePlanner[] | [];
@@ -19,7 +18,6 @@ type Props = {
 const DegreeHeader = ({
   isPremium,
   setShowNewPlannerModal,
-  saveCurrentPlanner,
   setShowAIPlanModal,
   resetPlanner,
   getPlanners,
@@ -86,21 +84,6 @@ const DegreeHeader = ({
             }}
           >
             New Planner
-          </button>
-          <button
-            onClick={saveCurrentPlanner}
-            style={{
-              marginRight: "8px",
-              padding: "4px 8px",
-              backgroundColor: "#10B981",
-              color: "white",
-              borderRadius: "4px",
-              borderTopRightRadius: "0.375rem",
-              borderTopLeftRadius: "0.375rem",
-              borderBottomLeftRadius: "0.375rem",
-            }}
-          >
-            Save Planner
           </button>
           <button
             onClick={() => setShowAIPlanModal(true)}
