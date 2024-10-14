@@ -6,7 +6,9 @@ export const GET_USER_QUERY = gql`
       id
       email
       university
+      isPremium
       yearInUniversity
+      graduationSemesterName
       gpa
       attendancePercentage
       assignmentCompletionPercentage
@@ -30,6 +32,18 @@ export const CLASS_TAKEN_QUERY = gql`
       classId
       taken
     }
+  }
+`;
+
+export const GET_GRADUATION_SEMESTER_QUERY = gql`
+  query GetGraduationSemester($id: String!) {
+    getGraduationSemester(id: $id)
+  }
+`;
+
+export const GET_PREMIUM_STATUS_QUERY = gql`
+  query GetPremiumStatus($id: String!) {
+    getPremiumStatus(id: $id)
   }
 `;
 
@@ -85,6 +99,7 @@ export const GET_CLASS_SCHEDULES_QUERY = gql`
       semesterId
       entries {
         id
+        classScheduleId
         classId
         class {
           id
@@ -127,6 +142,7 @@ export const GET_DEGREE_PLANNERS_QUERY = gql`
   query GetDegreePlanners($userId: String!) {
     getdegreePlanners(userId: $userId) {
       id
+      title
       userId
       degreeId
       semester {
@@ -136,7 +152,6 @@ export const GET_DEGREE_PLANNERS_QUERY = gql`
         entries {
           id
           classId
-          index
           class {
             id
             classCode
@@ -160,7 +175,6 @@ export const GET_SEMESTERS_QUERY = gql`
       entries {
         id
         classId
-        index
         class {
           id
           classCode
@@ -183,7 +197,6 @@ export const GET_SEMESTER_QUERY = gql`
       entries {
         id
         classId
-        index
         class {
           id
           classCode
@@ -209,8 +222,8 @@ export const GET_ALL_DEGREES_QUERY = gql`
 `;
 
 export const GET_DEGREE_QUERY = gql`
-  query GetDegree($id: Int!) {
-    getDegree(id: $id) {
+  query GetDegree($userId: String!) {
+    getDegree(userId: $userId) {
       id
       name
       coreCategories

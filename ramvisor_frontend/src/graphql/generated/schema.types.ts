@@ -90,16 +90,19 @@ export type Mutation = {
   deleteClassSchedule?: Maybe<ClassSchedule>;
   deleteDegree?: Maybe<Degree>;
   deleteDegreePlanner?: Maybe<DegreePlanner>;
+  deleteSemester?: Maybe<Semester>;
   deleteTask?: Maybe<Task>;
-  deletesemester?: Maybe<Semester>;
   login?: Maybe<Scalars["String"]["output"]>;
   logout?: Maybe<Scalars["Boolean"]["output"]>;
   register?: Maybe<Scalars["String"]["output"]>;
   removeClassFromClassSchedule?: Maybe<ClassScheduleEntry>;
-  removeClassFromsemester?: Maybe<SemesterEntry>;
+  removeClassFromSemester?: Maybe<SemesterEntry>;
+  resetDegreePlanner?: Maybe<DegreePlanner>;
+  setUserGraduationSemester?: Maybe<User>;
   updateClass?: Maybe<Class>;
   updateClassSchedule?: Maybe<ClassSchedule>;
   updateDegree?: Maybe<Degree>;
+  updatePremiumStatus?: Maybe<User>;
   updateRequirement?: Maybe<Requirement>;
   updateSemester?: Maybe<Semester>;
   updateTask?: Maybe<Task>;
@@ -163,12 +166,12 @@ export type MutationDeleteDegreePlannerArgs = {
   id: Scalars["Int"]["input"];
 };
 
-export type MutationDeleteTaskArgs = {
-  input?: InputMaybe<DeleteTaskInput>;
+export type MutationDeleteSemesterArgs = {
+  id: Scalars["Int"]["input"];
 };
 
-export type MutationDeletesemesterArgs = {
-  id: Scalars["Int"]["input"];
+export type MutationDeleteTaskArgs = {
+  input?: InputMaybe<DeleteTaskInput>;
 };
 
 export type MutationLoginArgs = {
@@ -183,8 +186,16 @@ export type MutationRemoveClassFromClassScheduleArgs = {
   input: RemoveClassFromScheduleInput;
 };
 
-export type MutationRemoveClassFromsemesterArgs = {
+export type MutationRemoveClassFromSemesterArgs = {
   input: RemoveClassFromSemesterInput;
+};
+
+export type MutationResetDegreePlannerArgs = {
+  input: ResetDegreePlannerInput;
+};
+
+export type MutationSetUserGraduationSemesterArgs = {
+  input: GraduationSemesterInput;
 };
 
 export type MutationUpdateClassArgs = {
@@ -197,6 +208,11 @@ export type MutationUpdateClassScheduleArgs = {
 
 export type MutationUpdateDegreeArgs = {
   input: UpdateDegreeInput;
+};
+
+export type MutationUpdatePremiumStatusArgs = {
+  id: Scalars["String"]["input"];
+  isPremium: Scalars["Boolean"]["input"];
 };
 
 export type MutationUpdateRequirementArgs = {
@@ -216,7 +232,7 @@ export type MutationUpdateUserAcademicInfoArgs = {
   attendancePercentage?: InputMaybe<Scalars["Float"]["input"]>;
   gpa?: InputMaybe<Scalars["Float"]["input"]>;
   id: Scalars["String"]["input"];
-  takenClassIds?: InputMaybe<Array<InputMaybe<Scalars["String"]["input"]>>>;
+  takenClassIds?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
 };
 
 export type MutationUpdateUserProfileArgs = {
@@ -227,12 +243,14 @@ export type MutationUpdateUserProfileArgs = {
 };
 
 export type Query = {
-  classTaken: Array<ClassTakenResult>;
+  classTaken?: Maybe<ClassTakenResult>;
   getAlldegrees?: Maybe<Array<Maybe<Degree>>>;
   getClass?: Maybe<Class>;
   getClassScheduleEntries?: Maybe<Array<Maybe<ClassScheduleEntry>>>;
   getClasses?: Maybe<Array<Maybe<Class>>>;
   getDegree?: Maybe<Degree>;
+  getGraduationSemester?: Maybe<Scalars["String"]["output"]>;
+  getPremiumStatus?: Maybe<Scalars["Boolean"]["output"]>;
   getRequirement?: Maybe<Array<Maybe<Requirement>>>;
   getRequirements?: Maybe<Array<Maybe<Requirement>>>;
   getSemester?: Maybe<Semester>;
@@ -256,7 +274,15 @@ export type QueryGetClassScheduleEntriesArgs = {
 };
 
 export type QueryGetDegreeArgs = {
-  id: Scalars["Int"]["input"];
+  userId: Scalars["String"]["input"];
+};
+
+export type QueryGetGraduationSemesterArgs = {
+  id: Scalars["String"]["input"];
+};
+
+export type QueryGetPremiumStatusArgs = {
+  id: Scalars["String"]["input"];
 };
 
 export type QueryGetRequirementArgs = {
@@ -330,7 +356,6 @@ export type AddClassToScheduleInput = {
 
 export type AddClassToSemesterInput = {
   classId: Scalars["Int"]["input"];
-  credits: Scalars["Int"]["input"];
   semesterId: Scalars["Int"]["input"];
 };
 
@@ -375,11 +400,12 @@ export type CreateDegreeInput = {
 
 export type CreateDegreePlannerInput = {
   degreeId: Scalars["Int"]["input"];
+  title: Scalars["String"]["input"];
   userId: Scalars["String"]["input"];
 };
 
 export type CreateSemesterInput = {
-  classIds?: InputMaybe<Array<Scalars["Int"]["input"]>>;
+  classIds?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
   degreeId: Scalars["Int"]["input"];
   name: Scalars["String"]["input"];
   plannerId: Scalars["Int"]["input"];
@@ -405,6 +431,7 @@ export type DegreePlanner = {
   degreeId: Scalars["Int"]["output"];
   id: Scalars["Int"]["output"];
   semester?: Maybe<Array<Maybe<Semester>>>;
+  title: Scalars["String"]["output"];
   user?: Maybe<User>;
   userId: Scalars["String"]["output"];
 };
@@ -421,13 +448,18 @@ export type DeleteTaskInput = {
   id: Scalars["Int"]["input"];
 };
 
+export type GraduationSemesterInput = {
+  id: Scalars["String"]["input"];
+  semesterName: Scalars["String"]["input"];
+  year: Scalars["Int"]["input"];
+};
+
 export type RemoveClassFromScheduleInput = {
   id: Scalars["Int"]["input"];
 };
 
 export type RemoveClassFromSemesterInput = {
   classId: Scalars["Int"]["input"];
-  credits: Scalars["Int"]["input"];
   semesterId: Scalars["Int"]["input"];
 };
 
@@ -437,6 +469,10 @@ export type Requirement = {
   degreeId: Scalars["Int"]["output"];
   id: Scalars["Int"]["output"];
   isElective: Scalars["Boolean"]["output"];
+};
+
+export type ResetDegreePlannerInput = {
+  id: Scalars["Int"]["input"];
 };
 
 export type Semester = {
@@ -453,14 +489,12 @@ export type SemesterEntry = {
   class?: Maybe<Class>;
   classId: Scalars["Int"]["output"];
   id: Scalars["Int"]["output"];
-  index: Scalars["Int"]["output"];
   semester?: Maybe<Semester>;
   semesterId: Scalars["Int"]["output"];
 };
 
 export type SemesterEntryInput = {
   classId: Scalars["Int"]["input"];
-  index: Scalars["Int"]["input"];
 };
 
 export type Task = {
@@ -500,7 +534,6 @@ export type UpdateDegreeInput = {
 };
 
 export type UpdateSemesterInput = {
-  credits: Scalars["Int"]["input"];
   entries?: InputMaybe<Array<SemesterEntryInput>>;
   id: Scalars["Int"]["input"];
   name?: InputMaybe<Scalars["String"]["input"]>;
@@ -529,7 +562,9 @@ export type User = {
   degreePlanners?: Maybe<Array<Maybe<DegreePlanner>>>;
   email: Scalars["String"]["output"];
   gpa?: Maybe<Scalars["Float"]["output"]>;
+  graduationSemesterName?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["String"]["output"];
+  isPremium?: Maybe<Scalars["Boolean"]["output"]>;
   takenClassIds?: Maybe<Array<Maybe<Scalars["Int"]["output"]>>>;
   tasks?: Maybe<Array<Maybe<Task>>>;
   university?: Maybe<Scalars["String"]["output"]>;
