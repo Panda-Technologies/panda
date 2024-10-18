@@ -42,76 +42,35 @@ import NewPlannerModal from "@components/degree/new-planner";
 import RequirementItem from "@components/degree/requirement-item";
 import {SortableCourse} from "@components/degree/sortable-course";
 import DroppableSemester from "@components/degree/droppable-semester";
+import useDataFetch from "@components/degree/data-fetch";
 
 // Custom hooks with null checks and error handling
 
 const useFetchPlanners = (userId: string | undefined) => {
-    const { data, isLoading, error, refetch } = useCustom<{ getdegreePlanners: DegreePlanner[] }>({
-        url: "",
-        method: "get",
-        meta: {
-            gqlQuery: GET_DEGREE_PLANNERS_QUERY,
-            variables: { userId: userId },
-        },
-        queryOptions: {
-            enabled: !!userId,
-        },
-    });
-
-    useEffect(() => {
-        if (error) {
-            console.error("Error fetching planners:", error);
-            message.error("Failed to fetch planners. Please try again later.");
-        }
-    }, [error]);
-
-    return { data: data?.data.getdegreePlanners, isLoading, error };
+    const { data, isLoading, error } = useDataFetch<{ getdegreePlanners: DegreePlanner[] }>(
+        GET_DEGREE_PLANNERS_QUERY,
+        { userId },
+        "planners"
+    );
+    return { planners: data?.getdegreePlanners, isLoading, error };
 };
 
 const useFetchRequirements = (degreeId: number | null) => {
-    const { data, isLoading, error } = useCustom<{ getRequirements: Requirement[] }>({
-        url: "",
-        method: "get",
-        meta: {
-            gqlQuery: GET_REQUIREMENTS_QUERY,
-            variables: { degreeId: degreeId },
-        },
-        queryOptions: {
-            enabled: !!degreeId,
-        },
-    });
-
-    useEffect(() => {
-        if (error) {
-            console.error("Error fetching requirements:", error);
-            message.error("Failed to fetch requirements. Please try again later.");
-        }
-    }, [error]);
-
-    return { requirementsData: data?.data.getRequirements, isLoading, error };
+    const { data, isLoading, error } = useDataFetch<{ getRequirements: Requirement[] }>(
+        GET_REQUIREMENTS_QUERY,
+        { degreeId },
+        "requirements"
+    );
+    return { requirementsData: data?.getRequirements, isLoading, error };
 };
 
 const useFetchDegrees = (userId: string | undefined) => {
-    const { data, isLoading, error } = useCustom<{ getDegrees: Degree[] }>({
-        url: "",
-        method: "get",
-        meta: {
-            gqlQuery: GET_DEGREE_QUERY,
-            variables: { userId: userId },
-        },
-        queryOptions: {
-            enabled: !!userId,
-        },
-    });
-
-    useEffect(() => {
-        if (error) {
-            console.error("Error fetching degrees:", error);
-            message.error("Failed to fetch degrees. Please try again later.");
-        }
-    }, [error]);
-
-    return { degreesData: data?.data.getDegrees, isLoading, error };
+    const { data, isLoading, error } = useDataFetch<{ getDegrees: Degree[] }>(
+        GET_DEGREE_QUERY,
+        { userId },
+        "degrees"
+    );
+    return { degreesData: data?.getDegrees, isLoading, error };
 };
 
 const useCheckIsPremium = (userId: string | undefined) => {
@@ -135,29 +94,30 @@ const useCheckIsPremium = (userId: string | undefined) => {
     }, [error]);
 
     return { isPremium: data?.data.getPremiumStatus ?? false, isLoading, error };
+    const { data, isLoading, error } = useDataFetch<{ getPremiumStatus: boolean }>(
+        GET_PREMIUM_STATUS_QUERY,
+        { id: userId },
+        "premium status"
+    );
+    return { isPremium: data?.getPremiumStatus ?? false, isLoading, error };
 };
 
 const useGetGraduationSemester = (userId: string | undefined) => {
-    const { data, isLoading, error } = useCustom<{ getGraduationSemester: string }>({
-        url: "",
-        method: "get",
-        meta: {
-            gqlQuery: GET_GRADUATION_SEMESTER_QUERY,
-            variables: { id: userId },
-        },
-        queryOptions: {
-            enabled: !!userId,
-        },
-    });
+    const { data, isLoading, error} = useDataFetch<{ getGraduationSemester: string }>(
+        GET_GRADUATION_SEMESTER_QUERY,
+        { id: userId },
+        "graduation semester"
+    );
+    return { graduationSemester: data?.getGraduationSemester ?? false, isLoading, error };
+};
 
-    useEffect(() => {
-        if (error) {
-            console.error("Error fetching graduation semester:", error);
-            message.error("Failed to fetch graduation semester. Please try again later.");
-        }
-    }, [error]);
-
-    return { graduationSemester: data?.data.getGraduationSemester, isLoading, error };
+const useGetCheckIsTaken = (userId: string) => {
+    const { data, isLoading, error } = useDataFetch<{ getCheckIsTaken: ClassTakenResult }>(
+        CLASS_TAKEN_QUERY,
+        { id: userId },
+        "class taken result"
+    );
+    return { classTakenData: data?.getCheckIsTaken, isLoading, error };
 };
 
 // Main component
@@ -181,8 +141,9 @@ const DegreePage: React.FC = () => {
     // Custom hooks
     const {isPremium} = useCheckIsPremium(userId);
     const {graduationSemester} = useGetGraduationSemester(userId);
-    const {data: planners, isLoading: plannersLoading} = useFetchPlanners(userId);
+    const {planners, isLoading: plannersLoading} = useFetchPlanners(userId);
     const {degreesData, isLoading: degreesLoading} = useFetchDegrees(userId);
+    const {classTakenData, isLoading, error} = useGetCheckIsTaken(userId ?? "");
 
     // Fetch requirements for the first and second degree
     const firstDegreeId = useMemo(() => degreesData?.[0]?.id ?? null, [degreesData]);
