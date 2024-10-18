@@ -484,7 +484,7 @@ export type ClassTakenQueryVariables = Types.Exact<{
 }>;
 
 export type ClassTakenQuery = {
-  classTaken?: Types.Maybe<Pick<Types.ClassTakenResult, "classId" | "taken">>;
+  classTaken?: Types.Maybe<Pick<Types.ClassTakenResult, "classIds">>;
 };
 
 export type GetGraduationSemesterQueryVariables = Types.Exact<{

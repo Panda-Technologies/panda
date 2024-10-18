@@ -78,7 +78,7 @@ const documents = {
     types.UpdateRequirementDocument,
   "\n  query GetUser($id: String!) {\n    getUser(id: $id) {\n      id\n      email\n      university\n      isPremium\n      yearInUniversity\n      graduationSemesterName\n      gpa\n      attendancePercentage\n      assignmentCompletionPercentage\n      degreeId\n      takenClassIds\n      degree {\n        id\n        name\n        coreCategories\n        electiveCategories\n        numberOfCores\n        numberOfElectives\n      }\n    }\n  }\n":
     types.GetUserDocument,
-  "\n  query ClassTaken($input: classTakenInput!) {\n    classTaken(input: $input) {\n      classId\n      taken\n    }\n  }\n":
+  "\n  query ClassTaken($input: classTakenInput!) {\n    classTaken(input: $input) {\n      classIds\n    }\n  }\n":
     types.ClassTakenDocument,
   "\n  query GetGraduationSemester($id: String!) {\n    getGraduationSemester(id: $id)\n  }\n":
     types.GetGraduationSemesterDocument,
@@ -326,8 +326,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query ClassTaken($input: classTakenInput!) {\n    classTaken(input: $input) {\n      classId\n      taken\n    }\n  }\n"
-): (typeof documents)["\n  query ClassTaken($input: classTakenInput!) {\n    classTaken(input: $input) {\n      classId\n      taken\n    }\n  }\n"];
+  source: "\n  query ClassTaken($input: classTakenInput!) {\n    classTaken(input: $input) {\n      classIds\n    }\n  }\n"
+): (typeof documents)["\n  query ClassTaken($input: classTakenInput!) {\n    classTaken(input: $input) {\n      classIds\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

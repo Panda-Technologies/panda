@@ -73,6 +73,12 @@ export type CreateRequirementInput = {
   isElective: Scalars["Boolean"]["input"];
 };
 
+export type DegreePlannerDegreeInput = {
+  degreeId: Scalars["Int"]["input"];
+  title: Scalars["String"]["input"];
+  userId: Scalars["String"]["input"];
+};
+
 export type LoginInput = {
   email: Scalars["String"]["input"];
   password: Scalars["String"]["input"];
@@ -383,14 +389,12 @@ export type ClassScheduleEntry = {
 };
 
 export type ClassTakenInput = {
-  classIds: Array<InputMaybe<Scalars["Int"]["input"]>>;
   id: Scalars["String"]["input"];
 };
 
 export type ClassTakenResult = {
   __typename?: "classTakenResult";
-  classId: Scalars["Int"]["output"];
-  taken: Scalars["Boolean"]["output"];
+  classIds: Array<Maybe<Scalars["Int"]["output"]>>;
 };
 
 export type CreateClassScheduleInput = {
@@ -407,9 +411,7 @@ export type CreateDegreeInput = {
 };
 
 export type CreateDegreePlannerInput = {
-  degreeId: Scalars["Int"]["input"];
-  title: Scalars["String"]["input"];
-  userId: Scalars["String"]["input"];
+  degree: DegreePlannerDegreeInput;
 };
 
 export type CreateSemesterInput = {
@@ -1135,8 +1137,7 @@ export type ClassTakenQuery = {
   __typename?: "Query";
   classTaken?: {
     __typename?: "classTakenResult";
-    classId: number;
-    taken: boolean;
+    classIds: Array<number | null>;
   } | null;
 };
 
@@ -3686,8 +3687,7 @@ export const ClassTakenDocument = {
             selectionSet: {
               kind: "SelectionSet",
               selections: [
-                { kind: "Field", name: { kind: "Name", value: "classId" } },
-                { kind: "Field", name: { kind: "Name", value: "taken" } },
+                { kind: "Field", name: { kind: "Name", value: "classIds" } },
               ],
             },
           },

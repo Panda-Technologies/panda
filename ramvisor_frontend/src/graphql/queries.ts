@@ -29,8 +29,7 @@ export const GET_USER_QUERY = gql`
 export const CLASS_TAKEN_QUERY = gql`
   query ClassTaken($input: classTakenInput!) {
     classTaken(input: $input) {
-      classId
-      taken
+      classIds
     }
   }
 `;

@@ -168,13 +168,11 @@ type classScheduleEntry {
 }
 
 input classTakenInput {
-  classIds: [Int]!
   id: String!
 }
 
 type classTakenResult {
-  classId: Int!
-  taken: Boolean!
+  classIds: [Int]!
 }
 
 input createClassScheduleInput {

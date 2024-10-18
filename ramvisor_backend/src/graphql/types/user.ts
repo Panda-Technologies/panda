@@ -28,15 +28,13 @@ export const classTakenInput = inputObjectType({
     name: "classTakenInput",
     definition(t) {
         t.nonNull.string("id")
-        t.nonNull.list.int("classIds")
     },
 })
 
 export const classTakenResult = objectType({
     name: "classTakenResult",
     definition(t) {
-        t.nonNull.int("classId"),
-            t.nonNull.boolean("taken")
+        t.nonNull.list.int("classIds")
     }
 })
 
@@ -66,20 +64,17 @@ export const userQuery = extendType({
                 input: nonNull(classTakenInput)
             },
             resolve: async (_, {input}, {prisma}: { prisma: PrismaClient }) => {
-                const {id, classIds} = input
-                const user = await prisma.user.findUnique({
+                const {id} = input
+                const takenUserClasses = await prisma.user.findUnique({
                     where: {id},
                     select: {takenClassIds: true}
                 });
 
-                if (!user) {
+                if (!takenUserClasses) {
                     throw new Error("User not found");
                 }
 
-                return classIds.map((classId: number) => ({
-                    classId,
-                    taken: user.takenClassIds.includes(classId)
-                }));
+                return takenUserClasses;
             },
         });
 

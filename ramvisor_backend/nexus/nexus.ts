@@ -82,7 +82,6 @@ export interface NexusGenInputs {
     semesterId: number; // Int!
   }
   classTakenInput: { // input type
-    classIds: Array<number | null>; // [Int]!
     id: string; // String!
   }
   createClassScheduleInput: { // input type
@@ -221,8 +220,7 @@ export interface NexusGenObjects {
     id: number; // Int!
   }
   classTakenResult: { // root type
-    classId: number; // Int!
-    taken: boolean; // Boolean!
+    classIds: Array<number | null>; // [Int]!
   }
   degree: { // root type
     coreCategories: Array<string | null>; // [String]!
@@ -391,8 +389,7 @@ export interface NexusGenFieldTypes {
     id: number; // Int!
   }
   classTakenResult: { // field return type
-    classId: number; // Int!
-    taken: boolean; // Boolean!
+    classIds: Array<number | null>; // [Int]!
   }
   degree: { // field return type
     coreCategories: Array<string | null>; // [String]!
@@ -551,8 +548,7 @@ export interface NexusGenFieldTypeNames {
     id: 'Int'
   }
   classTakenResult: { // field return type name
-    classId: 'Int'
-    taken: 'Boolean'
+    classIds: 'Int'
   }
   degree: { // field return type name
     coreCategories: 'String'
