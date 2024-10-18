@@ -10,7 +10,7 @@ type Props = {
   onRequirementClick: (requirement: Requirement) => void;
   getClass: (classId: number) => Class | undefined;
   getTotalCredits: (requirement: Requirement) => number | null;
-  checkClassTaken: (classIds: number[]) => ClassTakenResult[];
+  checkClassTaken: (classIds: number[]) => number[] | undefined;
 };
 
 const RequirementItem = ({
@@ -25,10 +25,8 @@ const RequirementItem = ({
     const classTakenResult = checkClassTaken(classIds);
 
     let credits = 0;
-    classTakenResult.forEach((result) => {
-      if (result.taken) {
-        credits += getClass(result.classId)!.credits;
-      }
+    classTakenResult?.forEach((result) => {
+        credits += getClass(result)!.credits;
     });
 
     return credits;

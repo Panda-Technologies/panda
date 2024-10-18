@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useCallback, useMemo, useEffect } from "react";
-import { useGetIdentity, useCustom, useList, useUpdate, useDelete, useCreate } from "@refinedev/core";
-import { message } from "antd";
+import React, {useState, useCallback, useMemo, useEffect} from "react";
+import {useGetIdentity, useCustom, useList, useUpdate, useDelete, useCreate} from "@refinedev/core";
+import {message} from "antd";
 import {
     DragEndEvent,
     DragOverEvent,
@@ -74,26 +74,6 @@ const useFetchDegrees = (userId: string | undefined) => {
 };
 
 const useCheckIsPremium = (userId: string | undefined) => {
-    const { data, isLoading, error } = useCustom<{ getPremiumStatus: boolean }>({
-        url: "",
-        method: "get",
-        meta: {
-            gqlQuery: GET_PREMIUM_STATUS_QUERY,
-            variables: { id: userId },
-        },
-        queryOptions: {
-            enabled: !!userId,
-        },
-    });
-
-    useEffect(() => {
-        if (error) {
-            console.error("Error checking premium status:", error);
-            message.error("Failed to check premium status. Please try again later.");
-        }
-    }, [error]);
-
-    return { isPremium: data?.data.getPremiumStatus ?? false, isLoading, error };
     const { data, isLoading, error } = useDataFetch<{ getPremiumStatus: boolean }>(
         GET_PREMIUM_STATUS_QUERY,
         { id: userId },
@@ -179,6 +159,30 @@ const DegreePage: React.FC = () => {
         [coursesMap]
     );
 
+    // Memoize taken courses Set
+    const takenCoursesSet: Set<number> = useMemo(() => {
+        if (classTakenData) {
+            let takenClassesSet: Set<number>
+            try {
+                takenClassesSet = new Set(
+                    classTakenData.classIds
+                        .filter((classId): classId is number => classId !== undefined && classId !== null) // Filter out invalid classIds)
+                );
+                if (takenClassesSet && takenClassesSet.size > 0) {
+                    return takenClassesSet;
+                }
+            } catch (error) {
+                console.error('Error checking taken classes:', error);
+            }
+        }
+        return new Set<number>();
+    }, [classTakenData])
+
+    // Get Filtered Taken Courses
+    const filterTakenCourses = useCallback((classIds: number[]): number[] => {
+        return classIds.filter((classId) => takenCoursesSet.has(classId));
+    }, [takenCoursesSet]);
+
     // Mutations
     const {mutate: updatePlanner} = useUpdate();
     const {mutate: deletePlanner} = useDelete();
@@ -217,6 +221,7 @@ const DegreePage: React.FC = () => {
             setMajorRequirements(majorReqMap);
         }
     }, [degreesData, firstMajorReq, secondMajorReq]);
+
 
     // Drag and drop handlers
     const handleDragStart = (event: DragStartEvent) => {
@@ -388,7 +393,7 @@ const DegreePage: React.FC = () => {
     }, []);
 
     const handleGetRequirementCredits = useCallback((requirement: Requirement) => {
-        return requirement.classIds.reduce((total, classId) => {
+        return requirement.classIds.reduce((total: number, classId) => {
             const course = classId ? getCourse(classId) : null;
             return total + (course?.credits || 0);
         }, 0);
@@ -496,7 +501,7 @@ const DegreePage: React.FC = () => {
                                 setActiveSemester={setActiveSemester}
                             >
                                 {semester.entries?.map((entry) => {
-                                    const course = getCourse(entry.classId);
+                                    const course = getCourse(entry?.classId ?? -1);
                                     return course ? (
                                         <SortableCourse
                                             key={entry?.id}
@@ -554,10 +559,7 @@ const DegreePage: React.FC = () => {
                                         onRequirementClick={handleRequirementClick}
                                         getClass={getCourse}
                                         getTotalCredits={handleGetRequirementCredits}
-                                        checkClassTaken={(classIds) => classIds.map(classId => ({
-                                            classId,
-                                            taken: isCourseTaken(classId.toString())
-                                        }))}
+                                        checkClassTaken={(classIds) => filterTakenCourses(classIds)}
                                     />
                                 </div>
                             ))}

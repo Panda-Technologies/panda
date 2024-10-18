@@ -1,12 +1,12 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { Class, Semester } from "@graphql/generated/graphql";
-import React, { useState } from "react";
+import React, {Dispatch, SetStateAction, useState} from "react";
 
 type Props = {
   semester: Semester;
   children: React.ReactNode;
   activeSemester: number | null;
-  setActiveSemester: (id: string) => void;
+  setActiveSemester: Dispatch<SetStateAction<number | null>>;
 };
 
 const DroppableSemester = ({
