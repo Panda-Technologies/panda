@@ -28,7 +28,6 @@ import {
     GET_DEGREE_QUERY,
     GET_GRADUATION_SEMESTER_QUERY,
     GET_PREMIUM_STATUS_QUERY,
-    GET_REQUIREMENT_QUERY,
     GET_REQUIREMENTS_QUERY,
 } from "@graphql/queries";
 import {
@@ -44,15 +43,15 @@ import {SortableCourse} from "@components/degree/sortable-course";
 import DroppableSemester from "@components/degree/droppable-semester";
 import useDataFetch from "@components/degree/data-fetch";
 
-// Custom hooks with null checks and error handling
+// Custom hooks using FetchData generic
 
 const useFetchPlanners = (userId: string | undefined) => {
-    const { data, isLoading, error } = useDataFetch<{ getdegreePlanners: DegreePlanner[] }>(
+    const { data, isLoading, error } = useDataFetch<{ getDegreePlanners: DegreePlanner[] }>(
         GET_DEGREE_PLANNERS_QUERY,
         { userId },
         "planners"
     );
-    return { planners: data?.getdegreePlanners, isLoading, error };
+    return { planners: data?.getDegreePlanners, isLoading, error };
 };
 
 const useFetchRequirements = (degreeId: number | null) => {
