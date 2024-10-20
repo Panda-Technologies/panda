@@ -36,7 +36,7 @@ const initialStages: Stage[] = [
   { id: 3, title: 'DONE', tasks: [] },
 ];
 
-export const TasksPage: React.FC = () => {
+const TasksPage: React.FC = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [stages, setStages] = useState<Stage[]>(initialStages);
   const pendingTasksRef = useRef<Set<number>>(new Set());
@@ -73,7 +73,7 @@ export const TasksPage: React.FC = () => {
     const processedTasks = memoizedTasks.map(task => ({
       ...task,
       stageId: task.stageId || 1,
-      classes: task.classes || { code: task.classCode, color: 'blue' },
+      classes: task.classes || { code: task.classCode, color: 'blue' }, // Remove the second part of || after data
     }));
     const newTasks = processedTasks.filter(task => !pendingTasksRef.current.has(task.id));
     console.log('New Tasks:', newTasks);
