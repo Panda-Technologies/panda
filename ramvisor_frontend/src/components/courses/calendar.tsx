@@ -7,14 +7,14 @@ import styled from 'styled-components';
 import { Input, Button } from 'antd';
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 
-type Event = {
-  id: string;
-  title: string;
-  day: string;
-  startTime: string;
-  endTime: string;
-  color: string;
-  professor: string;
+interface Event {
+  id: number | undefined;
+  title: string | undefined;
+  day: string | undefined;
+  startTime: string | undefined;
+  endTime: string | undefined;
+  color: string | undefined;
+  professor: string | undefined;
 };
 
 type Section = {
@@ -33,7 +33,7 @@ type Course = {
 };
 
 type Props = {
-  events: Event[];
+  events: Event[] | undefined;
   onEventMove: (event: Event) => void;
   onEventRemove?: (eventId: string) => void;
 };
