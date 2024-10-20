@@ -41,7 +41,7 @@ import NewPlannerModal from "@components/degree/new-planner";
 import RequirementItem from "@components/degree/requirement-item";
 import {SortableCourse} from "@components/degree/sortable-course";
 import DroppableSemester from "@components/degree/droppable-semester";
-import useDataFetch from "@components/degree/data-fetch";
+import useDataFetch from "@utilities/data-fetch";
 
 // Custom hooks using FetchData generic
 
