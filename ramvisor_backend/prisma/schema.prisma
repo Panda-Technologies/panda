@@ -37,6 +37,10 @@ model user {
   degreePlanners                 degreePlanner[]
   takenClassIds                  Int[]
   degree                         degree?         @relation(fields: [degreeId], references: [id])
+  submissions                    Submission[]
+
+  // New: Relation to the Class model (one-to-many)
+  classes Class[]
 
   @@map("users")
 }
@@ -92,8 +96,39 @@ model Class {
   electivedegreeId      Int[]
   classScheduleEntries  classScheduleEntry[]
   semesterEntries       semesterEntry[]
+  user                  user?                @relation(fields: [userId], references: [id]) // Reference to user
+  userId                String?
+
+  // One-to-many relation with Assignment
+  assignments Assignment[]
 
   @@map("classes")
+}
+
+model Assignment {
+  id             Int      @id @unique @default(autoincrement())
+  name           String
+  description    String
+  dueAt          DateTime
+  pointsPossible Float
+  classId        Int
+  type           String // New field to specify "homework", "exam", "project", etc.
+
+  // Many-to-one relation with Class
+  class Class @relation(fields: [classId], references: [id])
+
+  submissions Submission[]
+}
+
+model Submission {
+  id           Int        @id @unique @default(autoincrement())
+  userId       String
+  assignmentId Int
+  submittedAt  DateTime
+  user         user       @relation(fields: [userId], references: [id])
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+
+  @@unique([userId, assignmentId]) // Ensure a user can only submit one assignment once
 }
 
 model requirement {
