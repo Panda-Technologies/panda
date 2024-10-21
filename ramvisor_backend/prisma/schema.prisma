@@ -38,6 +38,9 @@ model user {
   takenClassIds                  Int[]
   degree                         degree?         @relation(fields: [degreeId], references: [id])
 
+  // New: Relation to the Class model (one-to-many)
+  classes classSection[]
+
   @@map("users")
 }
 
@@ -102,6 +105,8 @@ model classSection {
   startTime             String
   endTime               String
   class                 Class  @relation(fields: [classId], references: [id])
+  user                  user[]
+  userId                String[]
 
   @@map("class_sections")
 }
