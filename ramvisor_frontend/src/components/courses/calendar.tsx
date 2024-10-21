@@ -6,8 +6,10 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import styled from 'styled-components';
 import { Input, Button } from 'antd';
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
+import DraggableCourse from "@components/courses/draggable-course";
+import DroppableCalendar from "@components/courses/droppable-calendar";
 
-interface Event {
+export interface Event {
   id: number | undefined;
   title: string | undefined;
   day: string | undefined;
@@ -17,7 +19,7 @@ interface Event {
   professor: string | undefined;
 };
 
-type Section = {
+export type Section = {
   id: string;
   professor: string;
   startTime: string;
@@ -25,7 +27,7 @@ type Section = {
   days: string[];
 };
 
-type Course = {
+export type Course = {
   id: string;
   name: string;
   sections: Section[];
@@ -38,10 +40,7 @@ type Props = {
   onEventRemove?: (eventId: string) => void;
 };
 
-const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-const hours = Array.from({ length: 11 }, (_, i) => i + 8); // 8 AM to 6 PM
-
-const CalendarContainer = styled.div`
+export const CalendarContainer = styled.div`
   display: flex;
   height: 100vh;
   background-color: #f0f2f5;
@@ -49,7 +48,7 @@ const CalendarContainer = styled.div`
   overflow: hidden;
 `;
 
-const Sidebar = styled.div`
+export const Sidebar = styled.div`
   width: 300px;
   height: calc(100vh - 40px);
   margin-right: 20px;
@@ -60,7 +59,7 @@ const Sidebar = styled.div`
   overflow-y: auto;
 `;
 
-const CalendarGrid = styled.div`
+export const CalendarGrid = styled.div`
   flex: 1;
   display: grid;
   grid-template-columns: 80px repeat(5, 1fr);
@@ -71,7 +70,7 @@ const CalendarGrid = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 `;
 
-const HeaderCell = styled.div`
+export const HeaderCell = styled.div`
   background-color: #4a90e2;
   color: white;
   font-weight: bold;
@@ -82,7 +81,7 @@ const HeaderCell = styled.div`
   z-index: 2;
 `;
 
-const TimeCell = styled.div`
+export const TimeCell = styled.div`
   background-color: #f8f9fa;
   padding: 4px 8px;
   text-align: right;
@@ -97,13 +96,13 @@ const TimeCell = styled.div`
   white-space: nowrap;
 `;
 
-const CalendarCell = styled.div`
+export const CalendarCell = styled.div`
   border-right: 1px solid #e8e8e8;
   border-bottom: 1px solid #e8e8e8;
   position: relative;
 `;
 
-const EventBlock = styled.div<{ color: string; height: number }>`
+export const EventBlock = styled.div<{ color: string; height: number }>`
   background-color: ${props => `${props.color}33`};
   border-left: 3px solid ${props => props.color};
   color: #333;
@@ -121,7 +120,7 @@ const EventBlock = styled.div<{ color: string; height: number }>`
   z-index: 1;
 `;
 
-const DraggableCourseCard = styled.div<{ color: string }>`
+export const DraggableCourseCard = styled.div<{ color: string }>`
   background-color: white;
   border-left: 4px solid ${props => props.color};
   padding: 12px;
@@ -131,7 +130,7 @@ const DraggableCourseCard = styled.div<{ color: string }>`
   cursor: move;
 `;
 
-const RemoveButton = styled(Button)`
+export const RemoveButton = styled(Button)`
   position: absolute;
   top: 2px;
   right: 2px;
@@ -209,116 +208,6 @@ const CourseCalendar: React.FC<Props> = ({
     } else {
       setSearchResults([]);
     }
-  };
-
-  const DraggableCourse: React.FC<{ course: Course; section: Section }> = ({ course, section }) => {
-    const [{ isDragging }, drag] = useDrag(() => ({
-      type: 'course',
-      item: { course, section },
-      collect: (monitor) => ({
-        isDragging: !!monitor.isDragging(),
-      }),
-    }));
-
-    return (
-      <DraggableCourseCard ref={drag} color={course.color} style={{ opacity: isDragging ? 0.5 : 1 }}>
-        <div style={{ fontWeight: 'bold' }}>{course.id} - {course.name}</div>
-        <div>{section.id} - {section.professor}</div>
-        <div>{section.days.join(', ')} {section.startTime} - {section.endTime}</div>
-      </DraggableCourseCard>
-    );
-  };
-
-  const DroppableCalendar = () => {
-    const [, drop] = useDrop(() => ({
-      accept: 'course',
-      drop: (item: { course: Course; section: Section }, monitor) => {
-        const clientOffset = monitor.getClientOffset();
-        if (clientOffset) {
-          const calendarRect = document.getElementById('calendar-grid')?.getBoundingClientRect();
-          if (calendarRect) {
-            const x = clientOffset.x - calendarRect.left;
-            const y = clientOffset.y - calendarRect.top;
-            const dayIndex = Math.floor(((x - 80) / (calendarRect.width - 80)) * 5);
-            const hourIndex = Math.floor((y / 60)) - 1; // Subtract 1 for header row
-            
-            if (dayIndex >= 0 && dayIndex < 5 && hourIndex >= 0 && hourIndex < 11) {
-              const day = days[dayIndex];
-              const time = `${hourIndex + 8}:00`;
-              
-              const newEvent: Event = {
-                id: `${item.course.id}-${day}-${time}`,
-                title: item.course.name,
-                day,
-                startTime: item.section.startTime,
-                endTime: item.section.endTime,
-                color: item.course.color,
-                professor: item.section.professor,
-              };
-              onEventMove(newEvent);
-            }
-          }
-        }
-      },
-    }));
-
-    const calculateEventPosition = (event: Event, cellStartHour: number) => {
-      const startHour = parseInt(event.startTime.split(':')[0]);
-      const startMinute = parseInt(event.startTime.split(':')[1]);
-      const endHour = parseInt(event.endTime.split(':')[0]);
-      const endMinute = parseInt(event.endTime.split(':')[1]);
-      
-      const top = Math.max(0, (startHour - cellStartHour) * 60 + startMinute);
-      const height = Math.min(60, (endHour - startHour) * 60 + (endMinute - startMinute) - Math.max(0, (cellStartHour - startHour) * 60));
-      
-      return { top, height };
-    };
-
-    const formatTime = (hour: number) => {
-      const period = hour >= 12 ? 'PM' : 'AM';
-      const displayHour = hour % 12 || 12;
-      return `${displayHour}:00 ${period}`;
-    };
-
-    return (
-      <CalendarGrid ref={drop} id="calendar-grid">
-        <TimeCell style={{ backgroundColor: '#4a90e2' }}></TimeCell>
-        {days.map(day => <HeaderCell key={day}>{day}</HeaderCell>)}
-        {hours.map(hour => (
-          <React.Fragment key={hour}>
-            <TimeCell>{formatTime(hour)}</TimeCell>
-            {days.map(day => (
-              <CalendarCell key={`${day}-${hour}`}>
-                {events
-                  .filter(event => event.day === day &&
-                    parseInt(event.startTime.split(':')[0]) < hour + 1 &&
-                    parseInt(event.endTime.split(':')[0]) > hour)
-                  .map(event => {
-                    const { top, height } = calculateEventPosition(event, hour);
-                    return (
-                      <EventBlock 
-                        key={event.id} 
-                        color={event.color} 
-                        height={height}
-                        style={{ top: `${top}px` }}
-                      >
-                        <div style={{ fontWeight: 'bold' }}>{event.title}</div>
-                        <div>{event.startTime} - {event.endTime}</div>
-                        <div>{event.professor}</div>
-                        <RemoveButton 
-                          type="text" 
-                          icon={<CloseOutlined />} 
-                          onClick={() => onEventRemove(event.id)}
-                        />
-                      </EventBlock>
-                    );
-                  })}
-              </CalendarCell>
-            ))}
-          </React.Fragment>
-        ))}
-      </CalendarGrid>
-    );
   };
 
   return (
