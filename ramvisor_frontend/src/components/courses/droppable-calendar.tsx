@@ -9,13 +9,13 @@ import {
     TimeCell,
     Event
 } from "@components/courses/calendar";
-import React from "react";
+import React, {useRef} from "react";
 import {CloseOutlined} from "@ant-design/icons";
 
 type Props = {
     events: Event[];
     onEventMove: (event: Event) => void;
-    onEventRemove: (eventId: number) => void;
+    onEventRemove: (eventId: string) => void;
 }
 
 const DroppableCalendar = ({ events, onEventMove, onEventRemove }: Props ) => {
@@ -72,8 +72,11 @@ const DroppableCalendar = ({ events, onEventMove, onEventRemove }: Props ) => {
         return `${displayHour}:00 ${period}`;
     };
 
+    const ref = useRef<HTMLDivElement>(null);
+    drop(ref);
+
     return (
-        <CalendarGrid ref={drop} id="calendar-grid">
+        <CalendarGrid ref={ref} id="calendar-grid">
             <TimeCell style={{ backgroundColor: '#4a90e2' }}></TimeCell>
             {days.map(day => <HeaderCell key={day}>{day}</HeaderCell>)}
             {hours.map(hour => (
@@ -90,7 +93,7 @@ const DroppableCalendar = ({ events, onEventMove, onEventRemove }: Props ) => {
                                     return (
                                         <EventBlock
                                             key={event.id}
-                                            color={event.color}
+                                            color={event.color ?? 'blue'}
                                             height={height}
                                             style={{ top: `${top}px` }}
                                         >
@@ -100,7 +103,7 @@ const DroppableCalendar = ({ events, onEventMove, onEventRemove }: Props ) => {
                                             <RemoveButton
                                                 type="text"
                                                 icon={<CloseOutlined />}
-                                                onClick={() => onEventRemove(event?.id || 0)}
+                                                onClick={() => onEventRemove(event?.id || '0')}
                                             />
                                         </EventBlock>
                                     );

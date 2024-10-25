@@ -42,6 +42,7 @@ import RequirementItem from "@components/degree/requirement-item";
 import {SortableCourse} from "@components/degree/sortable-course";
 import DroppableSemester from "@components/degree/droppable-semester";
 import useDataFetch from "@utilities/data-fetch";
+import CourseFetch from "@utilities/fetchClasses";
 
 // Custom hooks using FetchData generic
 
@@ -132,31 +133,7 @@ const DegreePage: React.FC = () => {
     const {requirementsData: secondMajorReq, isLoading: secondMajorReqLoading} = useFetchRequirements(secondDegreeId);
 
     // Fetch courses
-    const {
-        data: coursesData,
-        isLoading: coursesLoading,
-        error: coursesError,
-    } = useList<Class>({
-        resource: "classes",
-        meta: {
-            gqlQuery: GET_CLASSES_QUERY,
-        },
-    });
-
-    // Memoize courses map
-    const coursesMap = useMemo(() => {
-        const map = new Map<number, Class>();
-        coursesData?.data?.forEach((course) => {
-            if (course) map.set(course.id, course);
-        });
-        return map;
-    }, [coursesData]);
-
-    // Get course function
-    const getCourse = useCallback(
-        (classId: number) => coursesMap.get(classId),
-        [coursesMap]
-    );
+    const { getCourse, coursesData, coursesLoading, coursesError } = CourseFetch();
 
     // Memoize taken courses Set
     const takenCoursesSet: Set<number> = useMemo(() => {

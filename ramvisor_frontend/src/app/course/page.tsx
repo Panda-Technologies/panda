@@ -13,15 +13,16 @@ import {
 } from '@graphql/mutations';
 import useDataFetch from "@utilities/data-fetch";
 import {ClassSchedule, User} from "@graphql/generated/graphql";
+import CourseFetch from "@utilities/fetchClasses";
 
 interface Event {
-    id: number | undefined;
-    title: string | undefined;
-    day: string | undefined;
-    startTime: string | undefined;
-    endTime: string | undefined;
-    color: string | undefined;
-    professor: string | undefined;
+    id: string;
+    title: string;
+    day: string;
+    startTime: string;
+    endTime: string;
+    color: string;
+    professor: string;
 };
 
 const Page: React.FC = () => {
@@ -29,6 +30,8 @@ const Page: React.FC = () => {
 
     const { data: identity } = useGetIdentity<{ id: string }>();
     const userId = identity?.id;
+
+    const { getCourse } = CourseFetch();
 
     const useGetUser = () => {
         const { data, isLoading, error } = useDataFetch<{ getUser: User }>(
@@ -80,15 +83,15 @@ const Page: React.FC = () => {
 
     return (
       <CourseCalendar
-        events={activeSchedule?.entries?.map(entry => ({
-            id: entry?.classId,
-            title: entry?.class?.title,
-            day: entry?.class?.dayOfWeek,
-            startTime: entry?.class?.startTime,
-            endTime: entry?.class?.endTime,
+        events={activeSchedule!.entries!.map(entry => ({
+            id: `${entry!.class!.id}`,
+            title: entry!.class!.title,
+            day: entry!.class!.dayOfWeek,
+            startTime: entry!.class!.startTime,
+            endTime: entry!.class!.endTime,
             color: 'blue',
-            professor: entry?.class?.professor,
-        }))}
+            professor: entry!.class!.professor,
+        } as Event))}
         onEventMove={handleEventMove}
         onEventRemove={handleEventRemove}
       />

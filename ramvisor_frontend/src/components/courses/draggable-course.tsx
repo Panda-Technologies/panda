@@ -1,5 +1,6 @@
 import {Course, DraggableCourseCard, Section} from "@components/courses/calendar";
 import {useDrag} from "react-dnd";
+import {useRef} from "react";
 
 const DraggableCourse: React.FC<{ course: Course; section: Section }> = ({ course, section }) => {
     const [{ isDragging }, drag] = useDrag(() => ({
@@ -10,8 +11,11 @@ const DraggableCourse: React.FC<{ course: Course; section: Section }> = ({ cours
         }),
     }));
 
+    const ref = useRef<HTMLDivElement>(null);
+    drag(ref);
+
     return (
-        <DraggableCourseCard ref={drag} color={course.color} style={{ opacity: isDragging ? 0.5 : 1 }}>
+        <DraggableCourseCard ref={ref} color={course.color} style={{ opacity: isDragging ? 0.5 : 1 }}>
             <div style={{ fontWeight: 'bold' }}>{course.id} - {course.name}</div>
             <div>{section.id} - {section.professor}</div>
             <div>{section.days.join(', ')} {section.startTime} - {section.endTime}</div>

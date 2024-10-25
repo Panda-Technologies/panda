@@ -10,13 +10,13 @@ import DraggableCourse from "@components/courses/draggable-course";
 import DroppableCalendar from "@components/courses/droppable-calendar";
 
 export interface Event {
-  id: number | undefined;
-  title: string | undefined;
-  day: string | undefined;
-  startTime: string | undefined;
-  endTime: string | undefined;
-  color: string | undefined;
-  professor: string | undefined;
+  id: string;
+  title: string;
+  day: string;
+  startTime: string;
+  endTime: string;
+  color: string;
+  professor: string;
 };
 
 export type Section = {
@@ -35,9 +35,9 @@ export type Course = {
 };
 
 type Props = {
-  events: Event[] | undefined;
+  events: Event[];
   onEventMove: (event: Event) => void;
-  onEventRemove?: (eventId: string) => void;
+  onEventRemove?: (eventId: string) => void ;
 };
 
 export const CalendarContainer = styled.div`
@@ -144,7 +144,7 @@ export const RemoveButton = styled(Button)`
 const CourseCalendar: React.FC<Props> = ({ 
   events, 
   onEventMove, 
-  onEventRemove = () => {} 
+  onEventRemove
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchResults, setSearchResults] = useState<Course[]>([]);
@@ -226,7 +226,7 @@ const CourseCalendar: React.FC<Props> = ({
             ))
           )}
         </Sidebar>
-        <DroppableCalendar />
+        <DroppableCalendar events={events} onEventMove={onEventMove} onEventRemove={onEventRemove!}/>
       </CalendarContainer>
     </DndProvider>
   );
