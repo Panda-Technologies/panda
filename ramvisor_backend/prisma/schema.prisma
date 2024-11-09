@@ -37,8 +37,9 @@ model user {
   degreePlanners                 degreePlanner[]
   takenClassIds                  Int[]
   degree                         degree?         @relation(fields: [degreeId], references: [id])
+  questionnaireCompleted         Boolean         @default(false)
 
-  // New: Relation to the Class model (one-to-many)
+  // New: Relation to the Class model (many-to-many)
   classes classSection[]
 
   @@map("users")
