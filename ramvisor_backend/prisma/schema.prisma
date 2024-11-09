@@ -38,9 +38,8 @@ model user {
   takenClassIds                  Int[]
   degree                         degree?         @relation(fields: [degreeId], references: [id])
   submissions                    Submission[]
-
-  // New: Relation to the Class model (one-to-many)
-  classes Class[]
+  classes                        Class[]
+  questionnaireCompleted         Boolean         @default(false)
 
   @@map("users")
 }
