@@ -10,6 +10,7 @@ export const user = objectType({
         t.nonNull.string("email");
         t.string("university");
         t.boolean("isPremium");
+
         t.int("yearInUniversity");
         t.string("graduationSemesterName");
         t.float("gpa");
