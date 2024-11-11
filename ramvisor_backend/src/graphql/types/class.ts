@@ -1,4 +1,7 @@
-import { objectType, extendType, nonNull, intArg, inputObjectType } from "nexus";
+import {extendType, inputObjectType, intArg, nonNull, objectType} from "nexus";
+import {PrismaClient} from "@prisma/client";
+import {getEndTime, getStartTime, parseCSV, processComponent, processInstructor} from "../../utils";
+import {headers} from "../../constants";
 
 export const Class = objectType({
   name: 'Class',
@@ -96,6 +99,54 @@ export const classMutation = extendType({
         input: nonNull(CreateClassInput),
       },
       resolve: (_, { input }, { prisma }) => prisma.class.create({ data: input })
+    });
+
+    t.field('generateClassesFromScrape', {
+      type: 'Class',
+      resolve: async (_, __, { prisma }: { prisma: PrismaClient }) => {
+        const classes = await parseCSV('../big_pdf_lessons.csv', headers);
+
+        const processTime = (timeStr: string): { startTime: string, endTime: string } => {
+          if (!timeStr || timeStr === 'TBA') {
+            return { startTime: '00:00', endTime: '00:00' };
+          }
+          try {
+            return {
+              startTime: getStartTime(timeStr),
+              endTime: getEndTime(timeStr)
+            };
+          } catch (error) {
+            console.error(`Error processing time: ${timeStr}`);
+            return { startTime: '00:00', endTime: '00:00' };
+          }
+        };
+
+        await prisma.class.createMany({
+          data: classes.map((c) => {
+            const times = processTime(c.time);
+            return {
+              classCode: c.code?.trim() || '',
+              courseType: processComponent(c.component),
+              credits: c.units || 0,
+              title: c['course title']?.trim() || '',
+              category: c.subject?.trim() || 'General',
+              description: c.topics?.trim() || 'No description available',
+              dayOfWeek: c.days?.trim() || 'TBA',
+              startTime: times.startTime,
+              endTime: times.endTime,
+              color: "blue",
+              professor: processInstructor(c.Instructor),
+              rateMyProfessorRating: 0.0,
+              coreDegreeId: [],
+              electiveDegreeId: [],
+            };
+          }),
+          skipDuplicates: true,
+        });
+
+        // Return the first class as required by the mutation type
+        return prisma.class.findFirst();
+      }
     });
 
     t.field('updateClass', {

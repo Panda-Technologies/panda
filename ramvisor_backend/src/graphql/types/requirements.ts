@@ -49,13 +49,13 @@ export const requirementQuery = extendType({
         category: nonNull(stringArg()),
         degreeId: nonNull(intArg()),
       },
-      resolve: async (
+      resolve: (
         _,
         { category, degreeId },
         { prisma }: { prisma: PrismaClient }
       ) => {
-        return await prisma.requirement.findFirst({
-          where: { category, degreeId },
+        return prisma.requirement.findFirst({
+          where: {category, degreeId},
         });
       },
     });
@@ -65,12 +65,12 @@ export const requirementQuery = extendType({
       args: {
         degreeId: nonNull(intArg()),
       },
-      resolve: async (
+      resolve: (
         _,
         { degreeId },
         { prisma }: { prisma: PrismaClient }
       ) => {
-        return await prisma.requirement.findMany({ where: { degreeId } });
+        return prisma.requirement.findMany({where: {degreeId}});
       },
     });
   },
@@ -84,8 +84,8 @@ export const requirementMutation = extendType({
       args: {
         data: nonNull(createRequirementInput),
       },
-      resolve: async (_, { data }, { prisma }: { prisma: PrismaClient }) => {
-        return await prisma.requirement.create({ data });
+      resolve: (_, { data }, { prisma }: { prisma: PrismaClient }) => {
+        return prisma.requirement.create({data});
       },
     });
 
@@ -94,9 +94,9 @@ export const requirementMutation = extendType({
       args: {
         data: nonNull(updateRequirementInput),
       },
-      resolve: async (_, { data }, { prisma }: { prisma: PrismaClient }) => {
+      resolve: (_, { data }, { prisma }: { prisma: PrismaClient }) => {
         const { id } = data;
-        return await prisma.requirement.update({ where: { id }, data });
+        return prisma.requirement.update({where: {id}, data});
       },
     });
   },

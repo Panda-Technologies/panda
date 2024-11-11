@@ -83,13 +83,13 @@ model Class {
   courseType            String
   title                 String
   dayOfWeek             String
-  startTime             DateTime
-  endTime               DateTime
+  startTime             String
+  endTime               String
   color                 String
   professor             String
   rateMyProfessorRating Float
-  coredegreeId          Int[]
-  electivedegreeId      Int[]
+  coreDegreeId          Int[]
+  electiveDegreeId      Int[]
   classScheduleEntries  classScheduleEntry[]
   semesterEntries       semesterEntry[]
 

@@ -73,6 +73,7 @@ type Mutation {
   deleteDegreePlanner(id: Int!): degreePlanner
   deleteSemester(id: Int!): semester
   deleteTask(input: deleteTaskInput): task
+  generateClassesFromScrape: Class
   login(input: LoginInput!): String
   logout: Boolean
   register(input: RegisterInput!): String

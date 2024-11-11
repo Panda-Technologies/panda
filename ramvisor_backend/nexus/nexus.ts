@@ -339,6 +339,7 @@ export interface NexusGenFieldTypes {
     deleteDegreePlanner: NexusGenRootTypes['degreePlanner'] | null; // degreePlanner
     deleteSemester: NexusGenRootTypes['semester'] | null; // semester
     deleteTask: NexusGenRootTypes['task'] | null; // task
+    generateClassesFromScrape: NexusGenRootTypes['Class'] | null; // Class
     login: string | null; // String
     logout: boolean | null; // Boolean
     register: string | null; // String
@@ -498,6 +499,7 @@ export interface NexusGenFieldTypeNames {
     deleteDegreePlanner: 'degreePlanner'
     deleteSemester: 'semester'
     deleteTask: 'task'
+    generateClassesFromScrape: 'Class'
     login: 'String'
     logout: 'Boolean'
     register: 'String'
