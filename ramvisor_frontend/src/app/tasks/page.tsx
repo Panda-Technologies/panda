@@ -13,6 +13,7 @@ import TasksEditModal from './edit';
 import { GET_TASKS_QUERY, GET_USER_QUERY } from '@/graphql/queries';
 import { UPDATE_TASK_MUTATION, DELETE_TASK_MUTATION } from '@/graphql/mutations';
 import { getClassColor } from '@/utilities/helpers';
+import {message} from "antd";
 
 export interface Task {
   id: number;
@@ -44,15 +45,6 @@ const TasksPage: React.FC = () => {
 
   const { data: identity } = useGetIdentity<{ id: string }>();
   const userId = identity?.id;
-  
-  const { data: userData, isLoading: userLoading } = useCustom({
-    url: "",
-    method: "get",
-    meta: {
-      gqlQuery: GET_USER_QUERY,
-      variables: { id: userId }
-    }
-  });
 
   const { data: tasksData, isLoading: tasksLoading, refetch: refetchTasks } = useCustom<{ getTasks: Task[] }>({
     url: "",
@@ -136,6 +128,7 @@ const TasksPage: React.FC = () => {
         },
         {
           onSuccess: () => {
+            message.success('Task updated successfully', 0.5);
             pendingTasksRef.current.delete(taskId);
           },
           onError: (error) => {
@@ -179,6 +172,7 @@ const TasksPage: React.FC = () => {
               )
             }))
           );
+          message.success('Task updated successfully', 0.5);
           setEditingTask(null);
         },
         onError: (error) => {
@@ -206,6 +200,7 @@ const TasksPage: React.FC = () => {
               tasks: stage.tasks.filter(task => task.id !== taskId)
             }))
           );
+          message.success('Task deleted successfully', 0.5);
           setEditingTask(null);
         },
         onError: (error) => {
@@ -222,10 +217,11 @@ const TasksPage: React.FC = () => {
         tasks: stage.tasks.filter(task => task.id !== taskId)
       }))
     );
+    message.success('Task deleted successfully', 0.5);
     setEditingTask(null);
   }, []);
 
-  if (userLoading || tasksLoading) {
+  if (!userId || tasksLoading) {
     return <div>Loading...</div>;
   }
 

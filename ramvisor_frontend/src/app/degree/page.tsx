@@ -1,7 +1,7 @@
 "use client";
 
 import React, {useState, useCallback, useMemo, useEffect} from "react";
-import {useGetIdentity, useCustom, useList, useUpdate, useDelete, useCreate} from "@refinedev/core";
+import {useGetIdentity, useUpdate, useDelete, useCreate} from "@refinedev/core";
 import {message} from "antd";
 import {
     DragEndEvent,

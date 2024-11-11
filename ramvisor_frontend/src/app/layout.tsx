@@ -48,7 +48,6 @@ export default function RootLayout({
                     routerProvider={routerProvider}
                     dataProvider={dataProvider}
                     liveProvider={liveProvider}
-                    notificationProvider={useNotificationProvider}
                     authProvider={authProvider}
                     resources = {[ // Path definitions that will help refine the available actions for our resources at specific paths. Actions are basically paths that u can use to perform crud operations under a single name
                       {

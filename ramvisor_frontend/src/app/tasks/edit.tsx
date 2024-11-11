@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from "react";
-import { Modal, Button, Form, Input, DatePicker, Select } from "antd";
+import {Modal, Button, Form, Input, DatePicker, Select, message} from "antd";
 import { AlignLeftOutlined, FieldTimeOutlined, BookOutlined } from "@ant-design/icons";
 import dayjs from 'dayjs';
 
@@ -46,8 +46,8 @@ const TasksEditModal: React.FC<TasksEditModalProps> = ({ task, onClose, onSave, 
         color: getClassColor(updatedData.classCode || editedTask.classCode)
       }
     };
-    setEditedTask(newTask);
-    onSave(newTask);
+    setEditedTask(newTask as Task);
+    onSave(newTask as Task);
   }, [editedTask, onSave]);
 
   const handleDelete = useCallback(() => {
