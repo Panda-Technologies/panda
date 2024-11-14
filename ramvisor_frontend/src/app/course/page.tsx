@@ -1,18 +1,18 @@
 "use client";
 
-import React from 'react';
-import CourseCalendar from '@components/courses/calendar'; 
-import {useCreate, useDelete, useGetIdentity} from '@refinedev/core';
-import { 
-  GET_USER_QUERY, 
-  GET_CLASS_SCHEDULES_QUERY 
+import React, {useCallback, useEffect} from 'react';
+import CourseCalendar from '@components/courses/calendar';
+import {BaseRecord, CreateResponse, HttpError, useCreate, useDelete, useGetIdentity} from '@refinedev/core';
+import {
+    GET_USER_QUERY,
+    GET_CLASS_SCHEDULES_QUERY, GET_CLASSES_QUERY
 } from '@graphql/queries';
-import { 
-  ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION, 
-  REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION 
+import {
+    ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION, CREATE_CLASS_SCHEDULE_MUTATION,
+    REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION
 } from '@graphql/mutations';
 import useDataFetch from "@utilities/data-fetch";
-import {ClassSchedule, User} from "@graphql/generated/graphql";
+import {Class, ClassSchedule, User} from "@graphql/generated/graphql";
 import CourseFetch from "@utilities/fetchClasses";
 
 interface Event {
@@ -25,76 +25,102 @@ interface Event {
     professor: string;
 };
 
+const useGetUser = (userId: string) => {
+    const { data, isLoading, error } = useDataFetch<{ getUser: User }>(
+        GET_USER_QUERY,
+        { id: userId },
+        "user"
+    );
+    return { data: data?.getUser, isLoading, error };
+}
+
+const useGetClassSchedules = (userId: string) => {
+    const { data, isLoading, error } = useDataFetch<{ getClassSchedules: ClassSchedule[] }>(
+        GET_CLASS_SCHEDULES_QUERY,
+        { userId: userId },
+        "class schedules"
+    );
+    return { data: data?.getClassSchedules, isLoading, error };
+}
+
+const useGetClasses = () => {
+    const { data, isLoading, error } = useDataFetch<{ getClasses: Class[] }>(
+        GET_CLASSES_QUERY,
+        {},
+        "classes"
+    );
+    return { data: data?.getClasses, isLoading, error };
+}
+
 const Page: React.FC = () => {
-    const [activeSchedule, setActiveSchedule] = React.useState<ClassSchedule | null>(null);
+    const [activeSchedule, setActiveSchedule] = React.useState<ClassSchedule | undefined>(undefined);
 
     const { data: identity } = useGetIdentity<{ id: string }>();
     const userId = identity?.id;
 
-    const { getCourse } = CourseFetch();
-
-    const useGetUser = () => {
-        const { data, isLoading, error } = useDataFetch<{ getUser: User }>(
-            GET_USER_QUERY,
-            { id: userId },
-            "user"
-            );
-        return { data: data?.getUser, isLoading, error };
-    }
-
-    const useGetClassSchedules = () => {
-        const { data, isLoading, error } = useDataFetch<{ getClassSchedules: ClassSchedule[] }>(
-            GET_CLASS_SCHEDULES_QUERY,
-            { id: userId },
-            "class schedules"
-        );
-        return { data: data?.getClassSchedules, isLoading, error };
-    }
+    const { data: user } = useGetUser(userId!);
+    const { data: classSchedules } = useGetClassSchedules(userId!);
+    const { data: classes } = useGetClasses();
 
     const { mutate: addClassToSchedule } = useCreate();
     const { mutate: removeClassFromSchedule } = useDelete();
 
+    useEffect(() => {
+        if (classSchedules && classSchedules.length > 0) {
+            setActiveSchedule(classSchedules[0]);
+        }
+    }, [classSchedules]);
+
     const handleEventMove = (event: Event) => {
-      addClassToSchedule({
-        resource: "classScheduleEntries",
-        values: {
-          classScheduleId: activeSchedule?.id,
-          classId: Number(event.id),
-        },
-        meta: {
-          gqlMutation: ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION
-        }
-      });
+        if (!activeSchedule?.id) return;
+
+        addClassToSchedule({
+            resource: "classScheduleEntries",
+            values: {
+                classScheduleId: activeSchedule.id,
+                classId: Number(event.id),
+            },
+            meta: {
+                gqlMutation: ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION
+            }
+        });
     };
-    
+
     const handleEventRemove = (eventId: string) => {
-      removeClassFromSchedule({
-        resource: "classScheduleEntries",
-        id: eventId,
-        meta: {
-          gqlMutation: REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION
-        }
-      });
+        removeClassFromSchedule({
+            resource: "classScheduleEntries",
+            id: eventId,
+            meta: {
+                gqlMutation: REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION
+            }
+        });
     };
-    
-    if (!useGetUser()?.data) {
-      return <div>Loading...</div>;
+
+    if (!user) {
+        return <div>Loading...</div>;
     }
 
-    return (
-      <CourseCalendar
-        events={activeSchedule!.entries!.map(entry => ({
-            id: `${entry!.class!.id}`,
-            title: entry!.class!.title,
-            day: entry!.class!.dayOfWeek,
-            startTime: entry!.class!.startTime,
-            endTime: entry!.class!.endTime,
+    const events = activeSchedule?.entries?.map(entry => {
+        if (!entry?.class) return undefined;
+
+        return {
+            id: `${entry.class.id}`,
+            title: entry.class.title ?? "",
+            day: entry.class.dayOfWeek ?? "",
+            startTime: entry.class.startTime ?? "",
+            endTime: entry.class.endTime ?? "",
             color: 'blue',
-            professor: entry!.class!.professor,
-        } as Event))}
-        onEventMove={handleEventMove}
-        onEventRemove={handleEventRemove}
-      />
+            professor: entry.class.professor ?? "",
+        } as Event;
+    }).filter((event): event is Event => event !== undefined) ?? [];
+
+    return (
+        <CourseCalendar
+            courses={classes ?? []}
+            events={events}
+            onEventMove={handleEventMove}
+            onEventRemove={handleEventRemove}
+        />
     );
 }
 
