@@ -1,4 +1,5 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
+
 
 export const REGISTER_MUTATION = gql`
     mutation Register($input: RegisterInput!) {

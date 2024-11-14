@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const GET_USER_QUERY = gql`
   query GetUser($id: String!) {
@@ -92,7 +92,7 @@ export const GET_CLASS_QUERY = gql`
 
 export const GET_CLASS_SCHEDULES_QUERY = gql`
   query GetClassSchedules($userId: String!) {
-    getclassSchedules(userId: $userId) {
+    getClassSchedules(userId: $userId) {
       id
       userId
       semesterId
