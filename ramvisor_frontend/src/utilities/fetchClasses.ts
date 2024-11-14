@@ -25,13 +25,17 @@ const CourseFetch = () => {
         return map;
     }, [coursesData]);
 
+    const courseArray = useMemo(() => {
+        return Object.values(coursesMap);
+    }, [coursesMap]);
+
 // Get course function
     const getCourse = useCallback(
         (classId: number) => coursesMap.get(classId),
         [coursesMap]
     );
 
-    return { getCourse, coursesData, coursesLoading, coursesError };
+    return { getCourse, coursesData, coursesLoading, coursesError, courseArray };
 };
 
 export default CourseFetch;
