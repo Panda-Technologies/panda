@@ -17,6 +17,7 @@ import "@styles/global.css";
 import Layout from "@components/layout";
 import { BookOutlined, CalendarOutlined, DashboardOutlined, ProjectOutlined } from "@ant-design/icons";
 import ChatWindow from "@components/chat/window";
+import {ApolloWrapper} from "@providers/data-provider/apollo-provider";
 
 export default function RootLayout({
   children,
@@ -43,7 +44,7 @@ export default function RootLayout({
           <RefineKbarProvider>
             <AntdRegistry>
               <ColorModeContextProvider defaultMode={defaultMode}>
-              
+                <ApolloWrapper>
                   <Refine
                     routerProvider={routerProvider}
                     dataProvider={dataProvider}
@@ -104,6 +105,7 @@ export default function RootLayout({
                     </Layout>
                     <RefineKbar />
                   </Refine>
+                </ApolloWrapper>
               </ColorModeContextProvider>
             </AntdRegistry>
           </RefineKbarProvider>
