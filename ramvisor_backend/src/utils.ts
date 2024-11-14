@@ -16,11 +16,7 @@ export const verifyPassword = async(password: string, hashedPassword: string) =>
 
 export const isProd = () => process.env.NODE_ENV === 'production';
 
-export const isAuthenticated = (session: ISession): boolean => {if (!session.userId) {
-    return false;
-} else {
-    return true;
-}};
+export const isAuthenticated = (session: ISession): boolean => {return !!session.userId;};
 
 export const generateUUID = (): string => {
     return uuidv4();
@@ -104,3 +100,16 @@ export const capitalizeWords = (name: string): string => {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
 };
+
+export const getCurrentSemester = (): string => {
+    const today = new Date();
+    const month = today.getMonth();
+    const year = today.getFullYear();
+    if (month >= 0 && month <= 4) {
+        return `Spring ${year}`;
+    } else if (month >= 5 && month <= 7) {
+        return `Summer ${year}`;
+    } else {
+        return `Fall ${year}`;
+    }
+}
