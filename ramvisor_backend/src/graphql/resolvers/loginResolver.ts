@@ -27,7 +27,14 @@ export const loginResolve = async (_: any, { input }: { input: Pick<user, 'email
             throw new Error(INVALID_CREDENTIALS);
         }
 
-        session['userId'] = user.id;
+        session.userId = user.id;
+
+        await new Promise<void>((resolve, reject) => {
+            session.save((err) => {
+                if (err) reject(err);
+                resolve();
+            });
+        });
 
         return user.id;
     } catch (err: any) {
