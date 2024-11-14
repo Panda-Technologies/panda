@@ -563,7 +563,7 @@ export type GetClassSchedulesQueryVariables = Types.Exact<{
 }>;
 
 export type GetClassSchedulesQuery = {
-  getclassSchedules?: Types.Maybe<
+  getClassSchedules?: Types.Maybe<
     Array<
       Types.Maybe<
         Pick<Types.ClassSchedule, "id" | "userId" | "semesterId"> & {
