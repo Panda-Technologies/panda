@@ -102,6 +102,7 @@ export type Mutation = {
   deleteDegreePlanner?: Maybe<DegreePlanner>;
   deleteSemester?: Maybe<Semester>;
   deleteTask?: Maybe<Task>;
+  generateClassesFromScrape?: Maybe<Class>;
   login?: Maybe<Scalars["String"]["output"]>;
   logout?: Maybe<Scalars["Boolean"]["output"]>;
   register?: Maybe<Scalars["String"]["output"]>;
@@ -133,7 +134,7 @@ export type MutationCreateClassArgs = {
 };
 
 export type MutationCreateClassScheduleArgs = {
-  input: CreateClassScheduleInput;
+  input?: InputMaybe<CreateClassScheduleInput>;
 };
 
 export type MutationCreateDegreeArgs = {
@@ -258,6 +259,7 @@ export type Query = {
   getAlldegrees?: Maybe<Array<Maybe<Degree>>>;
   getClass?: Maybe<Class>;
   getClassScheduleEntries?: Maybe<Array<Maybe<ClassScheduleEntry>>>;
+  getClassSchedules?: Maybe<Array<Maybe<ClassSchedule>>>;
   getClasses?: Maybe<Array<Maybe<Class>>>;
   getDegree?: Maybe<Degree>;
   getGraduationSemester?: Maybe<Scalars["String"]["output"]>;
@@ -267,7 +269,6 @@ export type Query = {
   getSemester?: Maybe<Semester>;
   getTasks?: Maybe<Array<Maybe<Task>>>;
   getUser?: Maybe<User>;
-  getclassSchedules?: Maybe<Array<Maybe<ClassSchedule>>>;
   getdegreePlanners?: Maybe<Array<Maybe<DegreePlanner>>>;
   getsemesters?: Maybe<Array<Maybe<Semester>>>;
 };
@@ -282,6 +283,10 @@ export type QueryGetClassArgs = {
 
 export type QueryGetClassScheduleEntriesArgs = {
   classScheduleId: Scalars["Int"]["input"];
+};
+
+export type QueryGetClassSchedulesArgs = {
+  userId: Scalars["String"]["input"];
 };
 
 export type QueryGetDegreeArgs = {
@@ -315,10 +320,6 @@ export type QueryGetTasksArgs = {
 
 export type QueryGetUserArgs = {
   id: Scalars["String"]["input"];
-};
-
-export type QueryGetclassSchedulesArgs = {
-  userId: Scalars["String"]["input"];
 };
 
 export type QueryGetdegreePlannersArgs = {
@@ -398,7 +399,7 @@ export type ClassTakenResult = {
 };
 
 export type CreateClassScheduleInput = {
-  semesterId: Scalars["String"]["input"];
+  semesterId?: InputMaybe<Scalars["String"]["input"]>;
   userId: Scalars["String"]["input"];
 };
 
@@ -1215,7 +1216,7 @@ export type GetClassSchedulesQueryVariables = Exact<{
 
 export type GetClassSchedulesQuery = {
   __typename?: "Query";
-  getclassSchedules?: Array<{
+  getClassSchedules?: Array<{
     __typename?: "classSchedule";
     id: number;
     userId: string;
@@ -3930,7 +3931,7 @@ export const GetClassSchedulesDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "getclassSchedules" },
+            name: { kind: "Name", value: "getClassSchedules" },
             arguments: [
               {
                 kind: "Argument",

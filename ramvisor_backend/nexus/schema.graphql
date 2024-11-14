@@ -60,7 +60,7 @@ type Mutation {
   addClassToClassSchedule(input: addClassToScheduleInput!): classScheduleEntry
   addClassTosemester(input: addClassToSemesterInput!): semesterEntry
   createClass(input: CreateClassInput!): Class
-  createClassSchedule(input: createClassScheduleInput!): classSchedule
+  createClassSchedule(input: createClassScheduleInput): classSchedule
   createDegree(input: createDegreeInput!): degree
   createDegreePlanner(input: createDegreePlannerInput!): degreePlanner
   createDegreeRequirements(degreeId: Int!): Boolean
@@ -97,6 +97,7 @@ type Query {
   getAlldegrees: [degree]
   getClass(id: Int!): Class
   getClassScheduleEntries(classScheduleId: Int!): [classScheduleEntry]
+  getClassSchedules(userId: String!): [classSchedule]
   getClasses: [Class]
   getDegree(userId: String!): degree
   getGraduationSemester(id: String!): String
@@ -106,7 +107,6 @@ type Query {
   getSemester(id: Int!): semester
   getTasks(userId: String!): [task]
   getUser(id: String!): user
-  getclassSchedules(userId: String!): [classSchedule]
   getdegreePlanners(userId: String!): [degreePlanner]
   getsemesters(plannerId: Int!): [semester]
 }
@@ -177,7 +177,7 @@ type classTakenResult {
 }
 
 input createClassScheduleInput {
-  semesterId: String!
+  semesterId: String
   userId: String!
 }
 

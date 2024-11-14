@@ -37,6 +37,7 @@ const initialStages: Stage[] = [
   { id: 3, title: 'DONE', tasks: [] },
 ];
 
+
 const TasksPage: React.FC = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [stages, setStages] = useState<Stage[]>(initialStages);
