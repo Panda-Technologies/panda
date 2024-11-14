@@ -1,4 +1,5 @@
 import { extendType, nonNull, intArg, objectType, list, inputObjectType, stringArg } from "nexus";
+import {getCurrentSemester} from "../../utils";
 
 export const classSchedule = objectType({
   name: "classSchedule",
@@ -26,7 +27,7 @@ export const createClassScheduleInput = inputObjectType({
   name: 'createClassScheduleInput',
   definition(t) {
     t.nonNull.string('userId');
-    t.nonNull.string('semesterId');
+    t.string('semesterId');
   },
 });
 
@@ -56,10 +57,10 @@ export const removeClassFromScheduleInput = inputObjectType({
 export const classScheduleQuery = extendType({
   type: 'Query',
   definition(t) {
-    t.list.field('getclassSchedules', {
+    t.list.field('getClassSchedules', {
       type: 'classSchedule',
       args: {
-        userId: nonNull(stringArg())
+          userId: nonNull(stringArg())
       },
       resolve: (_, { userId }, { prisma }) => prisma.classSchedule.findMany({ 
         where: { userId },
@@ -86,13 +87,30 @@ export const classScheduleMutation = extendType({
     t.field("createClassSchedule", {
       type: "classSchedule",
       args: {
-        input: nonNull(createClassScheduleInput),
+        input: createClassScheduleInput,
       },
-      resolve: (_, { input }, { prisma }) =>
-        prisma.classSchedule.create({
-          data: input,
-          include: { entries: true },
-        }),
+      resolve: async (_, { input }, { prisma }) => {
+        let { userId, semesterId } = input;
+        if (!userId) {
+          throw new Error("userId is required");
+        }
+        if (!semesterId) {
+          semesterId = getCurrentSemester();
+        }
+
+        return await prisma.classSchedule.create({
+          data: {
+            userId,
+            semesterId,
+            entries: {
+              create: []
+            }
+          },
+          include: {
+            entries: true
+          }
+        });
+      },
     });
 
     t.field("updateClassSchedule", {
