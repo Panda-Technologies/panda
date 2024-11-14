@@ -13,12 +13,12 @@ import React, {useRef} from "react";
 import {CloseOutlined} from "@ant-design/icons";
 
 type Props = {
-    events: Event[];
+    events: Event[] | undefined;
     onEventMove: (event: Event) => void;
     onEventRemove: (eventId: string) => void;
 }
 
-const DroppableCalendar = ({ events, onEventMove, onEventRemove }: Props ) => {
+const DroppableCalendar = ({ events = [], onEventMove, onEventRemove }: Props ) => {
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
     const hours = Array.from({ length: 11 }, (_, i) => i + 8); // 8 AM to 6 PM
 
@@ -84,11 +84,11 @@ const DroppableCalendar = ({ events, onEventMove, onEventRemove }: Props ) => {
                     <TimeCell>{formatTime(hour)}</TimeCell>
                     {days.map(day => (
                         <CalendarCell key={`${day}-${hour}`}>
-                            {events
-                                .filter(event => event.day === day &&
+                            {events?.filter(event => event.day === day &&
                                     parseInt(event.startTime?.split(':')[0] || '0') < hour + 1 &&
                                     parseInt(event.endTime?.split(':')[0] || '0') > hour)
                                 .map(event => {
+                                    if (event === undefined || event === null) return null;
                                     const { top, height } = calculateEventPosition(event, hour);
                                     return (
                                         <EventBlock

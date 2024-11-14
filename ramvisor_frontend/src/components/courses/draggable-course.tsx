@@ -16,9 +16,9 @@ const DraggableCourse: React.FC<{ course: Course; section: Section }> = ({ cours
 
     return (
         <DraggableCourseCard ref={ref} color={course.color} style={{ opacity: isDragging ? 0.5 : 1 }}>
-            <div style={{ fontWeight: 'bold' }}>{course.id} - {course.name}</div>
-            <div>{section.id} - {section.professor}</div>
-            <div>{section.days.join(', ')} {section.startTime} - {section.endTime}</div>
+            <div style={{ fontWeight: 'bold' }}>{course.id}<br />{course.name}</div>
+            <div>{section.professor}</div>
+            <div>{section.days} {section.startTime} - {section.endTime}</div>
         </DraggableCourseCard>
     );
 };
