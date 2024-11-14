@@ -59,9 +59,4 @@ export const headers = [
     'Class Wait Cap',
     'Class Wait Tot',
     'Class Min Enrl',
-    'empty1',
-    'empty2',
-    'empty3',
-    'empty4',
-    'empty5'
 ];
