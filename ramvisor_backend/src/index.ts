@@ -6,6 +6,7 @@ import { IMyContext, ISession } from './interface';
 import session from 'express-session';
 import dotenv from 'dotenv';
 import { isProd } from './utils';
+import cors from 'cors';
 
 const main = async () => {
 
@@ -13,6 +14,11 @@ const main = async () => {
 
 
     const app = express();
+
+    app.use(cors({
+        origin: ['http://localhost:3000'],
+        credentials: true,
+    }))
 
     app.use(session({
         secret: process.env.SESSION_SECRET!,
@@ -38,7 +44,12 @@ const main = async () => {
 
     await apolloServer.start();
 
-    apolloServer.applyMiddleware({ app });
+    apolloServer.applyMiddleware({
+        app,
+        cors: {
+            origin: ['http://localhost:3000'],
+            credentials: true,
+     }});
 
     const PORT = process.env.PORT || 5001;
 
