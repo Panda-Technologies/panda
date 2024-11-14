@@ -1,13 +1,9 @@
 'use client';
 
 import {Class, Requirement} from "@graphql/generated/graphql";
-import React, {isValidElement, useCallback, useMemo} from "react";
+import React, {isValidElement, useCallback, useMemo, useState} from "react";
 import {SortableCourse} from "./sortable-course";
-import {BaseKey, useDelete} from "@refinedev/core";
-import {REMOVE_CLASS_FROM_SEMESTER_MUTATION} from "@graphql/mutations";
 import {Degree, Semester} from "@graphql/generated/graphql";
-import {ExceptionMap} from "antd/es/result";
-import {get} from "http";
 
 type Props = {
     getSemesters: Semester[];
@@ -29,10 +25,10 @@ const DegreeSearch = ({
                           removeFromSemester,
                           getDegree
                       }: Props) => {
-    const [searchTerm, setSearchTerm] = React.useState<string>("");
-    const [searchResults, setSearchResults] = React.useState<Class[]>([]);
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [searchResults, setSearchResults] = useState<Class[]>([]);
 
-    const isCourseTaken = React.useCallback((courseId: number): boolean => {
+    const isCourseTaken = useCallback((courseId: number): boolean => {
         return getSemesters.some((sem: Semester) =>
             sem.entries?.some((entry) => entry?.classId === courseId)
         );
@@ -43,6 +39,7 @@ const DegreeSearch = ({
         setSearchTerm(term);
 
         if (term) {
+            console.log(getClasses)
             setSearchResults(
                 getClasses.filter(
                     (course) =>
