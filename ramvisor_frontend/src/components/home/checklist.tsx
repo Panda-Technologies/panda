@@ -47,7 +47,7 @@ const Checklist: React.FC = () => {
 
   const handleCheckboxChange = async (taskId: number, checked: boolean) => {
     try {
-      await mutate({
+      mutate({
         resource: 'tasks',
         id: taskId,
         values: {
@@ -87,7 +87,7 @@ const Checklist: React.FC = () => {
         overflow: "hidden",
         width: '76%',
         left: '99%',
-        top: '-643px'
+        top: '-613px'
       }}
       styles={{ 
         header: { padding: "16px 24px" }, 
@@ -104,7 +104,7 @@ const Checklist: React.FC = () => {
           }}>
             Pending Assignments
           </span>
-          <Link href='/tasks'><ArrowRightOutlined style={{ marginLeft: '29%' }} /></Link>
+          <Link href='/tasks'><ArrowRightOutlined style={{ marginLeft: '80%' }} /></Link>
         </div>
       }
     >
