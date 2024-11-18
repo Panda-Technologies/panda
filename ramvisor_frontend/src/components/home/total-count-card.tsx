@@ -86,7 +86,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ title, data, color, icon, isLoa
             tooltip={{ enable: false }}
             height="100%"
             background="transparent"
-            style = {{ width: '100%' }}
+            style = {{ width: '130%' }}
           >
             <Inject services={[SplineAreaSeries, DateTime]} />
             <SeriesCollectionDirective>
