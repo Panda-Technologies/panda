@@ -45,7 +45,7 @@ type Props = {
 
 export const CalendarContainer = styled.div`
     display: flex;
-    height: auto;
+    height: 92%;
     width: 85%;
     top: 8%;
     background-color: #f5f5f5;

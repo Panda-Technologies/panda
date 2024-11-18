@@ -14,18 +14,18 @@ type Props = {
 const CalendarContainer = styled.div`
     flex: 1;
     display: grid;
-    grid-template-columns: 40px repeat(5, 1fr);
+    grid-template-columns: 40px repeat(5, minmax(170px, 1fr));
     position: relative;
     padding: 50px 10px 10px;
     background-color: #f5f5f5;
     height: calc(100vh - 70px);
-    grid-template-rows: auto repeat(11, 80px);
+    grid-template-rows: auto repeat(17, 80px);
 `;
 
 const HeaderWrapper = styled.div`
     z-index: 3;
     display: grid;
-    grid-template-columns: 50px repeat(5, 1fr);
+    grid-template-columns: 40px repeat(5, minmax(170px, 1fr));
     position: sticky;
     top: 0;
     grid-column: 1 / -1;
@@ -36,6 +36,7 @@ const TimeHeaderCell = styled.div`
     justify-content: center;
     background-color: #f7f9ff;
     font-size: 0.3rem;
+    border-top-left-radius: 15px;
     z-index: 1;
 `
 ;
@@ -55,21 +56,48 @@ const HeaderCell = styled.div<{ isFirst?: boolean }>`
 `
 ;
 
-const TimeCell = styled.div`
-    display: flex;
-    background-color: #fdfdfe;
-    left: 0;
-    grid-column: 1;
-    z-index: 0;
+const GridWrapper = styled.div`
+    display: grid;
+    grid-template-columns: 40px repeat(5, minmax(170px, 1fr));
     position: relative;
-    padding: 0 8px;
+    overflow: scroll;
+    grid-column: 1 / -1;
+    z-index: 0;
+    height: 830%;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+`;
+
+const TimeCell = styled.div`
+    background-color: #fdfdfe;
+    padding: 10px 5px;
     font-size: 0.75rem;
-    `
-;
+    display: flex;
+    align-items: start;
+    transform: translateY(-20px);
+    height: 100%;
+    width: 100%;
+`;
+
+const DayCell = styled.div`
+    background-color: #fdfdfe;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    height: 80px;
+
+    &:nth-child(6n) {
+        border-right: none;
+    }
+`;
 
 const DroppableCalendar = ({ events = [], onEventMove, onEventRemove }: Props ) => {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-    const hours = Array.from({ length: 11 }, (_, i) => i + 8); // 8 AM to 6 PM
+    const hours = Array.from({ length: 17 }, (_, i) => i + 8); // 8 AM to 6 PM
 
     // const [, drop] = useDrop(() => ({
     //     accept: 'course',
@@ -127,23 +155,34 @@ const DroppableCalendar = ({ events = [], onEventMove, onEventRemove }: Props ) 
         <CalendarContainer>
             <HeaderWrapper>
                 <TimeHeaderCell></TimeHeaderCell>
-                {days.map((day) => {
-                    if (day == 'Fri') {
-                        return (
-                            <HeaderCell key={day}>{day}</HeaderCell>
-                        );
-                    }
-                    return (
-                    <HeaderCell key={day} style={{ borderRight: '1px solid #e5e7eb' }}>{day}</HeaderCell>
-                    );
-                })}
+                {days.map((day) => (
+                    <HeaderCell
+                        key={day}
+                        style={day === 'Fri' ?
+                            { borderTopRightRadius: '15px' } :
+                            { borderRight: '1.1px solid #e5e7eb' }
+                        }
+                    >
+                        {day}
+                    </HeaderCell>
+                ))}
             </HeaderWrapper>
-            {hours.map((hour) => (
-                <TimeCell key={hour}>
-                    {formatTime(hour)}
-                </TimeCell>
-            ))}
+            <GridWrapper>
+                {/* Time slots */}
+                {hours.map((hour) => (
+                    <React.Fragment key={hour}>
+                        <TimeCell>
+                            {formatTime(hour)}
+                        </TimeCell>
+                        {/* Day cells for this hour */}
+                        {days.map((day) => (
+                            <DayCell key={`${day}-${hour}`}>
 
+                            </DayCell>
+                        ))}
+                    </React.Fragment>
+                ))}
+            </GridWrapper>
         </CalendarContainer>
     );
 };
