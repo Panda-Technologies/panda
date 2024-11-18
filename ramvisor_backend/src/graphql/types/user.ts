@@ -10,7 +10,7 @@ export const user = objectType({
         t.nonNull.string("email");
         t.string("university");
         t.boolean("isPremium");
-
+        t.boolean("isQuestionnaireCompleted");
         t.int("yearInUniversity");
         t.string("graduationSemesterName");
         t.float("gpa");
@@ -167,9 +167,10 @@ export const userMutation = extendType({
             type: "user",
             args: {
                 id: nonNull(stringArg()),
-                university: nonNull(stringArg()),
-                yearInUniversity: nonNull(intArg()),
-                degreeId: nonNull(intArg()),
+                university: stringArg(),
+                yearInUniversity: intArg(),
+                degreeId: intArg(),
+                questionnaireCompleted: booleanArg(),
             },
             resolve: (_, args, {prisma}) =>
                 prisma.user.update({

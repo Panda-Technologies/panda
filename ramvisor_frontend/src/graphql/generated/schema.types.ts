@@ -243,10 +243,11 @@ export type MutationUpdateUserAcademicInfoArgs = {
 };
 
 export type MutationUpdateUserProfileArgs = {
-  degreeId: Scalars["Int"]["input"];
+  degreeId?: InputMaybe<Scalars["Int"]["input"]>;
   id: Scalars["String"]["input"];
-  university: Scalars["String"]["input"];
-  yearInUniversity: Scalars["Int"]["input"];
+  questionnaireCompleted?: InputMaybe<Scalars["Boolean"]["input"]>;
+  university?: InputMaybe<Scalars["String"]["input"]>;
+  yearInUniversity?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
 export type Query = {
@@ -564,6 +565,7 @@ export type User = {
   graduationSemesterName?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["String"]["output"];
   isPremium?: Maybe<Scalars["Boolean"]["output"]>;
+  isQuestionnaireCompleted?: Maybe<Scalars["Boolean"]["output"]>;
   takenClassIds?: Maybe<Array<Maybe<Scalars["Int"]["output"]>>>;
   tasks?: Maybe<Array<Maybe<Task>>>;
   university?: Maybe<Scalars["String"]["output"]>;

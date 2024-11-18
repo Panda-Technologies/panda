@@ -89,7 +89,7 @@ type Mutation {
   updateSemester(input: updateSemesterInput!): semester
   updateTask(input: updateTaskInput): task
   updateUserAcademicInfo(assignmentCompletionPercentage: Float, attendancePercentage: Float, gpa: Float, id: String!, takenClassIds: [Int]): user
-  updateUserProfile(degreeId: Int!, id: String!, university: String!, yearInUniversity: Int!): user
+  updateUserProfile(degreeId: Int, id: String!, questionnaireCompleted: Boolean, university: String, yearInUniversity: Int): user
 }
 
 type Query {
@@ -352,6 +352,7 @@ type user {
   graduationSemesterName: String
   id: String!
   isPremium: Boolean
+  isQuestionnaireCompleted: Boolean
   takenClassIds: [Int]
   tasks: [task]
   university: String

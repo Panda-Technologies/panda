@@ -76,6 +76,8 @@ const documents = {
     types.CreateRequirementDocument,
   "\n    mutation UpdateRequirement($data: UpdateRequirementInput!) {\n        updateRequirement(data: $data) {\n            id\n            category\n            isElective\n            classIds\n            degreeId\n        }\n    }\n":
     types.UpdateRequirementDocument,
+  "\n    mutation MarkQuestionnaireCompleted($userId: String!, $isQuestionnaireCompleted: Boolean) {\n        updateUserProfile(id: $userId, questionnaireCompleted: $isQuestionnaireCompleted) {\n            id\n            isQuestionnaireCompleted\n        }\n    }\n":
+    types.MarkQuestionnaireCompletedDocument,
   "\n  query GetUser($id: String!) {\n    getUser(id: $id) {\n      id\n      email\n      university\n      isPremium\n      yearInUniversity\n      graduationSemesterName\n      gpa\n      attendancePercentage\n      assignmentCompletionPercentage\n      degreeId\n      takenClassIds\n      degree {\n        id\n        name\n        coreCategories\n        electiveCategories\n        numberOfCores\n        numberOfElectives\n      }\n    }\n  }\n":
     types.GetUserDocument,
   "\n    query Me {\n        me {\n        id\n        email\n        university\n        isPremium\n        yearInUniversity\n        graduationSemesterName\n        gpa\n        attendancePercentage\n        assignmentCompletionPercentage\n        degreeId\n        takenClassIds\n        degree {\n            id\n            name\n            }\n        }\n    }\n":
@@ -318,6 +320,12 @@ export function graphql(
 export function graphql(
   source: "\n    mutation UpdateRequirement($data: UpdateRequirementInput!) {\n        updateRequirement(data: $data) {\n            id\n            category\n            isElective\n            classIds\n            degreeId\n        }\n    }\n"
 ): (typeof documents)["\n    mutation UpdateRequirement($data: UpdateRequirementInput!) {\n        updateRequirement(data: $data) {\n            id\n            category\n            isElective\n            classIds\n            degreeId\n        }\n    }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: "\n    mutation MarkQuestionnaireCompleted($userId: String!, $isQuestionnaireCompleted: Boolean) {\n        updateUserProfile(id: $userId, questionnaireCompleted: $isQuestionnaireCompleted) {\n            id\n            isQuestionnaireCompleted\n        }\n    }\n"
+): (typeof documents)["\n    mutation MarkQuestionnaireCompleted($userId: String!, $isQuestionnaireCompleted: Boolean) {\n        updateUserProfile(id: $userId, questionnaireCompleted: $isQuestionnaireCompleted) {\n            id\n            isQuestionnaireCompleted\n        }\n    }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

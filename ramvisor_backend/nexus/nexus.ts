@@ -285,6 +285,7 @@ export interface NexusGenObjects {
     graduationSemesterName?: string | null; // String
     id: string; // String!
     isPremium?: boolean | null; // Boolean
+    isQuestionnaireCompleted?: boolean | null; // Boolean
     takenClassIds?: Array<number | null> | null; // [Int]
     tasks?: Array<NexusGenRootTypes['task'] | null> | null; // [task]
     university?: string | null; // String
@@ -456,6 +457,7 @@ export interface NexusGenFieldTypes {
     graduationSemesterName: string | null; // String
     id: string; // String!
     isPremium: boolean | null; // Boolean
+    isQuestionnaireCompleted: boolean | null; // Boolean
     takenClassIds: Array<number | null> | null; // [Int]
     tasks: Array<NexusGenRootTypes['task'] | null> | null; // [task]
     university: string | null; // String
@@ -617,6 +619,7 @@ export interface NexusGenFieldTypeNames {
     graduationSemesterName: 'String'
     id: 'String'
     isPremium: 'Boolean'
+    isQuestionnaireCompleted: 'Boolean'
     takenClassIds: 'Int'
     tasks: 'task'
     university: 'String'
@@ -722,10 +725,11 @@ export interface NexusGenArgTypes {
       takenClassIds?: Array<number | null> | null; // [Int]
     }
     updateUserProfile: { // args
-      degreeId: number; // Int!
+      degreeId?: number | null; // Int
       id: string; // String!
-      university: string; // String!
-      yearInUniversity: number; // Int!
+      questionnaireCompleted?: boolean | null; // Boolean
+      university?: string | null; // String
+      yearInUniversity?: number | null; // Int
     }
   }
   Query: {
