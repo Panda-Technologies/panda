@@ -13,7 +13,6 @@ import {
 } from '@graphql/mutations';
 import useDataFetch from "@utilities/data-fetch";
 import {Class, ClassSchedule, User} from "@graphql/generated/graphql";
-import CourseFetch from "@utilities/fetchClasses";
 
 interface Event {
     id: string;
@@ -23,7 +22,7 @@ interface Event {
     endTime: string;
     color: string;
     professor: string;
-};
+}
 
 const useGetUser = (userId: string) => {
     const { data, isLoading, error } = useDataFetch<{ getUser: User }>(
@@ -58,7 +57,6 @@ const Page: React.FC = () => {
     const { data: identity } = useGetIdentity<{ id: string }>();
     const userId = identity?.id;
 
-    const { data: user } = useGetUser(userId!);
     const { data: classSchedules } = useGetClassSchedules(userId!);
     const { data: classes } = useGetClasses();
 
@@ -96,9 +94,9 @@ const Page: React.FC = () => {
         });
     };
 
-    if (!user) {
-        return <div>Loading...</div>;
-    }
+    // if (!userId) {
+    //     return <div>Loading...</div>;
+    // }
 
     const events = activeSchedule?.entries?.map(entry => {
         if (!entry?.class) return undefined;
