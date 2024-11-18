@@ -73,6 +73,12 @@ export type CreateRequirementInput = {
   isElective: Scalars["Boolean"]["input"];
 };
 
+export type DegreePlannerDegreeInput = {
+  degreeId: Scalars["Int"]["input"];
+  title: Scalars["String"]["input"];
+  userId: Scalars["String"]["input"];
+};
+
 export type LoginInput = {
   email: Scalars["String"]["input"];
   password: Scalars["String"]["input"];
@@ -240,10 +246,11 @@ export type MutationUpdateUserAcademicInfoArgs = {
 };
 
 export type MutationUpdateUserProfileArgs = {
-  degreeId: Scalars["Int"]["input"];
+  degreeId?: InputMaybe<Scalars["Int"]["input"]>;
   id: Scalars["String"]["input"];
-  university: Scalars["String"]["input"];
-  yearInUniversity: Scalars["Int"]["input"];
+  questionnaireCompleted?: InputMaybe<Scalars["Boolean"]["input"]>;
+  university?: InputMaybe<Scalars["String"]["input"]>;
+  yearInUniversity?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
 export type Query = {
@@ -407,9 +414,7 @@ export type CreateDegreeInput = {
 };
 
 export type CreateDegreePlannerInput = {
-  degreeId: Scalars["Int"]["input"];
-  title: Scalars["String"]["input"];
-  userId: Scalars["String"]["input"];
+  degree: DegreePlannerDegreeInput;
 };
 
 export type CreateSemesterInput = {
@@ -580,6 +585,7 @@ export type User = {
   graduationSemesterName?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["String"]["output"];
   isPremium?: Maybe<Scalars["Boolean"]["output"]>;
+  isQuestionnaireCompleted?: Maybe<Scalars["Boolean"]["output"]>;
   takenClassIds?: Maybe<Array<Maybe<Scalars["Int"]["output"]>>>;
   tasks?: Maybe<Array<Maybe<Task>>>;
   university?: Maybe<Scalars["String"]["output"]>;
@@ -1093,6 +1099,20 @@ export type UpdateRequirementMutation = {
     isElective: boolean;
     classIds: Array<number | null>;
     degreeId: number;
+  } | null;
+};
+
+export type MarkQuestionnaireCompletedMutationVariables = Exact<{
+  userId: Scalars["String"]["input"];
+  isQuestionnaireCompleted?: InputMaybe<Scalars["Boolean"]["input"]>;
+}>;
+
+export type MarkQuestionnaireCompletedMutation = {
+  __typename?: "Mutation";
+  updateUserProfile?: {
+    __typename?: "user";
+    id: string;
+    isQuestionnaireCompleted?: boolean | null;
   } | null;
 };
 
@@ -3540,6 +3560,80 @@ export const UpdateRequirementDocument = {
 } as unknown as DocumentNode<
   UpdateRequirementMutation,
   UpdateRequirementMutationVariables
+>;
+export const MarkQuestionnaireCompletedDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "MarkQuestionnaireCompleted" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "userId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "isQuestionnaireCompleted" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "Boolean" } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateUserProfile" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "userId" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "questionnaireCompleted" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "isQuestionnaireCompleted" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "isQuestionnaireCompleted" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  MarkQuestionnaireCompletedMutation,
+  MarkQuestionnaireCompletedMutationVariables
 >;
 export const GetUserDocument = {
   kind: "Document",

@@ -70,6 +70,12 @@ export type CreateRequirementInput = {
   isElective: Scalars["Boolean"]["input"];
 };
 
+export type DegreePlannerDegreeInput = {
+  degreeId: Scalars["Int"]["input"];
+  title: Scalars["String"]["input"];
+  userId: Scalars["String"]["input"];
+};
+
 export type LoginInput = {
   email: Scalars["String"]["input"];
   password: Scalars["String"]["input"];
@@ -236,10 +242,11 @@ export type MutationUpdateUserAcademicInfoArgs = {
 };
 
 export type MutationUpdateUserProfileArgs = {
-  degreeId: Scalars["Int"]["input"];
+  degreeId?: InputMaybe<Scalars["Int"]["input"]>;
   id: Scalars["String"]["input"];
-  university: Scalars["String"]["input"];
-  yearInUniversity: Scalars["Int"]["input"];
+  questionnaireCompleted?: InputMaybe<Scalars["Boolean"]["input"]>;
+  university?: InputMaybe<Scalars["String"]["input"]>;
+  yearInUniversity?: InputMaybe<Scalars["Int"]["input"]>;
 };
 
 export type Query = {
@@ -399,9 +406,7 @@ export type CreateDegreeInput = {
 };
 
 export type CreateDegreePlannerInput = {
-  degreeId: Scalars["Int"]["input"];
-  title: Scalars["String"]["input"];
-  userId: Scalars["String"]["input"];
+  degree: DegreePlannerDegreeInput;
 };
 
 export type CreateSemesterInput = {
@@ -565,6 +570,7 @@ export type User = {
   graduationSemesterName?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["String"]["output"];
   isPremium?: Maybe<Scalars["Boolean"]["output"]>;
+  isQuestionnaireCompleted?: Maybe<Scalars["Boolean"]["output"]>;
   takenClassIds?: Maybe<Array<Maybe<Scalars["Int"]["output"]>>>;
   tasks?: Maybe<Array<Maybe<Task>>>;
   university?: Maybe<Scalars["String"]["output"]>;

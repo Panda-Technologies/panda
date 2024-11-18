@@ -444,6 +444,19 @@ export type UpdateRequirementMutation = {
   >;
 };
 
+export type MarkQuestionnaireCompletedMutationVariables = Types.Exact<{
+  userId: Types.Scalars["String"]["input"];
+  isQuestionnaireCompleted?: Types.InputMaybe<
+    Types.Scalars["Boolean"]["input"]
+  >;
+}>;
+
+export type MarkQuestionnaireCompletedMutation = {
+  updateUserProfile?: Types.Maybe<
+    Pick<Types.User, "id" | "isQuestionnaireCompleted">
+  >;
+};
+
 export type GetUserQueryVariables = Types.Exact<{
   id: Types.Scalars["String"]["input"];
 }>;

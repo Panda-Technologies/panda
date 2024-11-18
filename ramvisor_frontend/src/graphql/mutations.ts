@@ -388,3 +388,12 @@ export const UPDATE_REQUIREMENT_MUTATION = gql`
         }
     }
 `;
+
+export const MARK_QUESTIONNAIRE_COMPLETED = gql`
+    mutation MarkQuestionnaireCompleted($userId: String!, $isQuestionnaireCompleted: Boolean) {
+        updateUserProfile(id: $userId, questionnaireCompleted: $isQuestionnaireCompleted) {
+            id
+            isQuestionnaireCompleted
+        }
+    }
+`;

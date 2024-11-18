@@ -1,40 +1,41 @@
+"use client";
+
 import React, { useState } from 'react';
 import { Select, Button, Input, Upload, Switch } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
+import {useUpdate} from "@refinedev/core";
+import {MARK_QUESTIONNAIRE_COMPLETED} from "@graphql/mutations";
 
 const { Option } = Select;
 
-// GraphQL mutation to mark the questionnaire as completed
-const MARK_QUESTIONNAIRE_COMPLETED = gql`
-    mutation MarkQuestionnaireCompleted($userId: ID!) {
-        updateUser(id: $userId, input: { questionnaireCompleted: true }) {
-            id
-            questionnaireCompleted
-        }
-    }
-`;
-
-// Function to mark the questionnaire as completed
-const markQuestionnaireAsCompleted = async (userId: string)=> {
-    try {
-        await client.mutate({
-            mutation: MARK_QUESTIONNAIRE_COMPLETED,
-            variables: { userId },
-        });
-        console.log("Questionnaire marked as completed.");
-    } catch (error) {
-        console.error("Error updating questionnaire status:", error);
-        throw new Error("Unable to update questionnaire status.");
-    }
-}
-
-const MultiStepForm: React.FC = () => {
+const Page: React.FC = () => {
     const [step, setStep] = useState(1);
     const router = useRouter();
 
     const nextStep = () => setStep(step + 1);
     const prevStep = () => setStep(step - 1);
+    const { mutate: questionnaireCompleted } = useUpdate();
+
+    const markQuestionnaireAsCompleted = async (userId: string) => {
+        try {
+            questionnaireCompleted({
+                resource: 'user',
+                id: userId,
+                values: {
+                    userId: userId,
+                    questionnaireCompleted: true,
+                },
+                meta: {
+                    gqlQuery: MARK_QUESTIONNAIRE_COMPLETED,
+                }
+            })
+            console.log("Questionnaire marked as completed.");
+        } catch (error) {
+            console.error("Error updating questionnaire status:", error);
+            throw new Error("Unable to update questionnaire status.");
+        }
+    }
 
     // Inline styles with CSSProperties type
     const containerStyle: React.CSSProperties = {
@@ -227,4 +228,4 @@ const MultiStepForm: React.FC = () => {
     );
 };
 
-export default MultiStepForm;
+export default Page;
