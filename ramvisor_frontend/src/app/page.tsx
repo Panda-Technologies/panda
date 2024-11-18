@@ -71,8 +71,7 @@ const IndexPage: React.FC = () => {
   const userId = identity?.id;
 
   return (
-    <AntLayout
-      style={{ minHeight: "50vh", padding: "24px", maxHeight: "95vh" }}
+    <AntLayout style={{ padding: "24px", overflowY: 'hidden', position: 'fixed' }}
     >
       <Row gutter={[32, 32]}>
         <Col xs={24} sm={24} md={8} lg={8} xl={8}>
