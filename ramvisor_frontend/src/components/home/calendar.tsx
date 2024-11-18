@@ -85,7 +85,7 @@ const Calendar: React.FC<CalendarProps> = ({ width, height, title, credits, user
         borderRadius: '12px',
         background: 'linear-gradient(to bottom right, #ffffff, #f0f4f8)',
         border: 'none',
-        height: '100%',
+        height: '95%',
         width: '40%',
         left: '60%',
         top: '-4%'
