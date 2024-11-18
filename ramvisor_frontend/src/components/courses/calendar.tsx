@@ -1,17 +1,15 @@
 "use client";
 
 import React, {useState, useMemo, useCallback} from 'react';
-import {DndProvider} from 'react-dnd';
-import {HTML5Backend} from 'react-dnd-html5-backend';
 import styled from 'styled-components';
 import {Input, Button} from 'antd';
 import {SearchOutlined, CloseOutlined} from '@ant-design/icons';
 import {List, AutoSizer} from 'react-virtualized';
 import Fuse from 'fuse.js';
 import debounce from 'lodash/debounce';
-import DraggableCourse from "@components/courses/draggable-course";
 import DroppableCalendar from "@components/courses/droppable-calendar";
 import {Class} from "@graphql/generated/graphql";
+import AddableCourse from "@components/courses/addable-course";
 
 export interface Event {
     id: string;
@@ -47,15 +45,17 @@ type Props = {
 
 export const CalendarContainer = styled.div`
     display: flex;
-    height: 100vh;
-    background-color: #f0f2f5;
-    padding: 20px;
+    height: auto;
+    width: 85%;
+    top: 8%;
+    background-color: #f5f5f5;
+    position: fixed;
     overflow: hidden;
 `;
 
 export const Sidebar = styled.div`
     width: 300px;
-    height: calc(100vh - 40px);
+    height: calc(100vh - 70px);
     margin-right: 20px;
     background-color: white;
     border-radius: 8px;
@@ -67,11 +67,13 @@ export const Sidebar = styled.div`
 export const CalendarGrid = styled.div`
     flex: 1;
     display: grid;
+    height: calc(100vh - 70px);
     grid-template-columns: 80px repeat(5, 1fr);
-    grid-auto-rows: 60px;
+    grid-auto-rows: 70px;
     background-color: white;
     border-radius: 8px;
-    overflow: auto;
+    overflow-y: scroll;
+    position: relative;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 `;
 
@@ -79,11 +81,20 @@ export const HeaderCell = styled.div`
     background-color: #4a90e2;
     color: white;
     font-weight: bold;
-    padding: 12px;
+    padding: 24px;
     text-align: center;
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 3;
+`;
+
+export const HeaderWrapper = styled.div`
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: 80px repeat(5, 1fr);
+    background-color: #4a90e2;
 `;
 
 export const TimeCell = styled.div`
@@ -105,6 +116,7 @@ export const CalendarCell = styled.div`
     border-right: 1px solid #e8e8e8;
     border-bottom: 1px solid #e8e8e8;
     position: relative;
+    z-index: 0;
 `;
 
 export const EventBlock = styled.div<{ color: string; height: number }>`
@@ -125,7 +137,7 @@ export const EventBlock = styled.div<{ color: string; height: number }>`
     z-index: 1;
 `;
 
-export const DraggableCourseCard = styled.div<{ color: string }>`
+export const AddableCourseCard = styled.div<{ color: string }>`
     background-color: white;
     border-left: 4px solid ${props => props.color};
     padding: 12px;
@@ -234,7 +246,7 @@ const CourseCalendar: React.FC<Props> = ({
 
         return (
             <div key={key} style={style}>
-                <DraggableCourse
+                <AddableCourse
                     course={transformedCourse}
                     section={transformedCourse.sections[0]}
                 />
@@ -243,7 +255,6 @@ const CourseCalendar: React.FC<Props> = ({
     }, [searchResults, transformCourse]);
 
     return (
-        <DndProvider backend={HTML5Backend}>
             <CalendarContainer>
                 <Sidebar>
                     <Input
@@ -259,7 +270,7 @@ const CourseCalendar: React.FC<Props> = ({
                                     width={width}
                                     height={height}
                                     rowCount={searchResults.length}
-                                    rowHeight={80}
+                                    rowHeight={110}
                                     rowRenderer={rowRenderer}
                                     overscanRowCount={5}
                                 />
@@ -273,7 +284,6 @@ const CourseCalendar: React.FC<Props> = ({
                     onEventRemove={onEventRemove!}
                 />
             </CalendarContainer>
-        </DndProvider>
     );
 };
 
