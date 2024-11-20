@@ -51,10 +51,15 @@ export const CalendarContainer = styled.div`
     background-color: #f5f5f5;
     position: fixed;
     overflow: hidden;
+    min-width: 1024px;
+    @media (max-width: 1200px) {
+        width: 95%;
+    }
 `;
 
 export const Sidebar = styled.div`
     width: 300px;
+    min-width: 250px;
     height: calc(100vh - 70px);
     margin-right: 20px;
     background-color: white;
@@ -62,19 +67,30 @@ export const Sidebar = styled.div`
     padding: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    
+    .ant-input-affix-wrapper {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: white;
+        margin-bottom: 20px;
+    }
 `;
 
 export const CalendarGrid = styled.div`
     flex: 1;
     display: grid;
     height: calc(100vh - 70px);
-    grid-template-columns: 80px repeat(5, 1fr);
+    grid-template-columns: 80px repeat(7, minmax(150px, 1fr)); // Update minimum column width
     grid-auto-rows: 70px;
     background-color: white;
     border-radius: 8px;
     overflow-y: scroll;
     position: relative;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    min-width: 700px;
 `;
 
 export const HeaderCell = styled.div`
@@ -93,7 +109,7 @@ export const HeaderWrapper = styled.div`
     top: 0;
     z-index: 3;
     display: grid;
-    grid-template-columns: 80px repeat(5, 1fr);
+    grid-template-columns: 80px repeat(7, 1fr);
     background-color: #4a90e2;
 `;
 

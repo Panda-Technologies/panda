@@ -16,10 +16,11 @@ const CalendarContainer = styled.div`
     display: grid;
     grid-template-columns: 40px repeat(5, minmax(170px, 1fr));
     position: relative;
-    padding: 50px 10px 10px;
+    padding: 70px 10px 10px;
     background-color: #f5f5f5;
     height: calc(100vh - 70px);
     grid-template-rows: auto repeat(17, 80px);
+    min-width: 700px;
 `;
 
 const HeaderWrapper = styled.div`
@@ -29,12 +30,12 @@ const HeaderWrapper = styled.div`
     position: sticky;
     top: 0;
     grid-column: 1 / -1;
-`
-;
+    min-width: 700px;
+`;
 const TimeHeaderCell = styled.div`
     display: flex;
     justify-content: center;
-    background-color: #f7f9ff;
+    background-color: #dbe0f0;
     font-size: 0.3rem;
     border-top-left-radius: 15px;
     z-index: 1;
@@ -44,14 +45,14 @@ const TimeHeaderCell = styled.div`
 const HeaderCell = styled.div<{ isFirst?: boolean }>`
     display: flex;
     align-items: center;
-    padding: 35px 30px;
-    font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-weight: 400;
+    padding: 20px 30px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 550;
     justify-content: center;
-    background-color: #f7f9ff;
+    background-color: #dbe0f0;
     text-transform: uppercase;
     font-size: 1rem;
-    color: #979eab;
+    color: #6B7BA6;
     letter-spacing: 0.05em;
 `
 ;
@@ -60,7 +61,10 @@ const GridWrapper = styled.div`
     display: grid;
     grid-template-columns: 40px repeat(5, minmax(170px, 1fr));
     position: relative;
-    overflow: scroll;
+    overflow-y: scroll;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    overflow-x: hidden;
     grid-column: 1 / -1;
     z-index: 0;
     height: 830%;
@@ -76,12 +80,37 @@ const GridWrapper = styled.div`
 const TimeCell = styled.div`
     background-color: #fdfdfe;
     padding: 10px 5px;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+    font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 400;
+    color: #979eab;
     display: flex;
     align-items: start;
-    transform: translateY(-20px);
-    height: 100%;
+    transform: translateY(-21px);
+    height: 124%;
     width: 100%;
+`;
+
+const EventCard = styled.div<{ color: string }>`
+    position: absolute;
+    padding: 8px;
+    border-radius: 4px 4px 12px 12px;
+    font-size: 14px;
+    width: 18.6%;
+    z-index: 1;
+    background-color: ${props => `${props.color}99`};
+    border-top: 5.5px solid ${props => props.color};
+`;
+
+const EventTitle = styled.div`
+    color: #4B5563;
+    font-weight: 500;
+    margin-bottom: 4px;
+`;
+
+const EventTime = styled.div`
+    color: #6B7280;
+    font-size: 12px;
 `;
 
 const DayCell = styled.div`
@@ -89,10 +118,20 @@ const DayCell = styled.div`
     border-right: 1px solid #e5e7eb;
     border-bottom: 1px solid #e5e7eb;
     height: 80px;
+    position: static;
 
     &:nth-child(6n) {
         border-right: none;
     }
+`;
+
+const HalfHourMarker = styled.div`
+    position: absolute;
+    width: calc(100% - 40px);
+    left: 40px;
+    border-bottom: 1px dotted #e5e7eb;
+    opacity: 0.7;
+    z-index: 0;
 `;
 
 const DroppableCalendar = ({ events = [], onEventMove, onEventRemove }: Props ) => {
@@ -131,16 +170,57 @@ const DroppableCalendar = ({ events = [], onEventMove, onEventRemove }: Props ) 
     //     },
     // }));
 
+    const mockEvents = [
+        {
+            id: '1',
+            title: 'Product Design Course',
+            day: 'Tue',
+            startTime: '09:30',
+            endTime: '12:00',
+            color: '#90EE90',
+            professor: 'Dr. Smith'
+        },
+        {
+            id: '2',
+            title: 'Usability Testing',
+            day: 'Thu',
+            startTime: '09:00',
+            endTime: '11:00',
+            color: '#9370DB',
+            professor: 'Dr. Johnson'
+        },
+        {
+            id: '3',
+            title: 'App Design',
+            day: 'Thu',
+            startTime: '13:00',
+            endTime: '15:30',
+            color: '#90EE90',
+            professor: 'Dr. Williams'
+        },
+        {
+            id: '4',
+            title: 'Frontend Development',
+            day: 'Fri',
+            startTime: '10:00',
+            endTime: '13:00',
+            color: '#87CEEB',
+            professor: 'Dr. Brown'
+        }
+    ];
 
 
-    const calculateEventPosition = (event: Event, cellStartHour: number) => {
-        const startHour = parseInt(event.startTime?.split(':')[0] || '0');
-        const startMinute = parseInt(event.startTime?.split(':')[1] || '0');
-        const endHour = parseInt(event.endTime?.split(':')[0] || '0');
-        const endMinute = parseInt(event.endTime?.split(':')[1] || '0');
 
-        const top = Math.max(0, (startHour - cellStartHour) * 60 + startMinute);
-        const height = Math.min(60, (endHour - startHour) * 60 + (endMinute - startMinute) - Math.max(0, (cellStartHour - startHour) * 60));
+    const calculateEventPosition = (event: Event) => {
+        const startHour = parseInt(event.startTime.split(':')[0]);
+        const startMinute = parseInt(event.startTime.split(':')[1]);
+        const endHour = parseInt(event.endTime.split(':')[0]);
+        const endMinute = parseInt(event.endTime.split(':')[1]);
+
+        const cellStartHour = 8;
+
+        const top = Math.max(0, (startHour - cellStartHour) * 80 + (startMinute / 60) * 80);
+        const height = ((endHour - startHour) * 80) + ((endMinute - startMinute) / 60) * 80;
 
         return { top, height };
     };
@@ -148,7 +228,33 @@ const DroppableCalendar = ({ events = [], onEventMove, onEventRemove }: Props ) 
     const formatTime = (hour: number) => {
         const period = hour >= 12 ? 'pm' : 'am';
         const displayHour = hour % 12 || 12;
+        if (displayHour == 8 && period == 'am') {
+            return null;
+        }
+        if (hour == 24) {
+            return '12am';
+        }
         return `${displayHour}${period}`;
+    };
+
+    const renderEvent = (event: Event, dayIndex: number) => {
+        const { top, height } = calculateEventPosition(event);
+        return (
+            <EventCard
+                key={event.id}
+                color={event.color}
+                style={{
+                    top: `${top}px`,
+                    height: `${height}px`,
+                }}
+            >
+                <EventTitle>{event.title}</EventTitle>
+                <EventTime>
+                    {`${event.startTime} - ${event.endTime}`}
+                    <div style={{ fontSize: '11px', marginTop: '2px' }}>{event.professor}</div>
+                </EventTime>
+            </EventCard>
+        );
     };
 
     return (
@@ -159,8 +265,7 @@ const DroppableCalendar = ({ events = [], onEventMove, onEventRemove }: Props ) 
                     <HeaderCell
                         key={day}
                         style={day === 'Fri' ?
-                            { borderTopRightRadius: '15px' } :
-                            { borderRight: '1.1px solid #e5e7eb' }
+                            { borderTopRightRadius: '15px' } : { borderTopRightRadius: '0px' }
                         }
                     >
                         {day}
@@ -168,19 +273,46 @@ const DroppableCalendar = ({ events = [], onEventMove, onEventRemove }: Props ) 
                 ))}
             </HeaderWrapper>
             <GridWrapper>
-                {/* Time slots */}
                 {hours.map((hour) => (
                     <React.Fragment key={hour}>
                         <TimeCell>
                             {formatTime(hour)}
                         </TimeCell>
-                        {/* Day cells for this hour */}
-                        {days.map((day) => (
+                        {days.map((day, dayIndex) => (
                             <DayCell key={`${day}-${hour}`}>
-
+                                {mockEvents
+                                    .filter(event =>
+                                        event.day === day &&
+                                        parseInt(event.startTime.split(':')[0]) === hour
+                                    )
+                                    .map(event => renderEvent(event, dayIndex))}
                             </DayCell>
                         ))}
                     </React.Fragment>
+                ))}
+                {hours.map((hour) => (
+                    <HalfHourMarker
+                        key={`marker-${hour}`}
+                        style={{
+                            top: `${(hour - 8) * 80 + 20}px`
+                        }}
+                    />
+                ))}
+                {hours.map((hour) => (
+                    <HalfHourMarker
+                        key={`marker-${hour}`}
+                        style={{
+                            top: `${(hour - 8) * 80 + 40}px`
+                        }}
+                    />
+                ))}
+                {hours.map((hour) => (
+                    <HalfHourMarker
+                        key={`marker-${hour}`}
+                        style={{
+                            top: `${(hour - 8) * 80 + 60}px`
+                        }}
+                    />
                 ))}
             </GridWrapper>
         </CalendarContainer>
