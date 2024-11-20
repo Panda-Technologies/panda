@@ -112,4 +112,11 @@ export const getCurrentSemester = (): string => {
     } else {
         return `Fall ${year}`;
     }
-}
+};
+
+export const authenticateUser = (session: ISession): string => {
+    if (!session.userId) {
+        throw new Error("Not authenticated");
+    }
+    return session.userId;
+};
