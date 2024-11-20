@@ -1,10 +1,10 @@
 import {
   objectType,
   extendType,
-  nonNull,
   inputObjectType,
-  stringArg,
 } from "nexus";
+import {IMyContext} from "../../interface";
+import {authenticateUser} from "../../utils";
 
 export const task = objectType({
   name: "task",
@@ -25,7 +25,6 @@ const taskInputFields = inputObjectType({
   definition(t) {
     t.nonNull.string("title");
     t.int("stageId");
-    t.nonNull.string("userId");
     t.nonNull.string("dueDate");
     t.string("classCode");
     t.string("description");
@@ -71,10 +70,11 @@ export const taskQuery = extendType({
   definition(t) {
     t.list.field("getTasks", {
       type: "task",
-      args: { userId: nonNull(stringArg()) },
-      resolve: (_, { userId }, { prisma }) =>
-        prisma.task.findMany({ where: { userId } }),
-    });
+      resolve: (_, __ , { prisma, session }: IMyContext) => {
+        console.log("Session in getTasks:", session);
+        console.log("UserID in getTasks:", session.userId);
+        return prisma.task.findMany({where: { userId: session.userId }})
+      }});
   },
 });
 
@@ -86,13 +86,14 @@ export const taskMutation = extendType({
       args: {
         input: createTaskInput,
       },
-      resolve: async (_, { input }, { prisma }) => {
+      resolve: async (_, { input }, { prisma, session }: IMyContext) => {
         const { task } = input;
+        const userId = authenticateUser(session);
         return prisma.task.create({
           data: {
             title: task.title,
             stageId: task.stageId || 1, // Default to 1 if not provided
-            userId: task.userId,
+            userId: userId,
             dueDate: task.dueDate,
             classCode: task.classCode || undefined,
             description: task.description || undefined,
