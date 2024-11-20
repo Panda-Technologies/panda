@@ -26,6 +26,28 @@ export const GET_USER_QUERY = gql`
   }
 `;
 
+export const ME = gql`
+    query Me {
+        me {
+        id
+        email
+        university
+        isPremium
+        yearInUniversity
+        graduationSemesterName
+        gpa
+        attendancePercentage
+        assignmentCompletionPercentage
+        degreeId
+        takenClassIds
+        degree {
+            id
+            name
+            }
+        }
+    }
+`
+
 export const CLASS_TAKEN_QUERY = gql`
   query ClassTaken($input: classTakenInput!) {
     classTaken(input: $input) {
@@ -234,8 +256,8 @@ export const GET_DEGREE_QUERY = gql`
 `;
 
 export const GET_TASKS_QUERY = gql`
-  query GetTasks($userId: String!) {
-    getTasks(userId: $userId) {
+  query GetTasks {
+    getTasks {
       id
       userId
       dueDate
