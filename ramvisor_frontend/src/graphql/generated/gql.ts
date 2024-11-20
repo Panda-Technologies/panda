@@ -78,6 +78,8 @@ const documents = {
     types.UpdateRequirementDocument,
   "\n  query GetUser($id: String!) {\n    getUser(id: $id) {\n      id\n      email\n      university\n      isPremium\n      yearInUniversity\n      graduationSemesterName\n      gpa\n      attendancePercentage\n      assignmentCompletionPercentage\n      degreeId\n      takenClassIds\n      degree {\n        id\n        name\n        coreCategories\n        electiveCategories\n        numberOfCores\n        numberOfElectives\n      }\n    }\n  }\n":
     types.GetUserDocument,
+  "\n    query Me {\n        me {\n        id\n        email\n        university\n        isPremium\n        yearInUniversity\n        graduationSemesterName\n        gpa\n        attendancePercentage\n        assignmentCompletionPercentage\n        degreeId\n        takenClassIds\n        degree {\n            id\n            name\n            }\n        }\n    }\n":
+    types.MeDocument,
   "\n  query ClassTaken($input: classTakenInput!) {\n    classTaken(input: $input) {\n      classIds\n    }\n  }\n":
     types.ClassTakenDocument,
   "\n  query GetGraduationSemester($id: String!) {\n    getGraduationSemester(id: $id)\n  }\n":
@@ -102,7 +104,7 @@ const documents = {
     types.GetAllDegreesDocument,
   "\n  query GetDegree($userId: String!) {\n    getDegree(userId: $userId) {\n      id\n      name\n      coreCategories\n      electiveCategories\n      numberOfCores\n      numberOfElectives\n    }\n  }\n":
     types.GetDegreeDocument,
-  "\n  query GetTasks($userId: String!) {\n    getTasks(userId: $userId) {\n      id\n      userId\n      dueDate\n      stageId\n      classCode\n      description\n      title\n    }\n  }\n":
+  "\n  query GetTasks {\n    getTasks {\n      id\n      userId\n      dueDate\n      stageId\n      classCode\n      description\n      title\n    }\n  }\n":
     types.GetTasksDocument,
   "\n  query GetRequirement($category: String!, $degreeId: Int!) {\n    getRequirement(category: $category, degreeId: $degreeId) {\n      id\n      category\n      isElective\n      classIds\n      degreeId\n    }\n  }\n":
     types.GetRequirementDocument,
@@ -326,6 +328,12 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: "\n    query Me {\n        me {\n        id\n        email\n        university\n        isPremium\n        yearInUniversity\n        graduationSemesterName\n        gpa\n        attendancePercentage\n        assignmentCompletionPercentage\n        degreeId\n        takenClassIds\n        degree {\n            id\n            name\n            }\n        }\n    }\n"
+): (typeof documents)["\n    query Me {\n        me {\n        id\n        email\n        university\n        isPremium\n        yearInUniversity\n        graduationSemesterName\n        gpa\n        attendancePercentage\n        assignmentCompletionPercentage\n        degreeId\n        takenClassIds\n        degree {\n            id\n            name\n            }\n        }\n    }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: "\n  query ClassTaken($input: classTakenInput!) {\n    classTaken(input: $input) {\n      classIds\n    }\n  }\n"
 ): (typeof documents)["\n  query ClassTaken($input: classTakenInput!) {\n    classTaken(input: $input) {\n      classIds\n    }\n  }\n"];
 /**
@@ -398,8 +406,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query GetTasks($userId: String!) {\n    getTasks(userId: $userId) {\n      id\n      userId\n      dueDate\n      stageId\n      classCode\n      description\n      title\n    }\n  }\n"
-): (typeof documents)["\n  query GetTasks($userId: String!) {\n    getTasks(userId: $userId) {\n      id\n      userId\n      dueDate\n      stageId\n      classCode\n      description\n      title\n    }\n  }\n"];
+  source: "\n  query GetTasks {\n    getTasks {\n      id\n      userId\n      dueDate\n      stageId\n      classCode\n      description\n      title\n    }\n  }\n"
+): (typeof documents)["\n  query GetTasks {\n    getTasks {\n      id\n      userId\n      dueDate\n      stageId\n      classCode\n      description\n      title\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

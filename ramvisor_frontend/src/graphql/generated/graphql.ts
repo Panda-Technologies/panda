@@ -271,6 +271,7 @@ export type Query = {
   getUser?: Maybe<User>;
   getdegreePlanners?: Maybe<Array<Maybe<DegreePlanner>>>;
   getsemesters?: Maybe<Array<Maybe<Semester>>>;
+  me?: Maybe<User>;
 };
 
 export type QueryClassTakenArgs = {
@@ -312,10 +313,6 @@ export type QueryGetRequirementsArgs = {
 
 export type QueryGetSemesterArgs = {
   id: Scalars["Int"]["input"];
-};
-
-export type QueryGetTasksArgs = {
-  userId: Scalars["String"]["input"];
 };
 
 export type QueryGetUserArgs = {
@@ -531,7 +528,6 @@ export type TaskInputFields = {
   dueDate: Scalars["String"]["input"];
   stageId?: InputMaybe<Scalars["Int"]["input"]>;
   title: Scalars["String"]["input"];
-  userId: Scalars["String"]["input"];
 };
 
 export type UpdateClassScheduleInput = {
@@ -1130,6 +1126,27 @@ export type GetUserQuery = {
   } | null;
 };
 
+export type MeQueryVariables = Exact<{ [key: string]: never }>;
+
+export type MeQuery = {
+  __typename?: "Query";
+  me?: {
+    __typename?: "user";
+    id: string;
+    email: string;
+    university?: string | null;
+    isPremium?: boolean | null;
+    yearInUniversity?: number | null;
+    graduationSemesterName?: string | null;
+    gpa?: number | null;
+    attendancePercentage?: number | null;
+    assignmentCompletionPercentage?: number | null;
+    degreeId?: number | null;
+    takenClassIds?: Array<number | null> | null;
+    degree?: { __typename?: "degree"; id: number; name: string } | null;
+  } | null;
+};
+
 export type ClassTakenQueryVariables = Exact<{
   input: ClassTakenInput;
 }>;
@@ -1389,9 +1406,7 @@ export type GetDegreeQuery = {
   } | null;
 };
 
-export type GetTasksQueryVariables = Exact<{
-  userId: Scalars["String"]["input"];
-}>;
+export type GetTasksQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetTasksQuery = {
   __typename?: "Query";
@@ -3646,6 +3661,70 @@ export const GetUserDocument = {
     },
   ],
 } as unknown as DocumentNode<GetUserQuery, GetUserQueryVariables>;
+export const MeDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Me" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "me" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "email" } },
+                { kind: "Field", name: { kind: "Name", value: "university" } },
+                { kind: "Field", name: { kind: "Name", value: "isPremium" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "yearInUniversity" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "graduationSemesterName" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "gpa" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "attendancePercentage" },
+                },
+                {
+                  kind: "Field",
+                  name: {
+                    kind: "Name",
+                    value: "assignmentCompletionPercentage",
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "degreeId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "takenClassIds" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "degree" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MeQuery, MeQueryVariables>;
 export const ClassTakenDocument = {
   kind: "Document",
   definitions: [
@@ -4524,38 +4603,12 @@ export const GetTasksDocument = {
       kind: "OperationDefinition",
       operation: "query",
       name: { kind: "Name", value: "GetTasks" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "userId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
       selectionSet: {
         kind: "SelectionSet",
         selections: [
           {
             kind: "Field",
             name: { kind: "Name", value: "getTasks" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "userId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "userId" },
-                },
-              },
-            ],
             selectionSet: {
               kind: "SelectionSet",
               selections: [

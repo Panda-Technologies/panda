@@ -140,7 +140,6 @@ export interface NexusGenInputs {
     dueDate: string; // String!
     stageId?: number | null; // Int
     title: string; // String!
-    userId: string; // String!
   }
   updateClassScheduleInput: { // input type
     id: number; // Int!
@@ -374,6 +373,7 @@ export interface NexusGenFieldTypes {
     getUser: NexusGenRootTypes['user'] | null; // user
     getdegreePlanners: Array<NexusGenRootTypes['degreePlanner'] | null> | null; // [degreePlanner]
     getsemesters: Array<NexusGenRootTypes['semester'] | null> | null; // [semester]
+    me: NexusGenRootTypes['user'] | null; // user
   }
   classSchedule: { // field return type
     entries: Array<NexusGenRootTypes['classScheduleEntry'] | null> | null; // [classScheduleEntry]
@@ -534,6 +534,7 @@ export interface NexusGenFieldTypeNames {
     getUser: 'user'
     getdegreePlanners: 'degreePlanner'
     getsemesters: 'semester'
+    me: 'user'
   }
   classSchedule: { // field return type name
     entries: 'classScheduleEntry'
@@ -758,9 +759,6 @@ export interface NexusGenArgTypes {
     }
     getSemester: { // args
       id: number; // Int!
-    }
-    getTasks: { // args
-      userId: string; // String!
     }
     getUser: { // args
       id: string; // String!
