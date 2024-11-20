@@ -121,7 +121,7 @@ const Page: React.FC = () => {
             await markQuestionnaireAsCompleted(userId);
 
             // Redirect to the dashboard after form completion
-            router.push('/dashboard');
+            router.push('/');
         } catch (error) {
             console.error("Failed to mark questionnaire as completed:", error);
             // Handle error (optional: show an alert or notification to the user)

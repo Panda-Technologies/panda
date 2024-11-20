@@ -1,5 +1,5 @@
 import { AuthPage } from "@components/auth-page";
-import {authProvider, serverCheck} from "@providers/auth-provider";
+import { serverCheck } from "@providers/auth-provider";
 import { redirect } from "next/navigation";
 import React from "react";
 
