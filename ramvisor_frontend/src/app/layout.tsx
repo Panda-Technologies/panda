@@ -10,7 +10,7 @@ import Head from 'next/head';
 
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { ColorModeContextProvider } from "@contexts/color-mode";
-import { authProvider } from "@providers/auth-provider";
+import {authProvider} from "@providers/auth-provider";
 import { dataProvider, liveProvider } from "@providers/data-provider";
 import "@refinedev/antd/dist/reset.css";
 import "@styles/global.css";

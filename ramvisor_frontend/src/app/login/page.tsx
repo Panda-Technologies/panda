@@ -1,5 +1,5 @@
 import { AuthPage } from "@components/auth-page";
-import { authProviderServer } from "@providers/auth-provider";
+import {authProvider, serverCheck} from "@providers/auth-provider";
 import { redirect } from "next/navigation";
 import React from "react";
 
@@ -14,7 +14,7 @@ export default async function Login() {
 }
 
 async function getData() {
-  const { authenticated, redirectTo, error } = await authProviderServer.check();
+  const { authenticated, redirectTo, error } = await serverCheck();
 
   return {
     authenticated,

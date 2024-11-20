@@ -1,5 +1,5 @@
 import { AuthPage } from "@components/auth-page";
-import { authProviderServer } from "@providers/auth-provider";
+import { serverCheck } from "@providers/auth-provider";
 import { redirect } from "next/navigation";
 
 export default async function Register() {
@@ -13,7 +13,7 @@ export default async function Register() {
 }
 
 async function getData() {
-  const { authenticated, redirectTo, error } = await authProviderServer.check();
+  const { authenticated, redirectTo, error } = await serverCheck();
 
   return {
     authenticated,

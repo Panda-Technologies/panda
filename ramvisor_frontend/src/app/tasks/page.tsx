@@ -44,15 +44,11 @@ const TasksPage: React.FC = () => {
   const pendingTasksRef = useRef<Set<number>>(new Set());
   const router = useRouter();
 
-  const { data: identity } = useGetIdentity<{ id: string }>();
-  const userId = identity?.id;
-
   const { data: tasksData, isLoading: tasksLoading, refetch: refetchTasks } = useCustom<{ getTasks: Task[] }>({
     url: "",
     method: "get",
     meta: {
       gqlQuery: GET_TASKS_QUERY,
-      variables: { userId: userId }
     }
   });
 
@@ -222,9 +218,9 @@ const TasksPage: React.FC = () => {
     setEditingTask(null);
   }, []);
 
-  if (!userId || tasksLoading) {
-    return <div>Loading...</div>;
-  }
+  // if (!userId || tasksLoading) {
+  //   return <div>Loading...</div>;
+  // }
 
   return (
     <div style={{ maxHeight: 'calc(100vh - 85px)', overflow: 'hidden' }}>
