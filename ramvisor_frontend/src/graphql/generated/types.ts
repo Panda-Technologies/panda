@@ -479,6 +479,27 @@ export type GetUserQuery = {
   >;
 };
 
+export type MeQueryVariables = Types.Exact<{ [key: string]: never }>;
+
+export type MeQuery = {
+  me?: Types.Maybe<
+    Pick<
+      Types.User,
+      | "id"
+      | "email"
+      | "university"
+      | "isPremium"
+      | "yearInUniversity"
+      | "graduationSemesterName"
+      | "gpa"
+      | "attendancePercentage"
+      | "assignmentCompletionPercentage"
+      | "degreeId"
+      | "takenClassIds"
+    > & { degree?: Types.Maybe<Pick<Types.Degree, "id" | "name">> }
+  >;
+};
+
 export type ClassTakenQueryVariables = Types.Exact<{
   input: Types.ClassTakenInput;
 }>;
@@ -756,9 +777,7 @@ export type GetDegreeQuery = {
   >;
 };
 
-export type GetTasksQueryVariables = Types.Exact<{
-  userId: Types.Scalars["String"]["input"];
-}>;
+export type GetTasksQueryVariables = Types.Exact<{ [key: string]: never }>;
 
 export type GetTasksQuery = {
   getTasks?: Types.Maybe<

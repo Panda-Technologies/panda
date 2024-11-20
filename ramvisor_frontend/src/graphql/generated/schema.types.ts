@@ -266,6 +266,7 @@ export type Query = {
   getUser?: Maybe<User>;
   getdegreePlanners?: Maybe<Array<Maybe<DegreePlanner>>>;
   getsemesters?: Maybe<Array<Maybe<Semester>>>;
+  me?: Maybe<User>;
 };
 
 export type QueryClassTakenArgs = {
@@ -307,10 +308,6 @@ export type QueryGetRequirementsArgs = {
 
 export type QueryGetSemesterArgs = {
   id: Scalars["Int"]["input"];
-};
-
-export type QueryGetTasksArgs = {
-  userId: Scalars["String"]["input"];
 };
 
 export type QueryGetUserArgs = {
@@ -517,7 +514,6 @@ export type TaskInputFields = {
   dueDate: Scalars["String"]["input"];
   stageId?: InputMaybe<Scalars["Int"]["input"]>;
   title: Scalars["String"]["input"];
-  userId: Scalars["String"]["input"];
 };
 
 export type UpdateClassScheduleInput = {

@@ -105,10 +105,11 @@ type Query {
   getRequirement(category: String!, degreeId: Int!): [requirement]
   getRequirements(degreeId: Int!): [requirement]
   getSemester(id: Int!): semester
-  getTasks(userId: String!): [task]
+  getTasks: [task]
   getUser(id: String!): user
   getdegreePlanners(userId: String!): [degreePlanner]
   getsemesters(plannerId: Int!): [semester]
+  me: user
 }
 
 input RegisterInput {
@@ -303,7 +304,6 @@ input taskInputFields {
   dueDate: String!
   stageId: Int
   title: String!
-  userId: String!
 }
 
 input updateClassScheduleInput {

@@ -24,6 +24,21 @@ export const Class = objectType({
     t.list.field('classSchedules', { type: 'classSchedule' });
   },
 });
+
+export const ClassSection = objectType({
+  name: 'ClassSection',
+  definition(t) {
+    t.nonNull.int('id');
+    t.nonNull.string('section');
+    t.nonNull.int('classId');
+    t.nonNull.string('dayOfWeek');
+    t.nonNull.string('startTime');
+    t.nonNull.string('endTime');
+    t.nonNull.string('professor');
+    t.string('rateMyProfessorRating');
+  },
+});
+
 // Add class entries and class template, separate out for ease of access
 export const CreateClassInput = inputObjectType({
   name: 'CreateClassInput',

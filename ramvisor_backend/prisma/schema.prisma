@@ -75,25 +75,35 @@ model classScheduleEntry {
 }
 
 model Class {
-  id                    Int                  @id @unique @default(autoincrement())
-  classCode             String
-  credits               Int
-  category              String
-  description           String
-  courseType            String
-  title                 String
+  id                   Int                  @id @unique @default(autoincrement())
+  classCode            String
+  credits              Int
+  category             String
+  description          String
+  courseType           String
+  title                String
+  color                String
+  coreDegreeId         Int[]
+  electiveDegreeId     Int[]
+  sections             classSection[]
+  classScheduleEntries classScheduleEntry[]
+  semesterEntries      semesterEntry[]
+
+  @@map("classes")
+}
+
+model classSection {
+  id                    Int    @id @unique @default(autoincrement())
+  classId               Int
+  section               String
+  professor             String
+  rateMyProfessorRating Float
   dayOfWeek             String
   startTime             String
   endTime               String
-  color                 String
-  professor             String
-  rateMyProfessorRating Float
-  coreDegreeId          Int[]
-  electiveDegreeId      Int[]
-  classScheduleEntries  classScheduleEntry[]
-  semesterEntries       semesterEntry[]
+  class                 Class  @relation(fields: [classId], references: [id])
 
-  @@map("classes")
+  @@map("class_sections")
 }
 
 model requirement {
