@@ -21,6 +21,17 @@ type Class {
   title: String!
 }
 
+type ClassSection {
+  classId: Int!
+  dayOfWeek: String!
+  endTime: String!
+  id: Int!
+  professor: String!
+  rateMyProfessorRating: String
+  section: String!
+  startTime: String!
+}
+
 input CreateClassInput {
   category: String!
   classCode: String!
