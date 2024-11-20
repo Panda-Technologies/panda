@@ -57,6 +57,24 @@ export const userQuery = extendType({
                 prisma.user.findUnique({where: {id}}),
         });
 
+        t.field("me", {
+            type: "user",
+            resolve: async (_, __, { prisma, session }): Promise<any> => {
+                if (!session.userId) {
+                    throw new Error("Not authenticated");
+                }
+
+                const user = await prisma.user.findUnique({
+                    where: { id: session.userId }
+                });
+
+                if (!user) {
+                    throw new Error("User not found");
+                }
+
+                return user;
+            }
+        });
 
         t.field("classTaken", {
             type: "classTakenResult",
