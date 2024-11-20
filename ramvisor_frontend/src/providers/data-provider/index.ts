@@ -14,7 +14,7 @@ const gqlClient = new GraphQLClient(API_URL, {
     credentials: "include",
     headers: {
       'Content-Type': 'application/json',
-    }
+    },
 });
 const wsClient = createClient({ url: WS_URL, connectionParams: {
   credentials: 'include'
