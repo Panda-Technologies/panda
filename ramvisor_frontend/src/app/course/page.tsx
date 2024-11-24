@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useCallback, useEffect} from 'react';
+import React, {useEffect} from 'react';
 import CourseCalendar from '@components/courses/calendar';
 import {BaseRecord, CreateResponse, HttpError, useCreate, useDelete, useGetIdentity} from '@refinedev/core';
 import {
@@ -94,22 +94,22 @@ const Page: React.FC = () => {
         });
     };
 
-    // if (!userId) {
-    //     return <div>Loading...</div>;
-    // }
+    const events = activeSchedule?.entries?.flatMap(entry => {
+        if (!entry?.class) return [];
 
-    const events = activeSchedule?.entries?.map(entry => {
-        if (!entry?.class) return undefined;
+        return entry.class.sections?.map(section => {
+            if (!section) return undefined;
 
-        return {
-            id: `${entry.class.id}`,
-            title: entry.class.title ?? "",
-            day: entry.class.dayOfWeek ?? "",
-            startTime: entry.class.startTime ?? "",
-            endTime: entry.class.endTime ?? "",
-            color: 'blue',
-            professor: entry.class.professor ?? "",
-        } as Event;
+            return {
+                id: `${entry.class?.id}-${section.section}`,
+                title: entry.class?.title ?? "",
+                day: section.dayOfWeek ?? "",
+                startTime: section.startTime ?? "",
+                endTime: section.endTime ?? "",
+                color: entry.class?.color ?? "blue",
+                professor: section.professor ?? "",
+            } as Event;
+        }) ?? [];
     }).filter((event): event is Event => event !== undefined) ?? [];
 
     return (
