@@ -70,11 +70,28 @@ export const taskQuery = extendType({
   definition(t) {
     t.list.field("getTasks", {
       type: "task",
-      resolve: (_, __ , { prisma, session }: IMyContext) => {
-        console.log("Session in getTasks:", session);
-        console.log("UserID in getTasks:", session.userId);
-        return prisma.task.findMany({where: { userId: session.userId }})
-      }});
+      resolve: async (_, __, { prisma, req, session }: IMyContext) => {
+        console.log('\n=== GetTasks Query ===');
+        console.log('Session ID:', req.sessionID);
+        console.log('Session:', session);
+        console.log('User ID in session:', session.userId);
+
+        if (!session.userId) {
+          console.log('Authentication failed - no userId in session');
+          console.log('Raw Cookie:', req.headers.cookie);
+          console.log('Signed Cookies:', req.signedCookies);
+          throw new Error("Not authenticated");
+        }
+
+        console.log('User authenticated, fetching tasks for:', session.userId);
+
+        return prisma.task.findMany({
+          where: {
+            userId: session.userId
+          }
+        });
+      }
+    });
   },
 });
 

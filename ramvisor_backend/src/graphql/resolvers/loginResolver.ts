@@ -1,62 +1,55 @@
 import { user } from "@prisma/client";
 import { IMyContext, ISession } from "../../interface";
 import { isAuthenticated, verifyPassword } from "../../utils";
-import { INVALID_CREDENTIALS, NOT_AUTHENTICATED, NOT_AUTHORIZED } from "../../constants";
+import { INVALID_CREDENTIALS, NOT_AUTHENTICATED } from "../../constants";
 
-export const loginResolve = async (_: any, { input }: { input: Pick<user, 'email' | 'password'> },  {prisma, session}: IMyContext) => {
-    const { email, password } = input;
+export const loginResolve = async (
+    _: any,
+    { input }: { input: Pick<user, 'email' | 'password'> },
+    { prisma, session, req }: IMyContext
+) => {
+    console.log('\n=== Login Attempt ===');
+    console.log('Initial Session:', req.session);
 
     try {
-        if (isAuthenticated(session)) {
-            throw new Error(NOT_AUTHORIZED);
-        }
-
         const user = await prisma.user.findUnique({
-            where: {
-                email: email,
-            }
+            where: { email: input.email }
         });
 
         if (!user) {
             throw new Error(INVALID_CREDENTIALS);
         }
 
-        const isCorrectPassword = await verifyPassword(password, user.password);
+        const isCorrectPassword = await verifyPassword(input.password, user.password);
 
         if (!isCorrectPassword) {
             throw new Error(INVALID_CREDENTIALS);
         }
 
+        // Set session data
         session.userId = user.id;
 
-        await (async () => {
-            console.log('User ID set in session:', session.userId);
-            console.log('Full session object:', session);
-
-            try {
-                await new Promise<void>((resolve, reject) => {
-                    session.save((err) => {
-                        if (err) {
-                            console.error('Session save error:', err);
-                            reject(err);
-                        }
-                        console.log('Session saved successfully. Session state:', session.userId);
-                        resolve();
-                    });
-                });
-            } catch (error) {
-                console.error('Error saving session:', error);
-            }
-        })();
+        // Save session explicitly
+        await new Promise<void>((resolve, reject) => {
+            req.session.save((err) => {
+                if (err) {
+                    console.error('Session save error:', err);
+                    reject(err);
+                }
+                console.log('\n=== Session After Save ===');
+                console.log('Session ID:', req.sessionID);
+                console.log('Session Data:', req.session);
+                console.log('User ID in session:', req.session.userId);
+                resolve();
+            });
+        });
 
         return user.id;
-
     } catch (err: any) {
-        const errorCaught = err as any
-        console.error('Login error:', errorCaught);
-        throw new Error(errorCaught.message);
+        console.error('Login error:', err);
+        throw new Error(err.message);
     }
-}
+};
 
 export const logoutResolve = (_: any, __: any, session: ISession) => {
     if (!isAuthenticated(session)) {

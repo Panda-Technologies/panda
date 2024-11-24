@@ -1,5 +1,7 @@
 "use server";
 
+import { cookies } from 'next/headers';
+
 const API_URL = 'http://localhost:5001/graphql';
 
 export async function serverLogin(email: string, password: string) {
@@ -8,16 +10,16 @@ export async function serverLogin(email: string, password: string) {
   try {
     const response = await fetch(API_URL, {
       method: "POST",
-      credentials: 'include',
+      credentials: 'same-origin',
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         query: `
-                    mutation Login($input: LoginInput!) {
-                        login(input: $input)
-                    }
-                `,
+          mutation Login($input: LoginInput!) {
+            login(input: $input)
+          }
+        `,
         variables: {
           input: { email, password },
         },
@@ -25,6 +27,33 @@ export async function serverLogin(email: string, password: string) {
     });
 
     const result = await response.json();
+
+    // Get the Set-Cookie header
+    const setCookieHeader = response.headers.get("set-cookie");
+    if (setCookieHeader) {
+      // Extract the cookie value
+      const regex = /gql-api=(s%3A[^;]+)/; // Match 'gql-api=' followed by the value starting with 's%3A' up to the semicolon
+      const match = setCookieHeader.match(regex);
+      if (match) {
+        const cookieName = "gql-api";
+        const rawCookieValue = match[1]; // Extract the raw encoded value
+
+        // Decode the cookie value
+        const decodedCookieValue = decodeURIComponent(rawCookieValue);
+        console.log("Setting cookie:", cookieName, decodedCookieValue); // Confirm the correct value in the log
+
+        // Set the cookie with the fully decoded value
+        (await cookies()).set({
+          name: cookieName,
+          value: decodedCookieValue, // Use the decoded value
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        });
+      }
+    }
 
     if (result.errors) {
       return {
@@ -62,85 +91,29 @@ export async function serverLogin(email: string, password: string) {
   }
 }
 
-export async function serverRegister(email: string, password: string) {
-  if (!API_URL) throw new Error('API_URL is not defined');
-
-  try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      credentials: 'include',
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-                    mutation Register($input: RegisterInput!) {
-                        register(input: $input)
-                    }
-                `,
-        variables: {
-          input: { email, password },
-        },
-      }),
-    });
-
-    const result = await response.json();
-
-    if (result.errors) {
-      return {
-        success: false,
-        error: {
-          message: result.errors[0].message,
-          name: "RegistrationError",
-        },
-      };
-    }
-
-    if (result.data && result.data.register) {
-      return {
-        success: true,
-        redirectTo: "/",
-      };
-    }
-
-    return {
-      success: false,
-      error: {
-        message: "Registration failed",
-        name: "RegistrationError",
-      },
-    };
-  } catch (error) {
-    console.error('Registration error:', error);
-    return {
-      success: false,
-      error: {
-        message: "An unexpected error occurred",
-        name: "ServerError",
-      },
-    };
-  }
-}
-
 export async function serverCheck() {
   if (!API_URL) throw new Error('API_URL is not defined');
 
   try {
+    // Get session cookie from Next.js
+    const sessionCookie = (await cookies()).get("gql-api");
+
     const response = await fetch(API_URL, {
       method: "POST",
-      credentials: 'include',
+      credentials: 'same-origin',
       headers: {
         "Content-Type": "application/json",
+        "Cookie": sessionCookie ? `${sessionCookie.name}=${sessionCookie.value}` : '',
       },
       body: JSON.stringify({
         query: `
-                    query Me {
-                        me {
-                            id
-                            email
-                        }
-                    }
-                `
+          query Me {
+            me {
+              id
+              email
+            }
+          }
+        `
       }),
     });
 
@@ -183,97 +156,4 @@ export async function serverCheck() {
       redirectTo: "/login",
     };
   }
-}
-
-export async function serverLogout() {
-  if (!API_URL) throw new Error('API_URL is not defined');
-
-  try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      credentials: 'include',
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-                    mutation Logout {
-                        logout
-                    }
-                `,
-      }),
-    });
-
-    const result = await response.json();
-
-    if (result.errors) {
-      return {
-        success: false,
-        error: {
-          message: result.errors[0].message,
-          name: "LogoutError",
-        },
-      };
-    }
-
-    if (result.data?.logout) {
-      return {
-        success: true,
-        redirectTo: "/login",
-      };
-    }
-
-    return {
-      success: false,
-      error: {
-        message: "Logout failed",
-        name: "LogoutError",
-      },
-    };
-  } catch (error) {
-    console.error('Logout error:', error);
-    return {
-      success: false,
-      error: {
-        message: "An unexpected error occurred",
-        name: "ServerError",
-      },
-    };
-  }
-}
-
-export async function getServerIdentity() {
-  const checkResult = await serverCheck();
-  return checkResult.authenticated ? checkResult.user : null;
-}
-
-export async function getServerPermissions() {
-  return null;
-}
-
-export async function handleServerError(error: any) {
-  console.error('Server error:', error);
-  return { error };
-}
-
-export interface AuthResponse {
-  success: boolean;
-  redirectTo?: string;
-  error?: {
-    message: string;
-    name: string;
-  };
-}
-
-export interface CheckResponse {
-  authenticated: boolean;
-  user?: {
-    id: string;
-    email: string;
-  };
-  error?: {
-    message: string;
-    name: string;
-  };
-  redirectTo?: string;
 }
