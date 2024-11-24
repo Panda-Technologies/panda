@@ -3,15 +3,22 @@ import { Request, Response } from "express";
 import { Session, SessionData } from "express-session";
 import {classColumns} from "./constants";
 
+declare module 'express-session' {
+    interface SessionData {
+        userId?: string;
+        initialized?: boolean;
+    }
+}
+
 export interface ISession extends Session, SessionData {
     userId?: string;
 }
 
 export interface IMyContext {
-    req: Request,
-    res: Response,
-    prisma: PrismaClient
-    session: ISession
+    req: Request & { session: ISession };
+    res: Response;
+    prisma: PrismaClient;
+    session: ISession;
 }
 
 export interface columnTypes {
