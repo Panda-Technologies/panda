@@ -1,6 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
-import { Class, Semester } from "@graphql/generated/graphql";
-import React, {Dispatch, SetStateAction, useState} from "react";
+import { Semester } from "@graphql/generated/graphql";
+import React, {Dispatch, SetStateAction} from "react";
 
 type Props = {
   semester: Semester;

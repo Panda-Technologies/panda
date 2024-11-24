@@ -1,11 +1,11 @@
 import React from 'react';
-import { Card, List, Checkbox, Spin, message } from 'antd';
+import { Card, List, Checkbox, message } from 'antd';
 import { ArrowRightOutlined, CheckSquareOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { Text } from '@components/text';
 import { useUpdate } from '@refinedev/core';
-import { GET_TASKS_QUERY } from '../../graphql/queries';
-import { UPDATE_TASK_MUTATION } from '../../graphql/mutations';
+import { GET_TASKS_QUERY } from '@graphql/queries';
+import { UPDATE_TASK_MUTATION } from '@graphql/mutations';
 import { useGetIdentity } from '@refinedev/core';
 import { useCustom } from '@refinedev/core';
 import { useState } from 'react';

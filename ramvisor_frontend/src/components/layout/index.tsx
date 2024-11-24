@@ -5,6 +5,7 @@ import { ThemedLayoutV2, ThemedSiderV2, ThemedTitleV2 } from "@refinedev/antd";
 import Header from "./header";
 import pandaIcon from "@config/panda.png"
 import Image from "next/image";
+import React from "react";
 
 
 const Layout = ({ children }: React.PropsWithChildren) => {

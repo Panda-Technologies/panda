@@ -78,12 +78,17 @@ export const GET_CLASSES_QUERY = gql`
       title
       description
       category
-      dayOfWeek
-      startTime
-      endTime
+      sections {
+        id
+        section
+        classId
+        dayOfWeek
+        startTime
+        endTime
+        professor
+        rateMyProfessorRating
+      }
       color
-      professor
-      rateMyProfessorRating
       coreDegreeId
       electiveDegreeId
     }
@@ -100,12 +105,15 @@ export const GET_CLASS_QUERY = gql`
       title
       description
       category
-      dayOfWeek
-      startTime
-      endTime
+      sections {
+        id
+        dayOfWeek
+        startTime
+        endTime
+        professor
+        rateMyProfessorRating
+      }
       color
-      professor
-      rateMyProfessorRating
       coreDegreeId
       electiveDegreeId
     }

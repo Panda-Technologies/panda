@@ -1,5 +1,6 @@
 import AccordionHeaderSkeleton from "../skeleton/accordion-header";
 import { Text } from "./text";
+import React from "react";
 
 type Props = React.PropsWithChildren<{
   accordionKey: string;

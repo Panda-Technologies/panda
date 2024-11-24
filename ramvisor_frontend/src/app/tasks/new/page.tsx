@@ -3,14 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useModalForm } from "@refinedev/antd";
-import { useNavigation, useGetIdentity } from "@refinedev/core";
 import { Form, Input, Modal, DatePicker, Select } from "antd";
 import { CREATE_TASK_MUTATION } from "@/graphql/mutations";
 
 const TasksCreatePage = () => {
   const router = useRouter();
   const [stageId, setStageId] = useState<number | null>(null);
-  const { data: identity } = useGetIdentity<{ id: string }>();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -43,7 +41,6 @@ const TasksCreatePage = () => {
           formProps?.onFinish?.({
             ...values,
             stageId: stageId || 1, // Default to 1 if stageId is null
-            userId: identity?.id,
           });
         }}
       >
@@ -77,14 +74,17 @@ const TasksCreatePage = () => {
           label="Stage"
           name="stageId"
           initialValue={stageId}
+          rules={[{ required: true, message: "Please select a stage" }]}
         >
-          <Select>
+          <Select onSelect={(value) => {
+            setStageId(value as number);
+          }}>
             <Select.Option value={1}>NOT STARTED</Select.Option>
             <Select.Option value={2}>IN PROGRESS</Select.Option>
             <Select.Option value={3}>DONE</Select.Option>
           </Select>
         </Form.Item>
-      </Form>ff
+      </Form>
     </Modal>
   );
 };

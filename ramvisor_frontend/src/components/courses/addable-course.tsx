@@ -1,4 +1,5 @@
 import {Course, AddableCourseCard, Section} from "@components/courses/calendar";
+import React from "react";
 
 const AddableCourse: React.FC<{ course: Course; section: Section }> = ({ course, section }) => {
 

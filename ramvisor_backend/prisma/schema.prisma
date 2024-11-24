@@ -97,15 +97,15 @@ model Class {
 }
 
 model classSection {
-  id                    Int    @id @unique @default(autoincrement())
+  id                    Int      @id @unique @default(autoincrement())
   classId               Int
-  section               String
+  section               Int
   professor             String
   rateMyProfessorRating Float
   dayOfWeek             String
   startTime             String
   endTime               String
-  class                 Class  @relation(fields: [classId], references: [id])
+  class                 Class    @relation(fields: [classId], references: [id])
   user                  user[]
   userId                String[]
 

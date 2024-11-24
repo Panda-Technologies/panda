@@ -1,5 +1,6 @@
 import { Button, Skeleton, Space } from "antd";
 import { MoreOutlined, PlusOutlined } from "@ant-design/icons";
+import React from "react";
 
 const KanbanColumnSkeleton = ({ children }: React.PropsWithChildren) => {
   return (

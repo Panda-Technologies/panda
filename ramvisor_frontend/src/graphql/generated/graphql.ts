@@ -45,8 +45,21 @@ export type Class = {
   id: Scalars["Int"]["output"];
   professor: Scalars["String"]["output"];
   rateMyProfessorRating: Scalars["Float"]["output"];
+  sections?: Maybe<Array<Maybe<ClassSection>>>;
   startTime: Scalars["String"]["output"];
   title: Scalars["String"]["output"];
+};
+
+export type ClassSection = {
+  __typename?: "ClassSection";
+  classId: Scalars["Int"]["output"];
+  dayOfWeek: Scalars["String"]["output"];
+  endTime: Scalars["String"]["output"];
+  id: Scalars["Int"]["output"];
+  professor: Scalars["String"]["output"];
+  rateMyProfessorRating?: Maybe<Scalars["String"]["output"]>;
+  section: Scalars["Int"]["output"];
+  startTime: Scalars["String"]["output"];
 };
 
 export type CreateClassInput = {
@@ -1206,14 +1219,18 @@ export type GetClassesQuery = {
     title: string;
     description: string;
     category: string;
-    dayOfWeek: string;
-    startTime: string;
-    endTime: string;
     color: string;
-    professor: string;
-    rateMyProfessorRating: number;
     coreDegreeId: Array<number | null>;
     electiveDegreeId?: Array<number | null> | null;
+    sections?: Array<{
+      __typename?: "ClassSection";
+      id: number;
+      dayOfWeek: string;
+      startTime: string;
+      endTime: string;
+      professor: string;
+      rateMyProfessorRating?: string | null;
+    } | null> | null;
   } | null> | null;
 };
 
@@ -1232,14 +1249,18 @@ export type GetClassQuery = {
     title: string;
     description: string;
     category: string;
-    dayOfWeek: string;
-    startTime: string;
-    endTime: string;
     color: string;
-    professor: string;
-    rateMyProfessorRating: number;
     coreDegreeId: Array<number | null>;
     electiveDegreeId?: Array<number | null> | null;
+    sections?: Array<{
+      __typename?: "ClassSection";
+      id: number;
+      dayOfWeek: string;
+      startTime: string;
+      endTime: string;
+      professor: string;
+      rateMyProfessorRating?: string | null;
+    } | null> | null;
   } | null;
 };
 
@@ -3979,15 +4000,37 @@ export const GetClassesDocument = {
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "category" } },
-                { kind: "Field", name: { kind: "Name", value: "dayOfWeek" } },
-                { kind: "Field", name: { kind: "Name", value: "startTime" } },
-                { kind: "Field", name: { kind: "Name", value: "endTime" } },
-                { kind: "Field", name: { kind: "Name", value: "color" } },
-                { kind: "Field", name: { kind: "Name", value: "professor" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "rateMyProfessorRating" },
+                  name: { kind: "Name", value: "sections" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "dayOfWeek" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "startTime" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "endTime" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "professor" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "rateMyProfessorRating" },
+                      },
+                    ],
+                  },
                 },
+                { kind: "Field", name: { kind: "Name", value: "color" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "coreDegreeId" },
@@ -4047,15 +4090,37 @@ export const GetClassDocument = {
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "category" } },
-                { kind: "Field", name: { kind: "Name", value: "dayOfWeek" } },
-                { kind: "Field", name: { kind: "Name", value: "startTime" } },
-                { kind: "Field", name: { kind: "Name", value: "endTime" } },
-                { kind: "Field", name: { kind: "Name", value: "color" } },
-                { kind: "Field", name: { kind: "Name", value: "professor" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "rateMyProfessorRating" },
+                  name: { kind: "Name", value: "sections" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "dayOfWeek" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "startTime" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "endTime" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "professor" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "rateMyProfessorRating" },
+                      },
+                    ],
+                  },
                 },
+                { kind: "Field", name: { kind: "Name", value: "color" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "coreDegreeId" },

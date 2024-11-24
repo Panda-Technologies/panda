@@ -50,12 +50,14 @@ const TrendChart: React.FC<TrendChartProps> = ({ title, data, color, icon, isLoa
         background: `linear-gradient(to bottom right, ${color}10, ${color}05)`,
         border: 'none',
       }}
-      bodyStyle={{
-        padding: "8px 8px 8px 12px",
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        height: '100%'
+      styles={{
+        body: {
+          padding: "8px 8px 8px 12px",
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          height: '100%'
+        }
       }}
       size="small"
     >

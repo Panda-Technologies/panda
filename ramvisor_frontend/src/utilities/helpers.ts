@@ -4,6 +4,7 @@ import {GetFieldsFromList} from "@refinedev/nestjs-query";
 import nookies from "nookies";
 import {Class, Degree} from "@graphql/generated/graphql";
 import {useGetIdentity} from "@refinedev/core";
+import React from "react";
 
 interface MappedDealData {
     timeUnix: number;
