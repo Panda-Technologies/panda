@@ -1,100 +1,179 @@
+// index.ts
 import express from 'express';
-import { getSchema } from './graphql/schema';
-import { ApolloServer } from 'apollo-server-express';
-import { getMyPrismaClient } from './db';
-import { IMyContext, ISession } from './interface';
 import session from 'express-session';
-import dotenv from 'dotenv';
-import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import { ApolloServer } from 'apollo-server-express';
+import { getSchema } from './graphql/schema';
+import { getMyPrismaClient } from './db';
+import { IMyContext } from './interface';
 
 const main = async () => {
-    dotenv.config();
-
-    const proxy = require('express-http-proxy');
-
     const app = express();
 
-    app.use(cookieParser());
+    // 1. Basic middleware
+    app.use(express.json());
+    app.use(cookieParser(process.env.SESSION_SECRET));
 
-    const allowedOrigins = [
-        'http://localhost:3000',
-        'http://localhost:5001',
-        'https://studio.apollographql.com'
-    ];
-
+    // 2. CORS configuration
     app.use(cors({
-        origin: function(origin, callback) {
-            // Allow requests with no origin (like mobile apps or curl requests)
-            if (!origin) return callback(null, true);
-
-            if (allowedOrigins.indexOf(origin) === -1) {
-                const msg = 'The server policy for this site does not allow access from the specified Origin.';
-                return callback(new Error(msg), false);
-            }
-            return callback(null, true);
-        },
+        origin: [
+            'http://localhost:3000',
+            'http://localhost:5001',
+            'https://studio.apollographql.com'
+        ],
         credentials: true,
         methods: ['GET', 'POST', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization']
+        allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+        exposedHeaders: ['Set-Cookie']
     }));
 
+    // 3. Session configuration
     app.use(session({
         secret: process.env.SESSION_SECRET!,
         name: 'gql-api',
-        resave: true,
+        resave: false,
+        saveUninitialized: false,
         rolling: true,
-        saveUninitialized: true,
         cookie: {
             httpOnly: true,
-            maxAge: 1000 * 60 * 60 * 24,
             secure: false,
             sameSite: 'lax',
             path: '/',
-        }
+            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            domain: 'localhost',
+        },
+        store: new session.MemoryStore(),
     }) as express.RequestHandler);
 
+    // 4. Debug middleware
     app.use((req, _, next) => {
-        console.log('Debug Middleware:');
-        console.log('Cookies:', req.cookies);
-        console.log('Session:', req.session);
+        const signedCookies = req.signedCookies;
+        const rawCookie = req.headers.cookie;
+
+        console.log('\n=== Request Debug ===');
+        console.log('Raw Cookie Header:', rawCookie);
+        console.log('Signed Cookies:', signedCookies);
         console.log('Session ID:', req.sessionID);
+        console.log('Session:', req.session);
         next();
     });
 
-    const schema = await getSchema();
+    // 5. API Routes
+    const apiRouter = express.Router();
 
+    // Test endpoint
+    apiRouter.get('/test-cookie', (req, res) => {
+        console.log('Test cookie endpoint hit');
+        res.json({
+            message: 'Cookie set successfully',
+            sessionId: req.sessionID,
+            session: req.session,
+            cookies: req.cookies
+        });
+    });
+
+    // Mount API router at /api
+    app.use('/api', apiRouter);
+
+    // 6. GraphQL Setup
+    const schema = await getSchema();
     const prisma = await getMyPrismaClient();
+
+    app.use((req, res, next) => {
+        const originalEnd = res.end;
+
+        console.log('\n=== Request Debug ===');
+        console.log('URL:', req.url);
+        console.log('Method:', req.method);
+        console.log('Session ID:', req.sessionID);
+        console.log('Raw Cookie:', req.headers.cookie);
+        console.log('Parsed Cookies:', req.cookies);
+        console.log('Signed Cookies:', req.signedCookies);
+        console.log('Session Before:', req.session);
+
+        // Track session changes
+    res.end = function(chunk: any, encoding?: BufferEncoding | (() => void), cb?: (() => void)) {
+        if (typeof encoding === 'function') {
+            cb = encoding;
+            encoding = undefined;
+        }
+        console.log('\n=== Response Debug ===');
+        console.log('Final Session:', req.session);
+        return originalEnd.call(this, chunk, encoding ?? 'utf-8', cb);
+    }
+    next();
+});
+
+// Add test endpoints for debugging
+    app.post('/test-set-session', (req, res) => {
+        // Set some test data in session
+        req.session.userId = 'test-user-id';
+
+        req.session.save((err) => {
+            if (err) {
+                console.error('Session save error:', err);
+                res.status(500).json({ error: 'Failed to save session' });
+                return;
+            }
+
+            console.log('Session after save:', {
+                id: req.sessionID,
+                data: req.session
+            });
+
+            res.json({
+                message: 'Session data set',
+                sessionId: req.sessionID,
+                session: req.session
+            });
+        });
+    });
+
+    app.get('/test-get-session', (req, res) => {
+        console.log('Current session:', {
+            id: req.sessionID,
+            data: req.session
+        });
+
+        res.json({
+            sessionId: req.sessionID,
+            session: req.session,
+            rawCookie: req.headers.cookie,
+            parsedCookies: req.cookies,
+            signedCookies: req.signedCookies
+        });
+    });
 
     const apolloServer = new ApolloServer({
         schema,
-        context: ({ req, res }): IMyContext => ({ req, res, prisma, session: req.session as ISession, }),
+        context: ({ req, res }): IMyContext => ({
+            req,
+            res,
+            prisma,
+            session: req.session
+        }),
+        introspection: true,
     });
 
     await apolloServer.start();
 
+    // Mount Apollo Server
     apolloServer.applyMiddleware({
         app,
         cors: false,
         path: '/graphql'
     });
 
+    // Start server
     const PORT = process.env.PORT || 5001;
-
-    app.use(proxy('http://127.0.0.1:3000'));
-
     app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
+        console.log(`API Server running on port ${PORT}`);
+        console.log(`GraphQL endpoint: http://localhost:${PORT}/graphql`);
     });
-
-    app.use((req, _, next) => {
-        console.log('Cookies:', req.cookies);
-        console.log('Session:', req.session);
-        next();
-    })
 };
 
 main().catch(err => {
     console.error(err);
     process.exit(1);
-})
+});
