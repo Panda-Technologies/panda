@@ -42,8 +42,20 @@ export type Class = {
   id: Scalars["Int"]["output"];
   professor: Scalars["String"]["output"];
   rateMyProfessorRating: Scalars["Float"]["output"];
+  sections?: Maybe<Array<Maybe<ClassSection>>>;
   startTime: Scalars["String"]["output"];
   title: Scalars["String"]["output"];
+};
+
+export type ClassSection = {
+  classId: Scalars["Int"]["output"];
+  dayOfWeek: Scalars["String"]["output"];
+  endTime: Scalars["String"]["output"];
+  id: Scalars["Int"]["output"];
+  professor: Scalars["String"]["output"];
+  rateMyProfessorRating?: Maybe<Scalars["String"]["output"]>;
+  section: Scalars["Int"]["output"];
+  startTime: Scalars["String"]["output"];
 };
 
 export type CreateClassInput = {

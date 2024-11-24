@@ -17,19 +17,9 @@ type Class {
   id: Int!
   professor: String!
   rateMyProfessorRating: Float!
+  sections: [classSection]
   startTime: String!
   title: String!
-}
-
-type ClassSection {
-  classId: Int!
-  dayOfWeek: String!
-  endTime: String!
-  id: Int!
-  professor: String!
-  rateMyProfessorRating: String
-  section: String!
-  startTime: String!
 }
 
 input CreateClassInput {
@@ -178,6 +168,17 @@ type classScheduleEntry {
   classSchedule: classSchedule
   classScheduleId: Int!
   id: Int!
+}
+
+type classSection {
+  classId: Int!
+  dayOfWeek: String!
+  endTime: String!
+  id: Int!
+  professor: String!
+  rateMyProfessorRating: String
+  section: Int!
+  startTime: String!
 }
 
 input classTakenInput {

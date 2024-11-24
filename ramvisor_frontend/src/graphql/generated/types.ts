@@ -551,15 +551,26 @@ export type GetClassesQuery = {
           | "title"
           | "description"
           | "category"
-          | "dayOfWeek"
-          | "startTime"
-          | "endTime"
           | "color"
-          | "professor"
-          | "rateMyProfessorRating"
           | "coreDegreeId"
           | "electiveDegreeId"
-        >
+        > & {
+          sections?: Types.Maybe<
+            Array<
+              Types.Maybe<
+                Pick<
+                  Types.ClassSection,
+                  | "id"
+                  | "dayOfWeek"
+                  | "startTime"
+                  | "endTime"
+                  | "professor"
+                  | "rateMyProfessorRating"
+                >
+              >
+            >
+          >;
+        }
       >
     >
   >;
@@ -580,15 +591,26 @@ export type GetClassQuery = {
       | "title"
       | "description"
       | "category"
-      | "dayOfWeek"
-      | "startTime"
-      | "endTime"
       | "color"
-      | "professor"
-      | "rateMyProfessorRating"
       | "coreDegreeId"
       | "electiveDegreeId"
-    >
+    > & {
+      sections?: Types.Maybe<
+        Array<
+          Types.Maybe<
+            Pick<
+              Types.ClassSection,
+              | "id"
+              | "dayOfWeek"
+              | "startTime"
+              | "endTime"
+              | "professor"
+              | "rateMyProfessorRating"
+            >
+          >
+        >
+      >;
+    }
   >;
 };
 

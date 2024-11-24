@@ -11,7 +11,10 @@
     "start": "refine start",
     "lint": "next lint",
     "refine": "refine",
-    "codegen": "graphql-codegen"
+    "codegen": "graphql-codegen",
+    "analyze": "ANALYZE=true next build",
+    "analyze:server": "ANALYZE=true BUNDLE_ANALYZE=server next build",
+    "analyze:browser": "ANALYZE=true BUNDLE_ANALYZE=browser next build"
   },
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
@@ -67,6 +70,7 @@
     "@graphql-codegen/typescript": "^4.0.9",
     "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-codegen/typescript-resolvers": "^4.2.1",
+    "@next/bundle-analyzer": "^15.0.3",
     "@types/js-cookie": "^3.0.6",
     "@types/lodash": "^4.17.13",
     "@types/node": "^18.16.2",

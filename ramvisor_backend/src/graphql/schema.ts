@@ -1,9 +1,9 @@
-import { declarativeWrappingPlugin, makeSchema } from "nexus";
+import {declarativeWrappingPlugin, makeSchema} from "nexus";
 import path from "path";
 import * as types from "./types";
 
 export const getSchema = async () => {
-  const schema = makeSchema({
+  return makeSchema({
     types: [types],
     plugins: [declarativeWrappingPlugin()],
     outputs: {
@@ -23,5 +23,4 @@ export const getSchema = async () => {
       ],
     },
   });
-  return schema;
 };
