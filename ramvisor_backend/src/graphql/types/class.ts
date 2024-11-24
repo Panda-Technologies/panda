@@ -21,15 +21,16 @@ export const Class = objectType({
     t.nonNull.float('rateMyProfessorRating');
     t.nonNull.list.int('coreDegreeId');
     t.list.int('electiveDegreeId');
+    t.list.field('sections', { type: 'classSection' });
     t.list.field('classSchedules', { type: 'classSchedule' });
   },
 });
 
-export const ClassSection = objectType({
-  name: 'ClassSection',
+export const classSection = objectType({
+  name: 'classSection',
   definition(t) {
     t.nonNull.int('id');
-    t.nonNull.string('section');
+    t.nonNull.int('section');
     t.nonNull.int('classId');
     t.nonNull.string('dayOfWeek');
     t.nonNull.string('startTime');
@@ -93,7 +94,13 @@ export const classQuery = extendType({
   definition(t) {
     t.list.field('getClasses', {
       type: 'Class',
-      resolve: (_, __, { prisma }) => prisma.class.findMany()
+      resolve: async (_, __, { prisma }) => {
+        return prisma.class.findMany({
+          include: {
+            sections: true
+          }
+        });
+      }
     });
 
     t.field('getClass', {
@@ -122,7 +129,7 @@ export const classMutation = extendType({
         const classes = await parseCSV('../big_pdf_lessons.csv', headers);
 
         const processTime = (timeStr: string): { startTime: string, endTime: string } => {
-          if (!timeStr || timeStr === 'TBA') {
+          if (!timeStr || timeStr.trim().includes("TBA") || timeStr.trim().includes("NULL")) {
             return { startTime: '00:00', endTime: '00:00' };
           }
           try {
@@ -136,31 +143,76 @@ export const classMutation = extendType({
           }
         };
 
-        await prisma.class.createMany({
-          data: classes.map((c) => {
-            const times = processTime(c.time);
-            return {
-              classCode: c.code?.trim() || '',
-              courseType: processComponent(c.component),
-              credits: c.units || 0,
-              title: c['course title']?.trim() || '',
-              category: c.subject?.trim() || 'General',
-              description: c.topics?.trim() || 'No description available',
-              dayOfWeek: c.days?.trim() || 'TBA',
+        const processedClasses = new Map<string, boolean>();
+
+        // Process each class entry
+        for (const entry of classes) {
+          if (!entry.code || processedClasses.has(entry.code)) {
+            continue;
+          }
+
+          // Create the base class first
+          const newClass = await prisma.class.create({
+            data: {
+              classCode: entry.code.trim(),
+              courseType: processComponent(entry.component),
+              credits: entry.units || 0,
+              title: entry['course title']?.trim() || '',
+              category: entry.subject?.trim() || 'General',
+              description: entry.topics?.trim() || 'No description available',
+              color: 'blue',
+              coreDegreeId: [],
+              electiveDegreeId: []
+            }
+          });
+
+          // Create the first section
+          const times = processTime(entry.time);
+          await prisma.classSection.create({
+            data: {
+              classId: newClass.id,
+              section: entry.section || 0,
+              dayOfWeek: entry.days?.trim(),
               startTime: times.startTime,
               endTime: times.endTime,
-              color: "blue",
-              professor: processInstructor(c.Instructor),
-              rateMyProfessorRating: 0.0,
-              coreDegreeId: [],
-              electiveDegreeId: [],
-            };
-          }),
-          skipDuplicates: true,
-        });
+              professor: processInstructor(entry.Instructor),
+              rateMyProfessorRating: 0.0
+            }
+          });
+
+          processedClasses.set(entry.code, true);
+        }
+
+        // Add additional sections for existing classes
+        for (const entry of classes) {
+          if (!entry.code || !processedClasses.has(entry.code)) {
+            continue;
+          }
+
+          const existingClass = await prisma.class.findFirst({
+            where: { classCode: entry.code }
+          });
+
+          if (existingClass) {
+            const times = processTime(entry.time);
+            await prisma.classSection.create({
+              data: {
+                classId: existingClass.id,
+                section: entry.section || 0,
+                dayOfWeek: entry.days?.trim(),
+                startTime: times.startTime,
+                endTime: times.endTime,
+                professor: processInstructor(entry.Instructor),
+                rateMyProfessorRating: 0.0
+              }
+            });
+          }
+        }
 
         // Return the first class as required by the mutation type
-        return prisma.class.findFirst();
+        return prisma.class.findFirst({
+          include: { sections: true }
+        });
       }
     });
 
