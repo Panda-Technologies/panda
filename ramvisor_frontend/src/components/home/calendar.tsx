@@ -4,7 +4,7 @@ import { Card } from 'antd';
 import { CalendarOutlined } from '@ant-design/icons';
 import { extend } from '@syncfusion/ej2-base';
 import { useOne } from '@refinedev/core';
-import { GET_CLASS_SCHEDULES_QUERY } from '../../graphql/queries';
+import { GET_CLASS_SCHEDULES_QUERY } from '@graphql/queries';
 
 interface CalendarProps {
   width?: string;
@@ -33,6 +33,10 @@ interface ClassSchedule {
 
 const Calendar: React.FC<CalendarProps> = ({ width, height, title, credits, userId }) => {
   const scheduleObj = useRef<ScheduleComponent>(null);
+
+  const getScheduleInstance = (): ScheduleComponent | null => {
+    return scheduleObj.current;
+  };
 
   const { data, isLoading } = useOne<ClassSchedule>({
     resource: 'classSchedules',
@@ -64,34 +68,49 @@ const Calendar: React.FC<CalendarProps> = ({ width, height, title, credits, user
 
   const onEventRendered = (args: EventRenderedArgs): void => {
     const categoryColor: string = args.data.CategoryColor as string;
+
     if (!args.element || !categoryColor) {
+      console.warn("Event rendered without proper data or element");
       return;
     }
-    if (scheduleObj.current?.currentView === 'Agenda') {
+
+    const scheduleInstance = getScheduleInstance();
+    if (scheduleInstance?.currentView === 'Agenda') {
+      // Update styles for Agenda view
       (args.element.firstChild as HTMLElement).style.borderLeftColor = categoryColor;
     } else {
-      args.element.style.backgroundColor = categoryColor;
-      args.element.style.color = '#333333';
-      args.element.style.borderRadius = '4px';
-      args.element.style.fontSize = '12px';
-      args.element.style.padding = '2px 4px';
+      // Update styles for other views
+      Object.assign(args.element.style, {
+        backgroundColor: categoryColor,
+        color: '#333333',
+        borderRadius: '4px',
+        fontSize: '12px',
+        padding: '2px 4px',
+      });
     }
-  }
+  };
 
   return (
-    <Card
-      style={{
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        borderRadius: '12px',
-        background: 'linear-gradient(to bottom right, #ffffff, #f0f4f8)',
-        border: 'none',
-        height: '95%',
-        width: '40%',
-        left: '60%',
-        top: '-4%'
-      }}
-      bodyStyle={{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }}
-    >
+      <Card
+          style={{
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            borderRadius: '12px',
+            background: 'linear-gradient(to bottom right, #ffffff, #f0f4f8)',
+            border: 'none',
+            height: '95%',
+            width: '40%',
+            left: '60%',
+            top: '-4%',
+          }}
+          styles={{
+            body: {
+              padding: 0,
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+            },
+          }}
+      >
       <div style={{
         display: "flex",
         alignItems: "center",

@@ -3,7 +3,7 @@
 import React, {useState, useMemo, useCallback} from 'react';
 import styled from 'styled-components';
 import {Input, Button} from 'antd';
-import {SearchOutlined, CloseOutlined} from '@ant-design/icons';
+import {SearchOutlined} from '@ant-design/icons';
 import {List, AutoSizer} from 'react-virtualized';
 import Fuse from 'fuse.js';
 import debounce from 'lodash/debounce';
@@ -19,7 +19,7 @@ export interface Event {
     endTime: string;
     color: string;
     professor: string;
-};
+}
 
 export type Section = {
     id: string;
@@ -69,7 +69,20 @@ export const Sidebar = styled.div`
     overflow-y: hidden;
     display: flex;
     flex-direction: column;
-    
+
+    & * {
+        overflow: hidden; /* Ensure children don't force overflow */
+    }
+
+    /* Hide scrollbar for WebKit browsers */
+    &::-webkit-scrollbar {
+        width: 0;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+
     .ant-input-affix-wrapper {
         position: sticky;
         top: 0;
@@ -174,6 +187,18 @@ export const RemoveButton = styled(Button)`
     z-index: 2;
 `;
 
+const ClassListWrapper = styled.div`
+    height: calc(100% - 60px);
+    overflow: hidden;
+    &::-webkit-scrollbar {
+        width: 0;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+`;
+
 const fuseOptions = {
     keys: [
         { name: 'classCode', weight: 2 },
@@ -239,13 +264,14 @@ const CourseCalendar: React.FC<Props> = ({
         id: course.classCode,
         name: course.title,
         color: course.color || '#4A90E2',
-        sections: [{
-            id: course.id.toString(),
-            professor: course.professor,
-            startTime: course.startTime,
-            endTime: course.endTime,
-            days: course.dayOfWeek.split('')
-        }]
+        sections: course.sections?.map(section => ({
+            id: `${section?.section}`,
+            professor: section?.professor || '',
+            startTime: section?.startTime || '',
+            endTime: section?.endTime || '',
+            days: section?.dayOfWeek?.split('') || []
+        } as Section)
+        ) ?? []
     }), []);
 
     const rowRenderer = useCallback(({
@@ -279,20 +305,21 @@ const CourseCalendar: React.FC<Props> = ({
                         onChange={(e) => debouncedSearch(e.target.value)}
                         style={{marginBottom: '20px'}}
                     />
-                    <div style={{height: 'calc(100% - 60px)'}}>
+                    <ClassListWrapper>
                         <AutoSizer>
                             {({width, height}) => (
                                 <List
                                     width={width}
                                     height={height}
                                     rowCount={searchResults.length}
-                                    rowHeight={110}
+                                    rowHeight={130}
                                     rowRenderer={rowRenderer}
                                     overscanRowCount={5}
+                                    style={{scrollbarWidth: 'none'}}
                                 />
                             )}
                         </AutoSizer>
-                    </div>
+                    </ClassListWrapper>
                 </Sidebar>
                 <DroppableCalendar
                     events={events}
