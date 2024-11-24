@@ -161,19 +161,24 @@ const TasksPage: React.FC = () => {
       },
       {
         onSuccess: () => {
-          setStages(prevStages => 
-            prevStages.map(stage => ({
+          setStages(prevStages => {
+            const newStages = prevStages.map(stage => ({
               ...stage,
-              tasks: stage.tasks.map(task => 
-                task.id === updatedTask.id ? updatedTask : task
-              )
-            }))
-          );
-          message.success('Task updated successfully', 0.5);
-          setEditingTask(null);
+              tasks: stage.tasks.filter(task => task.id !== updatedTask.id),
+            }));
+
+            const targetStage = newStages.find(stage => stage.id === updatedTask.stageId);
+            if (targetStage) {
+              targetStage.tasks.push(updatedTask);
+            }
+
+            return newStages;
+          });
+
+          message.success("Task updated successfully", 0.5);
         },
         onError: (error) => {
-          console.error('Error updating task:', error);
+          console.error("Error updating task:", error);
         }
       }
     );
