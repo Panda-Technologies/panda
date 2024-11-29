@@ -10,6 +10,7 @@ import debounce from 'lodash/debounce';
 import DroppableCalendar from "@components/courses/droppable-calendar";
 import {Class} from "@graphql/generated/graphql";
 import AddableCourse from "@components/courses/addable-course";
+import {useUpdate} from "@refinedev/core";
 
 export interface Event {
     id: string;
@@ -169,11 +170,15 @@ export const EventBlock = styled.div<{ color: string; height: number }>`
 export const AddableCourseCard = styled.div<{ color: string }>`
     background-color: white;
     border-left: 4px solid ${props => props.color};
+    border-right: 1.3px solid #e8e8e8;
+    border-bottom: 1.3px solid #e8e8e8;
+    border-top: 1.3px solid #e8e8e8;
     padding: 12px;
     margin-bottom: 12px;
-    border-radius: 4px;
+    height: 90%;
+    border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    cursor: move;
+    cursor: pointer;
 `;
 
 export const RemoveButton = styled(Button)`
@@ -224,6 +229,12 @@ const CourseCalendar: React.FC<Props> = ({
                                          }) => {
     const [searchTerm, setSearchTerm] = useState<string>('');
 
+    const { mutate: addCourse } = useUpdate();
+
+    const handleAddCourse = async (course: Course, section: Section) => {
+
+    }
+
     const fuse = useMemo(() => {
         const searchData = courses.map(course => ({
             ...course,
@@ -260,19 +271,26 @@ const CourseCalendar: React.FC<Props> = ({
         []
     );
 
-    const transformCourse = useCallback((course: Class) => ({
-        id: course.classCode,
-        name: course.title,
-        color: course.color || '#4A90E2',
-        sections: course.sections?.map(section => ({
-            id: `${section?.section}`,
-            professor: section?.professor || '',
-            startTime: section?.startTime || '',
-            endTime: section?.endTime || '',
-            days: section?.dayOfWeek?.split('') || []
-        } as Section)
-        ) ?? []
-    }), []);
+    const flattenedResults = useMemo(() => {
+        return searchResults.flatMap(course => {
+            const transformedCourse = {
+                id: course.classCode,
+                name: course.title,
+                color: course.color || '#4A90E2',
+            };
+
+            return course.sections?.map(section => ({
+                course: transformedCourse,
+                section: {
+                    id: `${section?.section}`,
+                    professor: section?.professor || '',
+                    startTime: section?.startTime || '',
+                    endTime: section?.endTime || '',
+                    days: section?.dayOfWeek?.split('') || []
+                }
+            })) ?? [];
+        });
+    }, [searchResults]);
 
     const rowRenderer = useCallback(({
                                          key,
@@ -283,18 +301,18 @@ const CourseCalendar: React.FC<Props> = ({
         index: number;
         style: React.CSSProperties;
     }) => {
-        const course = searchResults[index];
-        const transformedCourse = transformCourse(course);
+        const { course, section } = flattenedResults[index];
 
         return (
             <div key={key} style={style}>
                 <AddableCourse
-                    course={transformedCourse}
-                    section={transformedCourse.sections[0]}
+                    key={`${course.id}-${section.id}`}
+                    course={course}
+                    section={section}
                 />
             </div>
         );
-    }, [searchResults, transformCourse]);
+    }, [flattenedResults]);
 
     return (
             <CalendarContainer>
@@ -309,10 +327,10 @@ const CourseCalendar: React.FC<Props> = ({
                         <AutoSizer>
                             {({width, height}) => (
                                 <List
-                                    width={width}
+                                    width={width - 5}
                                     height={height}
                                     rowCount={searchResults.length}
-                                    rowHeight={130}
+                                    rowHeight={165}
                                     rowRenderer={rowRenderer}
                                     overscanRowCount={5}
                                     style={{scrollbarWidth: 'none'}}
