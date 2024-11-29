@@ -142,74 +142,118 @@ export const classMutation = extendType({
             return { startTime: '00:00', endTime: '00:00' };
           }
         };
-
         const processedClasses = new Map<string, boolean>();
+        const batchSize = 100;
+        let currentBatch: typeof classes = [];
 
-        // Process each class entry
-        for (const entry of classes) {
-          if (!entry.code || processedClasses.has(entry.code)) {
-            continue;
-          }
+        const createSectionKey = (
+            section: number | undefined,
+            days: string | undefined,
+            timeStr: string | undefined,
+            professor: string | undefined
+        ): string => {
+          const times = processTime(timeStr || '');
+          return `${section || 0}-${days?.trim() || 'TBA'}-${times.startTime}-${times.endTime}-${processInstructor(professor || '')}`;
+        };
 
-          // Create the base class first
-          const newClass = await prisma.class.create({
-            data: {
-              classCode: entry.code.trim(),
-              courseType: processComponent(entry.component),
-              credits: entry.units || 0,
-              title: entry['course title']?.trim() || '',
-              category: entry.subject?.trim() || 'General',
-              description: entry.topics?.trim() || 'No description available',
-              color: 'blue',
-              coreDegreeId: [],
-              electiveDegreeId: []
-            }
-          });
+        const processBatch = async (batch: typeof classes) => {
+          await prisma.$transaction(async (tx) => {
+            for (const entry of batch) {
+              if (!entry.code) continue;
 
-          // Create the first section
-          const times = processTime(entry.time);
-          await prisma.classSection.create({
-            data: {
-              classId: newClass.id,
-              section: entry.section || 0,
-              dayOfWeek: entry.days?.trim(),
-              startTime: times.startTime,
-              endTime: times.endTime,
-              professor: processInstructor(entry.Instructor),
-              rateMyProfessorRating: 0.0
-            }
-          });
+              if (processedClasses.has(entry.code)) {
+                const existingClass = await tx.class.findFirst({
+                  where: { classCode: entry.code },
+                  include: { sections: true }
+                });
 
-          processedClasses.set(entry.code, true);
-        }
+                if (existingClass) {
+                  const existingSectionKeys = new Set(
+                      existingClass.sections.map(section =>
+                          createSectionKey(
+                              section.section,
+                              section.dayOfWeek,
+                              `${section.startTime}-${section.endTime}`,
+                              section.professor
+                          )
+                      )
+                  );
 
-        // Add additional sections for existing classes
-        for (const entry of classes) {
-          if (!entry.code || !processedClasses.has(entry.code)) {
-            continue;
-          }
+                  const newSectionKey = createSectionKey(
+                      entry.section,
+                      entry.days,
+                      entry.time,
+                      entry.Instructor
+                  );
 
-          const existingClass = await prisma.class.findFirst({
-            where: { classCode: entry.code }
-          });
-
-          if (existingClass) {
-            const times = processTime(entry.time);
-            await prisma.classSection.create({
-              data: {
-                classId: existingClass.id,
-                section: entry.section || 0,
-                dayOfWeek: entry.days?.trim(),
-                startTime: times.startTime,
-                endTime: times.endTime,
-                professor: processInstructor(entry.Instructor),
-                rateMyProfessorRating: 0.0
+                  if (!existingSectionKeys.has(newSectionKey)) {
+                    const times = processTime(entry.time);
+                    await tx.classSection.create({
+                      data: {
+                        classId: existingClass.id,
+                        section: entry.section || 0,
+                        dayOfWeek: entry.days?.trim() || 'TBA',
+                        startTime: times.startTime,
+                        endTime: times.endTime,
+                        professor: processInstructor(entry.Instructor),
+                        rateMyProfessorRating: 0.0
+                      }
+                    });
+                    console.log(`Added new section ${newSectionKey} to class ${entry.code}`);
+                  } else {
+                    console.log(`Skipping duplicate section ${newSectionKey} for class ${entry.code}`);
+                  }
+                }
+                continue;
               }
-            });
+
+              try {
+                const newClass = await tx.class.create({
+                  data: {
+                    classCode: entry.code.trim(),
+                    courseType: processComponent(entry.component),
+                    credits: entry.units || 0,
+                    title: entry['course title']?.trim() || '',
+                    category: entry.subject?.trim() || 'General',
+                    description: entry.topics?.trim() || 'No description available',
+                    color: 'blue',
+                    coreDegreeId: [],
+                    electiveDegreeId: []
+                  }
+                });
+
+                const times = processTime(entry.time);
+                await tx.classSection.create({
+                  data: {
+                    classId: newClass.id,
+                    section: entry.section || 0,
+                    dayOfWeek: entry.days?.trim() || 'TBA',
+                    startTime: times.startTime,
+                    endTime: times.endTime,
+                    professor: processInstructor(entry.Instructor),
+                    rateMyProfessorRating: 0.0
+                  }
+                });
+
+                processedClasses.set(entry.code, true);
+                console.log(`Created new class ${entry.code} with initial section`);
+              } catch (error) {
+                console.error(`Error processing class ${entry.code}:`, error);
+              }
+            }
+          });
+        };
+
+        for (let i = 0; i < classes.length; i++) {
+          currentBatch.push(classes[i]);
+
+          if (currentBatch.length === batchSize || i === classes.length - 1) {
+            await processBatch(currentBatch);
+            currentBatch = [];
+            console.log(`Processed batch ending at index ${i}`);
           }
         }
 
-        // Return the first class as required by the mutation type
         return prisma.class.findFirst({
           include: { sections: true }
         });
