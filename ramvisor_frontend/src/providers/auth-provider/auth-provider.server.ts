@@ -28,7 +28,6 @@ export async function serverLogin(email: string, password: string) {
 
     const result = await response.json();
 
-    // Get the Set-Cookie header
     const setCookieHeader = response.headers.get("set-cookie");
     if (setCookieHeader) {
       // Extract the cookie value
@@ -40,12 +39,12 @@ export async function serverLogin(email: string, password: string) {
 
         // Decode the cookie value
         const decodedCookieValue = decodeURIComponent(rawCookieValue);
-        console.log("Setting cookie:", cookieName, decodedCookieValue); // Confirm the correct value in the log
+        console.log("Setting cookie:", cookieName, decodedCookieValue);
 
         // Set the cookie with the fully decoded value
-        (await cookies()).set({
+        cookies().set({
           name: cookieName,
-          value: decodedCookieValue, // Use the decoded value
+          value: decodedCookieValue,
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
