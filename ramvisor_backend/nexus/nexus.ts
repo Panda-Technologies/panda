@@ -199,18 +199,9 @@ export interface NexusGenObjects {
     id: number; // Int!
     professor: string; // String!
     rateMyProfessorRating: number; // Float!
+    sections?: Array<NexusGenRootTypes['classSection'] | null> | null; // [classSection]
     startTime: string; // String!
     title: string; // String!
-  }
-  ClassSection: { // root type
-    classId: number; // Int!
-    dayOfWeek: string; // String!
-    endTime: string; // String!
-    id: number; // Int!
-    professor: string; // String!
-    rateMyProfessorRating?: string | null; // String
-    section: string; // String!
-    startTime: string; // String!
   }
   Mutation: {};
   Query: {};
@@ -227,6 +218,16 @@ export interface NexusGenObjects {
     classSchedule?: NexusGenRootTypes['classSchedule'] | null; // classSchedule
     classScheduleId: number; // Int!
     id: number; // Int!
+  }
+  classSection: { // root type
+    classId: number; // Int!
+    dayOfWeek: string; // String!
+    endTime: string; // String!
+    id: number; // Int!
+    professor: string; // String!
+    rateMyProfessorRating?: string | null; // String
+    section: number; // Int!
+    startTime: string; // String!
   }
   classTakenResult: { // root type
     classIds: Array<number | null>; // [Int]!
@@ -329,18 +330,9 @@ export interface NexusGenFieldTypes {
     id: number; // Int!
     professor: string; // String!
     rateMyProfessorRating: number; // Float!
+    sections: Array<NexusGenRootTypes['classSection'] | null> | null; // [classSection]
     startTime: string; // String!
     title: string; // String!
-  }
-  ClassSection: { // field return type
-    classId: number; // Int!
-    dayOfWeek: string; // String!
-    endTime: string; // String!
-    id: number; // Int!
-    professor: string; // String!
-    rateMyProfessorRating: string | null; // String
-    section: string; // String!
-    startTime: string; // String!
   }
   Mutation: { // field return type
     addClassToClassSchedule: NexusGenRootTypes['classScheduleEntry'] | null; // classScheduleEntry
@@ -409,6 +401,16 @@ export interface NexusGenFieldTypes {
     classSchedule: NexusGenRootTypes['classSchedule'] | null; // classSchedule
     classScheduleId: number; // Int!
     id: number; // Int!
+  }
+  classSection: { // field return type
+    classId: number; // Int!
+    dayOfWeek: string; // String!
+    endTime: string; // String!
+    id: number; // Int!
+    professor: string; // String!
+    rateMyProfessorRating: string | null; // String
+    section: number; // Int!
+    startTime: string; // String!
   }
   classTakenResult: { // field return type
     classIds: Array<number | null>; // [Int]!
@@ -501,18 +503,9 @@ export interface NexusGenFieldTypeNames {
     id: 'Int'
     professor: 'String'
     rateMyProfessorRating: 'Float'
+    sections: 'classSection'
     startTime: 'String'
     title: 'String'
-  }
-  ClassSection: { // field return type name
-    classId: 'Int'
-    dayOfWeek: 'String'
-    endTime: 'String'
-    id: 'Int'
-    professor: 'String'
-    rateMyProfessorRating: 'String'
-    section: 'String'
-    startTime: 'String'
   }
   Mutation: { // field return type name
     addClassToClassSchedule: 'classScheduleEntry'
@@ -581,6 +574,16 @@ export interface NexusGenFieldTypeNames {
     classSchedule: 'classSchedule'
     classScheduleId: 'Int'
     id: 'Int'
+  }
+  classSection: { // field return type name
+    classId: 'Int'
+    dayOfWeek: 'String'
+    endTime: 'String'
+    id: 'Int'
+    professor: 'String'
+    rateMyProfessorRating: 'String'
+    section: 'Int'
+    startTime: 'String'
   }
   classTakenResult: { // field return type name
     classIds: 'Int'
