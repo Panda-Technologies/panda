@@ -61,7 +61,7 @@ type Mutation {
   addClassToClassSchedule(input: addClassToScheduleInput!): classScheduleEntry
   addClassTosemester(input: addClassToSemesterInput!): semesterEntry
   createClass(input: CreateClassInput!): Class
-  createClassSchedule(input: createClassScheduleInput): classSchedule
+  createClassSchedule(input: createClassScheduleInput!): classSchedule
   createDegree(input: createDegreeInput!): degree
   createDegreePlanner(input: createDegreePlannerInput!): degreePlanner
   createDegreeRequirements(degreeId: Int!): Boolean
@@ -74,7 +74,6 @@ type Mutation {
   deleteDegreePlanner(id: Int!): degreePlanner
   deleteSemester(id: Int!): semester
   deleteTask(input: deleteTaskInput): task
-  generateClassesFromScrape: Class
   login(input: LoginInput!): String
   logout: Boolean
   register(input: RegisterInput!): String
@@ -90,7 +89,7 @@ type Mutation {
   updateSemester(input: updateSemesterInput!): semester
   updateTask(input: updateTaskInput): task
   updateUserAcademicInfo(assignmentCompletionPercentage: Float, attendancePercentage: Float, gpa: Float, id: String!, takenClassIds: [Int]): user
-  updateUserProfile(degreeId: Int, id: String!, questionnaireCompleted: Boolean, university: String, yearInUniversity: Int): user
+  updateUserProfile(degreeId: Int!, id: String!, university: String!, yearInUniversity: Int!): user
 }
 
 type Query {
@@ -98,7 +97,6 @@ type Query {
   getAlldegrees: [degree]
   getClass(id: Int!): Class
   getClassScheduleEntries(classScheduleId: Int!): [classScheduleEntry]
-  getClassSchedules(userId: String!): [classSchedule]
   getClasses: [Class]
   getDegree(userId: String!): degree
   getGraduationSemester(id: String!): String
@@ -106,11 +104,11 @@ type Query {
   getRequirement(category: String!, degreeId: Int!): [requirement]
   getRequirements(degreeId: Int!): [requirement]
   getSemester(id: Int!): semester
-  getTasks: [task]
+  getTasks(userId: String!): [task]
   getUser(id: String!): user
+  getclassSchedules(userId: String!): [classSchedule]
   getdegreePlanners(userId: String!): [degreePlanner]
   getsemesters(plannerId: Int!): [semester]
-  me: user
 }
 
 input RegisterInput {
@@ -182,15 +180,17 @@ type classSection {
 }
 
 input classTakenInput {
+  classIds: [Int]!
   id: String!
 }
 
 type classTakenResult {
-  classIds: [Int]!
+  classId: Int!
+  taken: Boolean!
 }
 
 input createClassScheduleInput {
-  semesterId: String
+  semesterId: String!
   userId: String!
 }
 
@@ -316,6 +316,7 @@ input taskInputFields {
   dueDate: String!
   stageId: Int
   title: String!
+  userId: String!
 }
 
 input updateClassScheduleInput {
@@ -364,7 +365,6 @@ type user {
   graduationSemesterName: String
   id: String!
   isPremium: Boolean
-  isQuestionnaireCompleted: Boolean
   takenClassIds: [Int]
   tasks: [task]
   university: String
