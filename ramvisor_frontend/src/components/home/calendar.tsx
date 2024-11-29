@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef } from 'react';
 import { ScheduleComponent, Day, Week, Inject, ViewsDirective, ViewDirective, EventRenderedArgs } from '@syncfusion/ej2-react-schedule';
 import { Card } from 'antd';
@@ -97,7 +99,7 @@ const Calendar: React.FC<CalendarProps> = ({ width, height, title, credits, user
             borderRadius: '12px',
             background: 'linear-gradient(to bottom right, #ffffff, #f0f4f8)',
             border: 'none',
-            height: '95%',
+            height: '100%',
             width: '40%',
             left: '60%',
             top: '-4%',
@@ -132,7 +134,7 @@ const Calendar: React.FC<CalendarProps> = ({ width, height, title, credits, user
           readonly={true}
           timeScale={{ enable: true, interval: 60, slotCount: 2 }}
           startHour='08:00'
-          endHour='17:00'
+          endHour='24:00'
         >
           <ViewsDirective>
             <ViewDirective option='Day' />
