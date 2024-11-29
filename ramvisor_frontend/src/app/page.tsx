@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import { Layout as AntLayout, Row, Col } from "antd";
 import {
@@ -8,11 +7,13 @@ import {
   ClockCircleOutlined,
 } from "@ant-design/icons";
 import TrendChart from "@components/home/total-count-card";
-import Calendar from "@components/home/calendar";
 import { registerLicense } from "@syncfusion/ej2-base";
 import UpcomingEvents from "@components/home/upcoming-events";
 import Checklist from "@components/home/checklist";
 import { useGetIdentity } from "@refinedev/core";
+import dynamic from "next/dynamic";
+
+const Calendar = dynamic(() => import("@components/home/calendar"), { ssr: false });
 
 // Register Syncfusion license
 registerLicense(
