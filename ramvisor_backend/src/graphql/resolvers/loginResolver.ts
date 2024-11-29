@@ -26,10 +26,8 @@ export const loginResolve = async (
             throw new Error(INVALID_CREDENTIALS);
         }
 
-        // Set session data
         session.userId = user.id;
 
-        // Save session explicitly
         await new Promise<void>((resolve, reject) => {
             req.session.save((err) => {
                 if (err) {

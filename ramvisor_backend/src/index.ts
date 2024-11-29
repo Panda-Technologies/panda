@@ -107,7 +107,6 @@ const main = async () => {
 
 // Add test endpoints for debugging
     app.post('/test-set-session', (req, res) => {
-        // Set some test data in session
         req.session.userId = 'test-user-id';
 
         req.session.save((err) => {
@@ -158,14 +157,12 @@ const main = async () => {
 
     await apolloServer.start();
 
-    // Mount Apollo Server
     apolloServer.applyMiddleware({
         app,
         cors: false,
         path: '/graphql'
     });
 
-    // Start server
     const PORT = process.env.PORT || 5001;
     app.listen(PORT, () => {
         console.log(`API Server running on port ${PORT}`);

@@ -120,3 +120,4 @@ export const authenticateUser = (session: ISession): string => {
     }
     return session.userId;
 };
+

@@ -4,7 +4,7 @@
  */
 
 
-import type { IMyContext } from "../src/interface"
+import type { IMyContext } from "./../src/interface"
 
 
 

@@ -8,7 +8,8 @@
     "express-session": "^1.18.0",
     "graphql-scalars": "^1.23.0",
     "ioredis": "^5.4.1",
-    "nookies": "^2.5.2"
+    "nookies": "^2.5.2",
+    "unlighthouse": "^0.14.1"
   },
   "devDependencies": {
     "@types/express-session": "^1.18.0",
