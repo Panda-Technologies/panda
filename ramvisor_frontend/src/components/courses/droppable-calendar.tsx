@@ -96,7 +96,7 @@ const EventCard = styled.div<{ color: string }>`
     padding: 8px;
     border-radius: 4px 4px 12px 12px;
     font-size: 14px;
-    width: 18.6%;
+    width: 19%;
     z-index: 1;
     background-color: ${props => `${props.color}99`};
     border-top: 5.5px solid ${props => props.color};
