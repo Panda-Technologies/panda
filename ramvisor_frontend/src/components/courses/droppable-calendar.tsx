@@ -1,14 +1,17 @@
 import {
-    Event,
+    Course,
 } from "@components/courses/calendar";
 import React from "react";
 import {CloseOutlined} from "@ant-design/icons";
 import styled from "styled-components";
+import {convertScheduleDays} from "@utilities/helpers";
+import {getRandomLightColor} from "@components/courses/addable-course";
+import {eventSection} from "@app/course/page";
 
 type Props = {
-    events: Event[] | undefined;
-    onEventMove: (event: Event) => void;
-    onEventRemove: (eventId: string) => void;
+    events: eventSection[] | undefined;
+    activeCourses: Course[];
+    handleRemoveCourse: (courseId: string, sectionId?: string) => void;
 }
 
 const CalendarContainer = styled.div`
@@ -105,12 +108,16 @@ const EventCard = styled.div<{ color: string }>`
 const EventTitle = styled.div`
     color: #4B5563;
     font-weight: 500;
-    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `;
 
 const EventTime = styled.div`
     color: #6B7280;
-    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `;
 
 const DayCell = styled.div`
@@ -134,84 +141,11 @@ const HalfHourMarker = styled.div`
     z-index: 0;
 `;
 
-const DroppableCalendar = ({ events = [], onEventMove, onEventRemove }: Props ) => {
+const DroppableCalendar = ({ events = [], activeCourses, handleRemoveCourse }: Props ) => {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
     const hours = Array.from({ length: 17 }, (_, i) => i + 8); // 8 AM to 6 PM
 
-    // const [, drop] = useDrop(() => ({
-    //     accept: 'course',
-    //     drop: (item: { course: Course; section: Section }, monitor) => {
-    //         const clientOffset = monitor.getClientOffset();
-    //         if (clientOffset) {
-    //             const calendarRect = document.getElementById('calendar-grid')?.getBoundingClientRect();
-    //             if (calendarRect) {
-    //                 const x = clientOffset.x - calendarRect.left;
-    //                 const y = clientOffset.y - calendarRect.top;
-    //                 const dayIndex = Math.floor(((x - 80) / (calendarRect.width - 80)) * 5);
-    //                 const hourIndex = Math.floor((y / 60)) - 1; // Subtract 1 for header row
-    //
-    //                 if (dayIndex >= 0 && dayIndex < 5 && hourIndex >= 0 && hourIndex < 11) {
-    //                     const day = days[dayIndex];
-    //                     const time = `${hourIndex + 8}:00`;
-    //
-    //                     const newEvent: Event = {
-    //                         id: `${item.course.id}-${day}-${time}`,
-    //                         title: item.course.name,
-    //                         day,
-    //                         startTime: item.section.startTime,
-    //                         endTime: item.section.endTime,
-    //                         color: item.course.color,
-    //                         professor: item.section.professor,
-    //                     };
-    //                     onEventMove(newEvent);
-    //                 }
-    //             }
-    //         }
-    //     },
-    // }));
-
-    const mockEvents = [
-        {
-            id: '1',
-            title: 'Product Design Course',
-            day: 'Tue',
-            startTime: '09:30',
-            endTime: '12:00',
-            color: '#90EE90',
-            professor: 'Dr. Smith'
-        },
-        {
-            id: '2',
-            title: 'Usability Testing',
-            day: 'Thu',
-            startTime: '09:00',
-            endTime: '11:00',
-            color: '#9370DB',
-            professor: 'Dr. Johnson'
-        },
-        {
-            id: '3',
-            title: 'App Design',
-            day: 'Thu',
-            startTime: '13:00',
-            endTime: '15:30',
-            color: '#90EE90',
-            professor: 'Dr. Williams'
-        },
-        {
-            id: '4',
-            title: 'Frontend Development',
-            day: 'Fri',
-            startTime: '10:00',
-            endTime: '13:00',
-            color: '#87CEEB',
-            professor: 'Dr. Brown'
-        }
-    ];
-
-
-
-    const calculateEventPosition = (event: Event) => {
+    const calculateEventPosition = (event: eventSection) => {
         const startHour = parseInt(event.startTime.split(':')[0]);
         const startMinute = parseInt(event.startTime.split(':')[1]);
         const endHour = parseInt(event.endTime.split(':')[0]);
@@ -237,21 +171,52 @@ const DroppableCalendar = ({ events = [], onEventMove, onEventRemove }: Props ) 
         return `${displayHour}${period}`;
     };
 
-    const renderEvent = (event: Event, dayIndex: number) => {
+    const renderEvent = (event: eventSection, dayIndex: number) => {
         const { top, height } = calculateEventPosition(event);
+        const minHeight = 80;
+        const scaleFactor = Math.min(Math.max(height / minHeight, 0.7), 1.3);
+
+        const baseTitleSize = 14;
+        const baseTimeSize = 12;
+        const baseProfessorSize = 11;
+
         return (
             <EventCard
                 key={event.id}
-                color={event.color}
+                color={'#4ef442'}
                 style={{
                     top: `${top}px`,
                     height: `${height}px`,
                 }}
             >
-                <EventTitle>{event.title}</EventTitle>
+                <CloseOutlined
+                    style={{
+                        position: 'absolute',
+                        top: '4px',
+                        right: '4px',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                    }}
+                    onClick={() => handleRemoveCourse(event.id, undefined)}
+                />
+                <EventTitle style={{
+                    fontSize: `${(baseTitleSize * scaleFactor) > 14 ? 14 : (baseTitleSize * scaleFactor)}px`,
+                    marginBottom: `${4 * scaleFactor}px`
+                }}>
+                    {event.name}
+                </EventTitle>
                 <EventTime>
-                    {`${event.startTime} - ${event.endTime}`}
-                    <div style={{ fontSize: '11px', marginTop: '2px' }}>{event.professor}</div>
+                    <div style={{
+                        fontSize: `${(baseTimeSize * scaleFactor) > 12 ? 12 : (baseTimeSize * scaleFactor)}px`
+                    }}>
+                        {`${event.startTime} - ${event.endTime}`}
+                    </div>
+                    <div style={{
+                        fontSize: `${(baseProfessorSize * scaleFactor) > 12 ? 12 : (baseProfessorSize * scaleFactor)}px`,
+                        marginTop: `${2 * scaleFactor}px`
+                    }}>
+                        {event.professor}
+                    </div>
                 </EventTime>
             </EventCard>
         );
@@ -280,11 +245,23 @@ const DroppableCalendar = ({ events = [], onEventMove, onEventRemove }: Props ) 
                         </TimeCell>
                         {days.map((day, dayIndex) => (
                             <DayCell key={`${day}-${hour}`}>
-                                {mockEvents
-                                    .filter(event =>
-                                        event.day === day &&
-                                        parseInt(event.startTime.split(':')[0]) === hour
-                                    )
+                                {activeCourses
+                                    .flatMap(event => {
+                                        const eventDays = convertScheduleDays(event.section.day);
+                                        return eventDays.map(fullDay => ({
+                                            id: event.id,
+                                            name: event.name,
+                                            color: event.color,
+                                            startTime: event.section.startTime,
+                                            endTime: event.section.endTime,
+                                            professor: event.section.professor,
+                                            day: fullDay
+                                        }));
+                                    })
+                                    .filter(event => {
+                                        return event.day === day &&
+                                            parseInt(event.startTime.split(':')[0]) === hour;
+                                    })
                                     .map(event => renderEvent(event, dayIndex))}
                             </DayCell>
                         ))}
