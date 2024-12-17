@@ -170,20 +170,37 @@ export type AddClassToClassScheduleMutationVariables = Types.Exact<{
 
 export type AddClassToClassScheduleMutation = {
   addClassToClassSchedule?: Types.Maybe<
-    Pick<Types.ClassScheduleEntry, "id" | "classScheduleId" | "classId"> & {
+    Pick<Types.ClassScheduleEntry, "id" | "classScheduleId" | "sectionId"> & {
       class?: Types.Maybe<
         Pick<
           Types.Class,
           | "id"
           | "classCode"
-          | "title"
           | "credits"
-          | "dayOfWeek"
-          | "startTime"
-          | "endTime"
+          | "courseType"
+          | "title"
+          | "description"
+          | "category"
           | "color"
-          | "professor"
-        >
+        > & {
+          sections?: Types.Maybe<
+            Array<
+              Types.Maybe<
+                Pick<
+                  Types.ClassSection,
+                  | "id"
+                  | "section"
+                  | "classId"
+                  | "dayOfWeek"
+                  | "startTime"
+                  | "endTime"
+                  | "professor"
+                  | "rateMyProfessorRating"
+                >
+              >
+            >
+          >;
+        }
       >;
     }
   >;
@@ -195,11 +212,7 @@ export type RemoveClassFromClassScheduleMutationVariables = Types.Exact<{
 
 export type RemoveClassFromClassScheduleMutation = {
   removeClassFromClassSchedule?: Types.Maybe<
-    Pick<Types.ClassScheduleEntry, "id"> & {
-      class?: Types.Maybe<
-        Pick<Types.Class, "id" | "classCode" | "title" | "credits">
-      >;
-    }
+    Pick<Types.ClassScheduleEntry, "id">
   >;
 };
 
@@ -561,6 +574,8 @@ export type GetClassesQuery = {
                 Pick<
                   Types.ClassSection,
                   | "id"
+                  | "section"
+                  | "classId"
                   | "dayOfWeek"
                   | "startTime"
                   | "endTime"
@@ -615,7 +630,7 @@ export type GetClassQuery = {
 };
 
 export type GetClassSchedulesQueryVariables = Types.Exact<{
-  userId: Types.Scalars["String"]["input"];
+  [key: string]: never;
 }>;
 
 export type GetClassSchedulesQuery = {
@@ -628,7 +643,7 @@ export type GetClassSchedulesQuery = {
               Types.Maybe<
                 Pick<
                   Types.ClassScheduleEntry,
-                  "id" | "classScheduleId" | "classId"
+                  "id" | "classScheduleId" | "classId" | "sectionId"
                 > & {
                   class?: Types.Maybe<
                     Pick<
@@ -636,13 +651,30 @@ export type GetClassSchedulesQuery = {
                       | "id"
                       | "classCode"
                       | "credits"
+                      | "courseType"
                       | "title"
-                      | "dayOfWeek"
-                      | "startTime"
-                      | "endTime"
+                      | "description"
+                      | "category"
                       | "color"
-                      | "professor"
-                    >
+                    > & {
+                      sections?: Types.Maybe<
+                        Array<
+                          Types.Maybe<
+                            Pick<
+                              Types.ClassSection,
+                              | "id"
+                              | "section"
+                              | "classId"
+                              | "dayOfWeek"
+                              | "startTime"
+                              | "endTime"
+                              | "professor"
+                              | "rateMyProfessorRating"
+                            >
+                          >
+                        >
+                      >;
+                    }
                   >;
                 }
               >
@@ -662,20 +694,40 @@ export type GetClassScheduleEntriesQuery = {
   getClassScheduleEntries?: Types.Maybe<
     Array<
       Types.Maybe<
-        Pick<Types.ClassScheduleEntry, "id" | "classScheduleId" | "classId"> & {
+        Pick<
+          Types.ClassScheduleEntry,
+          "id" | "classScheduleId" | "classId" | "sectionId"
+        > & {
           class?: Types.Maybe<
             Pick<
               Types.Class,
               | "id"
               | "classCode"
-              | "title"
               | "credits"
-              | "dayOfWeek"
-              | "startTime"
-              | "endTime"
+              | "courseType"
+              | "title"
+              | "description"
+              | "category"
               | "color"
-              | "professor"
-            >
+            > & {
+              sections?: Types.Maybe<
+                Array<
+                  Types.Maybe<
+                    Pick<
+                      Types.ClassSection,
+                      | "id"
+                      | "section"
+                      | "classId"
+                      | "dayOfWeek"
+                      | "startTime"
+                      | "endTime"
+                      | "professor"
+                      | "rateMyProfessorRating"
+                    >
+                  >
+                >
+              >;
+            }
           >;
         }
       >

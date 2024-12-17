@@ -22,6 +22,12 @@ type Class {
   title: String!
 }
 
+input ClassScheduleUpdateInput {
+  classCode: String!
+  classScheduleId: Int!
+  sectionId: String!
+}
+
 input CreateClassInput {
   category: String!
   classCode: String!
@@ -98,7 +104,7 @@ type Query {
   getAlldegrees: [degree]
   getClass(id: Int!): Class
   getClassScheduleEntries(classScheduleId: Int!): [classScheduleEntry]
-  getClassSchedules(userId: String!): [classSchedule]
+  getClassSchedules: [classSchedule]
   getClasses: [Class]
   getDegree(userId: String!): degree
   getGraduationSemester(id: String!): String
@@ -145,8 +151,8 @@ input UpdateRequirementInput {
 }
 
 input addClassToScheduleInput {
-  classId: Int!
-  classScheduleId: Int!
+  id: String!
+  update: ClassScheduleUpdateInput!
 }
 
 input addClassToSemesterInput {
@@ -168,6 +174,7 @@ type classScheduleEntry {
   classSchedule: classSchedule
   classScheduleId: Int!
   id: Int!
+  sectionId: Int!
 }
 
 type classSection {
@@ -257,7 +264,8 @@ input graduationSemesterInput {
 }
 
 input removeClassFromScheduleInput {
-  id: Int!
+  id: String!
+  update: ClassScheduleUpdateInput!
 }
 
 input removeClassFromSemesterInput {

@@ -47,15 +47,10 @@ export type Class = {
   title: Scalars["String"]["output"];
 };
 
-export type ClassSection = {
-  classId: Scalars["Int"]["output"];
-  dayOfWeek: Scalars["String"]["output"];
-  endTime: Scalars["String"]["output"];
-  id: Scalars["Int"]["output"];
-  professor: Scalars["String"]["output"];
-  rateMyProfessorRating?: Maybe<Scalars["String"]["output"]>;
-  section: Scalars["Int"]["output"];
-  startTime: Scalars["String"]["output"];
+export type ClassScheduleUpdateInput = {
+  classCode: Scalars["String"]["input"];
+  classScheduleId: Scalars["Int"]["input"];
+  sectionId: Scalars["String"]["input"];
 };
 
 export type CreateClassInput = {
@@ -294,10 +289,6 @@ export type QueryGetClassScheduleEntriesArgs = {
   classScheduleId: Scalars["Int"]["input"];
 };
 
-export type QueryGetClassSchedulesArgs = {
-  userId: Scalars["String"]["input"];
-};
-
 export type QueryGetDegreeArgs = {
   userId: Scalars["String"]["input"];
 };
@@ -367,8 +358,8 @@ export type UpdateRequirementInput = {
 };
 
 export type AddClassToScheduleInput = {
-  classId: Scalars["Int"]["input"];
-  classScheduleId: Scalars["Int"]["input"];
+  id: Scalars["String"]["input"];
+  update: ClassScheduleUpdateInput;
 };
 
 export type AddClassToSemesterInput = {
@@ -390,6 +381,18 @@ export type ClassScheduleEntry = {
   classSchedule?: Maybe<ClassSchedule>;
   classScheduleId: Scalars["Int"]["output"];
   id: Scalars["Int"]["output"];
+  sectionId: Scalars["Int"]["output"];
+};
+
+export type ClassSection = {
+  classId: Scalars["Int"]["output"];
+  dayOfWeek: Scalars["String"]["output"];
+  endTime: Scalars["String"]["output"];
+  id: Scalars["Int"]["output"];
+  professor: Scalars["String"]["output"];
+  rateMyProfessorRating?: Maybe<Scalars["String"]["output"]>;
+  section: Scalars["Int"]["output"];
+  startTime: Scalars["String"]["output"];
 };
 
 export type ClassTakenInput = {
@@ -468,7 +471,8 @@ export type GraduationSemesterInput = {
 };
 
 export type RemoveClassFromScheduleInput = {
-  id: Scalars["Int"]["input"];
+  id: Scalars["String"]["input"];
+  update: ClassScheduleUpdateInput;
 };
 
 export type RemoveClassFromSemesterInput = {

@@ -121,8 +121,8 @@ export const GET_CLASS_QUERY = gql`
 `;
 
 export const GET_CLASS_SCHEDULES_QUERY = gql`
-  query GetClassSchedules($userId: String!) {
-    getClassSchedules(userId: $userId) {
+  query GetClassSchedules {
+    getClassSchedules {
       id
       userId
       semesterId
@@ -130,16 +130,26 @@ export const GET_CLASS_SCHEDULES_QUERY = gql`
         id
         classScheduleId
         classId
+        sectionId
         class {
           id
           classCode
           credits
+          courseType
           title
-          dayOfWeek
-          startTime
-          endTime
+          description
+          category
+          sections {
+            id
+            section
+            classId
+            dayOfWeek
+            startTime
+            endTime
+            professor
+            rateMyProfessorRating
+          }
           color
-          professor
         }
       }
     }
@@ -152,16 +162,26 @@ export const GET_CLASS_SCHEDULE_ENTRIES_QUERY = gql`
       id
       classScheduleId
       classId
+      sectionId
       class {
         id
         classCode
-        title
         credits
-        dayOfWeek
-        startTime
-        endTime
+        courseType
+        title
+        description
+        category
+        sections {
+          id
+          section
+          classId
+          dayOfWeek
+          startTime
+          endTime
+          professor
+          rateMyProfessorRating
+        }
         color
-        professor
       }
     }
   }
