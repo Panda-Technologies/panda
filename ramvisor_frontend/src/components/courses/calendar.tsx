@@ -1,47 +1,352 @@
 "use client";
 
-import React, {useState, useMemo, useCallback} from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
-import {Input, Button} from 'antd';
-import {SearchOutlined} from '@ant-design/icons';
-import {List, AutoSizer} from 'react-virtualized';
+import { Input, Button, message } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+import { List, AutoSizer } from 'react-virtualized';
 import Fuse from 'fuse.js';
 import debounce from 'lodash/debounce';
 import DroppableCalendar from "@components/courses/droppable-calendar";
-import {Class} from "@graphql/generated/graphql";
-import AddableCourse from "@components/courses/addable-course";
-import {useUpdate} from "@refinedev/core";
+import { Class, ClassSchedule } from "@graphql/generated/graphql";
+import AddableCourse, { flattenedCourse } from "@components/courses/addable-course";
+import { useDelete, useUpdate } from "@refinedev/core";
+import { ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION, REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION } from "@graphql/mutations";
+import {eventSection} from "@app/course/page";
+import {convertScheduleDays, convertTimeToMinutes} from "@utilities/helpers";
 
-export interface Event {
-    id: string;
-    title: string;
-    day: string;
-    startTime: string;
-    endTime: string;
-    color: string;
-    professor: string;
-}
+// Types
+type CourseKey = string; // Format: "courseId-sectionId"
 
 export type Section = {
     id: string;
+    code: string;
     professor: string;
     startTime: string;
     endTime: string;
-    days: string[];
+    day: string;
 };
 
 export type Course = {
     id: string;
     name: string;
-    sections: Section[];
+    section: Section;
     color: string;
 };
 
 type Props = {
-    events: Event[] | undefined;
-    onEventMove: (event: Event) => void;
-    onEventRemove?: (eventId: string) => void;
+    events: eventSection[] | undefined;
+    activeSchedule?: ClassSchedule;
+    scheduleLoading?: boolean;
     courses: Class[];
+};
+
+// Fuse.js options for search
+const fuseOptions = {
+    keys: [
+        { name: 'classCode', weight: 2 },
+        { name: 'title', weight: 1 },
+        { name: 'searchString', weight: 1 }
+    ],
+    threshold: 0.3,
+    distance: 50,
+    minMatchCharLength: 1,
+    shouldSort: true,
+    includeScore: true,
+    useExtendedSearch: false,
+    findAllMatches: true,
+    location: 0,
+    ignoreLocation: false
+};
+
+const CourseCalendar: React.FC<Props> = ({
+                                             events,
+                                             courses,
+                                             activeSchedule,
+                                             scheduleLoading
+                                         }) => {
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [activeCourseMap, setActiveCourseMap] = useState<Map<CourseKey, Course>>(new Map());
+
+    // Helper function to create unique course key
+    const createCourseKey = (courseId: string, sectionId: string): CourseKey =>
+        `${courseId}-${sectionId}`;
+
+    const checkScheduleConflict = (course: Course) => {
+        let conflict = false;
+        const courseToAddDays = convertScheduleDays(course.section.day);
+        const startTime = convertTimeToMinutes(course.section.startTime);
+        const endTime = convertTimeToMinutes(course.section.endTime);
+        activeCourseMap.forEach((activeCourse) => {
+            const days = convertScheduleDays(activeCourse.section.day);
+            if (days.some(day => courseToAddDays.includes(day))) {
+                const activeStartTime = convertTimeToMinutes(activeCourse.section.startTime);
+                const activeEndTime = convertTimeToMinutes(activeCourse.section.endTime);
+                if ((startTime >= activeStartTime && startTime < activeEndTime) ||
+                    (endTime > activeStartTime && endTime <= activeEndTime) ||
+                    (startTime <= activeStartTime && endTime >= activeEndTime)) {
+                    console.log('Conflict:', course, activeCourse);
+                    conflict = true;
+                }
+            }
+        });
+        return conflict;
+    };
+
+    // Initialize schedule
+    const handleSetSchedule = useCallback((schedule: ClassSchedule) => {
+        if (!schedule?.entries) return;
+
+        const newCourseMap = new Map<CourseKey, Course>();
+
+        schedule.entries
+            .filter(entry => entry?.class && entry?.sectionId)
+            .forEach(entry => {
+                const course = entry?.class;
+                const matchingSection = course?.sections?.find(
+                    section => section?.id === entry?.sectionId
+                );
+
+                if (!matchingSection) return;
+
+                const courseKey = createCourseKey(course!.classCode, matchingSection.id.toString());
+                newCourseMap.set(courseKey, {
+                    id: course!.classCode,
+                    name: course!.title,
+                    color: course?.color || '#4A90E2',
+                    section: {
+                        id: matchingSection.id?.toString() || '',
+                        code: matchingSection.section?.toString() || '',
+                        professor: matchingSection.professor || '',
+                        startTime: matchingSection.startTime || '',
+                        endTime: matchingSection.endTime || '',
+                        day: matchingSection.dayOfWeek || ''
+                    }
+                });
+            });
+
+        setActiveCourseMap(newCourseMap);
+    }, []);
+
+    useEffect(() => {
+        if (!scheduleLoading && activeSchedule) {
+            handleSetSchedule(activeSchedule);
+        } else {
+            setActiveCourseMap(new Map());
+        }
+    }, [activeSchedule, scheduleLoading, handleSetSchedule]);
+
+    const { mutate: addCourse } = useUpdate();
+    const { mutate: removeCourse } = useUpdate();
+    // Course management handlers
+    const handleAddCourse = useCallback((course: flattenedCourse, section: Section) => {
+        const courseKey = createCourseKey(course.id, section.id);
+        if (checkScheduleConflict({ id: course.id, name: course.name, color: course.color, section })) {
+            message.error('Course schedule conflict', 1);
+            return;
+        }
+
+        addCourse(
+            {
+                id: courseKey,
+                resource: 'classSchedule',
+                values: {
+                    classScheduleId: activeSchedule?.id,
+                    classCode: course.id,
+                    sectionId: section.id,
+                },
+                meta: {
+                    gqlMutation: ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION
+                }
+            },
+            {
+                onSuccess: () => {
+                    if (!activeCourseMap.has(courseKey)) {
+                        const courseToAdd: Course = {
+                            id: course.id,
+                            name: course.name,
+                            color: course.color,
+                            section: section
+                        };
+                        setActiveCourseMap(prevMap => {
+                            const newMap = new Map(prevMap);
+                            newMap.set(courseKey, courseToAdd);
+                            return newMap;
+                        });
+                        message.success('Course added successfully', 1);
+                    } else {
+                        message.error('Course section already added', 1);
+                    }
+                },
+                onError: () => {
+                    message.error('Error adding course: Please try again later', 2);
+                }
+            }
+        );
+    }, [activeSchedule?.id, addCourse, activeCourseMap]);
+
+    const handleRemoveCourse = useCallback((courseId: string, sectionId?: string) => {
+        const courseKey = courseId && sectionId ? createCourseKey(courseId, sectionId) : (() => {
+            console.log('CourseId:', courseId, 'SectionId:', sectionId);
+            let foundCourseKey = '';
+            activeCourseMap.forEach((_, key) => {
+                if (key.includes(courseId)) {
+                    foundCourseKey = key;
+                }
+            });
+            return foundCourseKey;
+        })();
+        const course = activeCourseMap.get(courseKey);
+
+        removeCourse(
+            {
+                id: courseKey,
+                resource: 'classSchedule',
+                values: {
+                    classScheduleId: activeSchedule?.id,
+                    classCode: course?.id,
+                    sectionId: course?.section.id,
+                },
+                meta: {
+                    gqlMutation: REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION
+                }
+            },
+            {
+                onSuccess: () => {
+                    if (activeCourseMap.has(courseKey)) {
+                        setActiveCourseMap(prevMap => {
+                            const newMap = new Map(prevMap);
+                            newMap.delete(courseKey);
+                            return newMap;
+                        });
+                        message.success('Course removed successfully', 1);
+                    } else {
+                        message.error('Course section not found', 1);
+                    }
+                },
+                onError: () => {
+                    message.error('Error removing course: Please try again later', 2);
+                }
+            }
+        );
+    }, [activeSchedule?.id, removeCourse, activeCourseMap]);
+
+    const checkCourseAdded = useCallback((course: flattenedCourse, section: Section) => {
+        const courseKey = createCourseKey(course.id, section.id);
+        return activeCourseMap.has(courseKey);
+    }, [activeCourseMap]);
+
+    const fuse = useMemo(() => {
+        const searchData = courses.map(course => ({
+            ...course,
+            searchString: `${course.title.toLowerCase()} ${course.classCode.toLowerCase()}`
+        }));
+        return new Fuse(searchData, fuseOptions);
+    }, [courses]);
+
+    const searchResults = useMemo(() => {
+        const term = searchTerm.trim().toLowerCase();
+        if (!term) return [];
+
+        const exactMatches = courses.filter(course =>
+            course.classCode.toLowerCase() === term ||
+            course.classCode.toLowerCase().replace(/\s+/g, '') === term.replace(/\s+/g, '')
+        );
+
+        if (exactMatches.length > 0) {
+            return exactMatches;
+        }
+
+        const results = fuse.search(term)
+            .filter(result => (result.score || 1) < 0.4)
+            .map(result => result.item);
+
+        return results.slice(0, 100);
+    }, [fuse, searchTerm, courses]);
+
+    const debouncedSearch = debounce((value: string) => {
+        setSearchTerm(value.toLowerCase().trim());
+    }, 300);
+
+    const flattenedResults = useMemo(() => {
+        return searchResults.flatMap(course => {
+            const transformedCourse = {
+                id: course.classCode,
+                name: course.title,
+                color: course.color || '#4A90E2',
+            };
+
+            return course.sections?.map(section => ({
+                course: transformedCourse,
+                section: {
+                    id: `${section?.id}`,
+                    code: `${section?.section}`,
+                    professor: section?.professor || '',
+                    startTime: section?.startTime || '',
+                    endTime: section?.endTime || '',
+                    day: section?.dayOfWeek || '',
+                }
+            })) ?? [];
+        });
+    }, [searchResults]);
+    // Row renderer for virtualized list
+    const rowRenderer = useCallback(({
+                                         key,
+                                         index,
+                                         style
+                                     }: {
+        key: string;
+        index: number;
+        style: React.CSSProperties;
+    }) => {
+        const { course, section } = flattenedResults[index];
+
+        return (
+            <div key={key} style={style}>
+                <AddableCourse
+                    key={`${course.id}-${section.id}`}
+                    course={course}
+                    section={section}
+                    handleAddCourse={handleAddCourse}
+                    checkCourseAdded={checkCourseAdded}
+                    handleRemoveCourse={handleRemoveCourse}
+                />
+            </div>
+        );
+    }, [flattenedResults, handleAddCourse, handleRemoveCourse, checkCourseAdded]);
+
+    return (
+        <CalendarContainer>
+            <Sidebar>
+                <Input
+                    placeholder="Search courses"
+                    prefix={<SearchOutlined />}
+                    onChange={(e) => debouncedSearch(e.target.value)}
+                    style={{ marginBottom: '20px' }}
+                />
+                <ClassListWrapper>
+                    <AutoSizer>
+                        {({ width, height }) => (
+                            <List
+                                width={width - 5}
+                                height={height}
+                                rowCount={searchResults.length}
+                                rowHeight={165}
+                                rowRenderer={rowRenderer}
+                                overscanRowCount={5}
+                                style={{ scrollbarWidth: 'none' }}
+                            />
+                        )}
+                    </AutoSizer>
+                </ClassListWrapper>
+            </Sidebar>
+            <DroppableCalendar
+                events={events}
+                activeCourses={Array.from(activeCourseMap.values())}
+                handleRemoveCourse={handleRemoveCourse}
+            />
+        </CalendarContainer>
+    );
 };
 
 export const CalendarContainer = styled.div`
@@ -204,149 +509,5 @@ const ClassListWrapper = styled.div`
     scrollbar-width: none;  /* Firefox */
 `;
 
-const fuseOptions = {
-    keys: [
-        { name: 'classCode', weight: 2 },
-        { name: 'title', weight: 1 },
-        { name: 'searchString', weight: 1 }
-    ],
-    threshold: 0.3,
-    distance: 50,
-    minMatchCharLength: 1,
-    shouldSort: true,
-    includeScore: true,
-    useExtendedSearch: false,
-    findAllMatches: true,
-    location: 0,
-    ignoreLocation: false
-};
-
-const CourseCalendar: React.FC<Props> = ({
-                                             events,
-                                             onEventMove,
-                                             courses,
-                                             onEventRemove,
-                                         }) => {
-    const [searchTerm, setSearchTerm] = useState<string>('');
-
-    const { mutate: addCourse } = useUpdate();
-
-    const handleAddCourse = async (course: Course, section: Section) => {
-
-    }
-
-    const fuse = useMemo(() => {
-        const searchData = courses.map(course => ({
-            ...course,
-            searchString: `${course.title.toLowerCase()} ${course.classCode.toLowerCase()}`
-        }));
-
-        return new Fuse(searchData, fuseOptions);
-    }, [courses]);
-
-    const searchResults = useMemo(() => {
-        const term = searchTerm.trim().toLowerCase();
-        if (!term) return [];
-
-        const exactMatches = courses.filter(course =>
-            course.classCode.toLowerCase() === term ||
-            course.classCode.toLowerCase().replace(/\s+/g, '') === term.replace(/\s+/g, '')
-        );
-
-        if (exactMatches.length > 0) {
-            return exactMatches;
-        }
-
-        const results = fuse.search(term)
-            .filter(result => (result.score || 1) < 0.4)
-            .map(result => result.item);
-
-        return results.slice(0, 100);
-    }, [fuse, searchTerm, courses]);
-
-    const debouncedSearch = useCallback(
-        debounce((value: string) => {
-            setSearchTerm(value.toLowerCase().trim());
-        }, 300),
-        []
-    );
-
-    const flattenedResults = useMemo(() => {
-        return searchResults.flatMap(course => {
-            const transformedCourse = {
-                id: course.classCode,
-                name: course.title,
-                color: course.color || '#4A90E2',
-            };
-
-            return course.sections?.map(section => ({
-                course: transformedCourse,
-                section: {
-                    id: `${section?.section}`,
-                    professor: section?.professor || '',
-                    startTime: section?.startTime || '',
-                    endTime: section?.endTime || '',
-                    days: section?.dayOfWeek?.split('') || []
-                }
-            })) ?? [];
-        });
-    }, [searchResults]);
-
-    const rowRenderer = useCallback(({
-                                         key,
-                                         index,
-                                         style
-                                     }: {
-        key: string;
-        index: number;
-        style: React.CSSProperties;
-    }) => {
-        const { course, section } = flattenedResults[index];
-
-        return (
-            <div key={key} style={style}>
-                <AddableCourse
-                    key={`${course.id}-${section.id}`}
-                    course={course}
-                    section={section}
-                />
-            </div>
-        );
-    }, [flattenedResults]);
-
-    return (
-            <CalendarContainer>
-                <Sidebar>
-                    <Input
-                        placeholder="Search courses"
-                        prefix={<SearchOutlined/>}
-                        onChange={(e) => debouncedSearch(e.target.value)}
-                        style={{marginBottom: '20px'}}
-                    />
-                    <ClassListWrapper>
-                        <AutoSizer>
-                            {({width, height}) => (
-                                <List
-                                    width={width - 5}
-                                    height={height}
-                                    rowCount={searchResults.length}
-                                    rowHeight={165}
-                                    rowRenderer={rowRenderer}
-                                    overscanRowCount={5}
-                                    style={{scrollbarWidth: 'none'}}
-                                />
-                            )}
-                        </AutoSizer>
-                    </ClassListWrapper>
-                </Sidebar>
-                <DroppableCalendar
-                    events={events}
-                    onEventMove={onEventMove}
-                    onEventRemove={onEventRemove!}
-                />
-            </CalendarContainer>
-    );
-};
-
-// Memoize the entire component
+// Export memoized component
 export default React.memo(CourseCalendar);
