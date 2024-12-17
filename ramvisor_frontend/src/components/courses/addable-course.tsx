@@ -1,16 +1,42 @@
-import React from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import { BookOpen, Clock2, UserCircle2 } from "lucide-react";
 import {AddableCourseCard, Course, Section} from "@components/courses/calendar";
-import {PlusOutlined} from "@ant-design/icons";
-import {Button, Space} from "antd";
+import {CloseOutlined, PlusOutlined} from "@ant-design/icons";
+import {Button} from "antd";
+import styled from "styled-components";
+import {AnimatePresence, motion} from "framer-motion";
 
-interface CourseProps {
-    course: Course;
-    section: Section;
-    handleAddCourse: (course: Course, section: Section) => void;
+export type flattenedCourse = {
+    id: string;
+    name: string;
+    color: string;
 }
 
-function getRandomLightColor() {
+interface CourseProps {
+    course: flattenedCourse;
+    section: Section;
+    handleAddCourse: (course: flattenedCourse, section: Section) => void;
+    handleRemoveCourse: (courseId: string, sectionId: string) => void;
+    checkCourseAdded: (course: flattenedCourse, section: Section) => boolean;
+}
+
+
+const IconWrapper = styled(motion.div)`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ButtonWrapper = styled.div`
+  position: relative;
+  margin-left: 89%;
+  top: -10%;
+`;
+
+export function getRandomLightColor() {
     // Base colors in HSL format [hue, saturation]
     const baseColors = {
         blue: [240, 70],
@@ -64,12 +90,63 @@ function getRandomLightColor() {
     return { color: colorName, hex: colorCode };
 }
 
-const AddableCourse: React.FC<CourseProps> = ({ course, section, handleAddCourse }) => {
-    const { hex } = getRandomLightColor();
+const AddableCourse: React.FC<CourseProps> = ({ course, section, handleAddCourse, checkCourseAdded, handleRemoveCourse }) => {
+    const color = useMemo(() => getRandomLightColor(), [course.id]);
+    const isAdded = checkCourseAdded(course, section);
+    const [shouldAnimate, setShouldAnimate] = useState(false);
+
+    useEffect(() => {
+        setShouldAnimate(false);
+    }, [course.id, section.id]);
+
+    const handleClick = () => {
+        setShouldAnimate(true);
+        if (isAdded) {
+            handleRemoveCourse(course.id, section.id);
+        } else {
+            handleAddCourse(course, section);
+        }
+    };
+
     return (
-        <AddableCourseCard color={hex.toString()}>
+        <AddableCourseCard color={color.hex.toString()}>
             <div style={{ padding: '4px' }}>
-                <Button style={{ marginLeft: '91%', top: '-10%' }} shape="circle" icon={<PlusOutlined />} size="small" onClick={() => handleAddCourse(course, section)}/>
+                <ButtonWrapper>
+                    <Button
+                        style={{
+                            backgroundColor: isAdded ? 'lightcoral' : 'lightgreen',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}
+                        shape="circle"
+                        size="small"
+                        onClick={handleClick}
+                    >
+                        <AnimatePresence mode='wait'>
+                            {isAdded ? (
+                                <IconWrapper
+                                    key="close"
+                                    initial={shouldAnimate ? { rotate: 0, opacity: 0 } : undefined}
+                                    animate={{ rotate: shouldAnimate ? 180 : 0, opacity: 1 }}
+                                    exit={shouldAnimate ? { rotate: 360, opacity: 0 } : undefined}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <CloseOutlined />
+                                </IconWrapper>
+                            ) : (
+                                <IconWrapper
+                                    key="plus"
+                                    initial={shouldAnimate ? { rotate: -180, opacity: 0 } : undefined}
+                                    animate={{ rotate: 0, opacity: 1 }}
+                                    exit={shouldAnimate ? { rotate: 180, opacity: 0 } : undefined}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <PlusOutlined />
+                                </IconWrapper>
+                            )}
+                        </AnimatePresence>
+                    </Button>
+                </ButtonWrapper>
                 {/* Course Code */}
                 <div style={{
                     marginBottom: '15px',
@@ -84,7 +161,7 @@ const AddableCourse: React.FC<CourseProps> = ({ course, section, handleAddCourse
                         fontWeight: '400',
                         opacity: 0.7
                     }}>
-                        - {section.id}
+                        - {section.code}
                     </span>
                 </div>
 
@@ -132,7 +209,7 @@ const AddableCourse: React.FC<CourseProps> = ({ course, section, handleAddCourse
                     }}>
                         <Clock2 size={16} style={{flexShrink: 0}}/>
                         <div style={{fontSize: '14px'}}>
-                            <span style={{fontWeight: 500}}>{section.days}</span>
+                            <span style={{fontWeight: 500}}>{section.day}</span>
                             <span style={{margin: '0 4px', opacity: 0.5}}>|</span>
                             <span>{section.startTime} - {section.endTime}</span>
                         </div>
