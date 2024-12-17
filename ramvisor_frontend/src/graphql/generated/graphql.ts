@@ -50,16 +50,10 @@ export type Class = {
   title: Scalars["String"]["output"];
 };
 
-export type ClassSection = {
-  __typename?: "ClassSection";
-  classId: Scalars["Int"]["output"];
-  dayOfWeek: Scalars["String"]["output"];
-  endTime: Scalars["String"]["output"];
-  id: Scalars["Int"]["output"];
-  professor: Scalars["String"]["output"];
-  rateMyProfessorRating?: Maybe<Scalars["String"]["output"]>;
-  section: Scalars["Int"]["output"];
-  startTime: Scalars["String"]["output"];
+export type ClassScheduleUpdateInput = {
+  classCode: Scalars["String"]["input"];
+  classScheduleId: Scalars["Int"]["input"];
+  sectionId: Scalars["String"]["input"];
 };
 
 export type CreateClassInput = {
@@ -300,10 +294,6 @@ export type QueryGetClassScheduleEntriesArgs = {
   classScheduleId: Scalars["Int"]["input"];
 };
 
-export type QueryGetClassSchedulesArgs = {
-  userId: Scalars["String"]["input"];
-};
-
 export type QueryGetDegreeArgs = {
   userId: Scalars["String"]["input"];
 };
@@ -373,8 +363,8 @@ export type UpdateRequirementInput = {
 };
 
 export type AddClassToScheduleInput = {
-  classId: Scalars["Int"]["input"];
-  classScheduleId: Scalars["Int"]["input"];
+  id: Scalars["String"]["input"];
+  update: ClassScheduleUpdateInput;
 };
 
 export type AddClassToSemesterInput = {
@@ -398,6 +388,19 @@ export type ClassScheduleEntry = {
   classSchedule?: Maybe<ClassSchedule>;
   classScheduleId: Scalars["Int"]["output"];
   id: Scalars["Int"]["output"];
+  sectionId: Scalars["Int"]["output"];
+};
+
+export type ClassSection = {
+  __typename?: "classSection";
+  classId: Scalars["Int"]["output"];
+  dayOfWeek: Scalars["String"]["output"];
+  endTime: Scalars["String"]["output"];
+  id: Scalars["Int"]["output"];
+  professor: Scalars["String"]["output"];
+  rateMyProfessorRating?: Maybe<Scalars["String"]["output"]>;
+  section: Scalars["Int"]["output"];
+  startTime: Scalars["String"]["output"];
 };
 
 export type ClassTakenInput = {
@@ -479,7 +482,8 @@ export type GraduationSemesterInput = {
 };
 
 export type RemoveClassFromScheduleInput = {
-  id: Scalars["Int"]["input"];
+  id: Scalars["String"]["input"];
+  update: ClassScheduleUpdateInput;
 };
 
 export type RemoveClassFromSemesterInput = {
@@ -797,18 +801,28 @@ export type AddClassToClassScheduleMutation = {
     __typename?: "classScheduleEntry";
     id: number;
     classScheduleId: number;
-    classId: number;
+    sectionId: number;
     class?: {
       __typename?: "Class";
       id: number;
       classCode: string;
-      title: string;
       credits: number;
-      dayOfWeek: string;
-      startTime: string;
-      endTime: string;
+      courseType: string;
+      title: string;
+      description: string;
+      category: string;
       color: string;
-      professor: string;
+      sections?: Array<{
+        __typename?: "classSection";
+        id: number;
+        section: number;
+        classId: number;
+        dayOfWeek: string;
+        startTime: string;
+        endTime: string;
+        professor: string;
+        rateMyProfessorRating?: string | null;
+      } | null> | null;
     } | null;
   } | null;
 };
@@ -822,13 +836,6 @@ export type RemoveClassFromClassScheduleMutation = {
   removeClassFromClassSchedule?: {
     __typename?: "classScheduleEntry";
     id: number;
-    class?: {
-      __typename?: "Class";
-      id: number;
-      classCode: string;
-      title: string;
-      credits: number;
-    } | null;
   } | null;
 };
 
@@ -1223,8 +1230,10 @@ export type GetClassesQuery = {
     coreDegreeId: Array<number | null>;
     electiveDegreeId?: Array<number | null> | null;
     sections?: Array<{
-      __typename?: "ClassSection";
+      __typename?: "classSection";
       id: number;
+      section: number;
+      classId: number;
       dayOfWeek: string;
       startTime: string;
       endTime: string;
@@ -1253,7 +1262,7 @@ export type GetClassQuery = {
     coreDegreeId: Array<number | null>;
     electiveDegreeId?: Array<number | null> | null;
     sections?: Array<{
-      __typename?: "ClassSection";
+      __typename?: "classSection";
       id: number;
       dayOfWeek: string;
       startTime: string;
@@ -1264,9 +1273,7 @@ export type GetClassQuery = {
   } | null;
 };
 
-export type GetClassSchedulesQueryVariables = Exact<{
-  userId: Scalars["String"]["input"];
-}>;
+export type GetClassSchedulesQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetClassSchedulesQuery = {
   __typename?: "Query";
@@ -1280,17 +1287,28 @@ export type GetClassSchedulesQuery = {
       id: number;
       classScheduleId: number;
       classId: number;
+      sectionId: number;
       class?: {
         __typename?: "Class";
         id: number;
         classCode: string;
         credits: number;
+        courseType: string;
         title: string;
-        dayOfWeek: string;
-        startTime: string;
-        endTime: string;
+        description: string;
+        category: string;
         color: string;
-        professor: string;
+        sections?: Array<{
+          __typename?: "classSection";
+          id: number;
+          section: number;
+          classId: number;
+          dayOfWeek: string;
+          startTime: string;
+          endTime: string;
+          professor: string;
+          rateMyProfessorRating?: string | null;
+        } | null> | null;
       } | null;
     } | null> | null;
   } | null> | null;
@@ -1307,17 +1325,28 @@ export type GetClassScheduleEntriesQuery = {
     id: number;
     classScheduleId: number;
     classId: number;
+    sectionId: number;
     class?: {
       __typename?: "Class";
       id: number;
       classCode: string;
-      title: string;
       credits: number;
-      dayOfWeek: string;
-      startTime: string;
-      endTime: string;
+      courseType: string;
+      title: string;
+      description: string;
+      category: string;
       color: string;
-      professor: string;
+      sections?: Array<{
+        __typename?: "classSection";
+        id: number;
+        section: number;
+        classId: number;
+        dayOfWeek: string;
+        startTime: string;
+        endTime: string;
+        professor: string;
+        rateMyProfessorRating?: string | null;
+      } | null> | null;
     } | null;
   } | null> | null;
 };
@@ -2386,7 +2415,7 @@ export const AddClassToClassScheduleDocument = {
                   kind: "Field",
                   name: { kind: "Name", value: "classScheduleId" },
                 },
-                { kind: "Field", name: { kind: "Name", value: "classId" } },
+                { kind: "Field", name: { kind: "Name", value: "sectionId" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "class" },
@@ -2398,28 +2427,68 @@ export const AddClassToClassScheduleDocument = {
                         kind: "Field",
                         name: { kind: "Name", value: "classCode" },
                       },
-                      { kind: "Field", name: { kind: "Name", value: "title" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "credits" },
                       },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "dayOfWeek" },
+                        name: { kind: "Name", value: "courseType" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "title" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
                       },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "startTime" },
+                        name: { kind: "Name", value: "category" },
                       },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "endTime" },
+                        name: { kind: "Name", value: "sections" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "section" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "classId" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "dayOfWeek" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "startTime" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "endTime" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "professor" },
+                            },
+                            {
+                              kind: "Field",
+                              name: {
+                                kind: "Name",
+                                value: "rateMyProfessorRating",
+                              },
+                            },
+                          ],
+                        },
                       },
                       { kind: "Field", name: { kind: "Name", value: "color" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "professor" },
-                      },
                     ],
                   },
                 },
@@ -2477,25 +2546,6 @@ export const RemoveClassFromClassScheduleDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "class" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "classCode" },
-                      },
-                      { kind: "Field", name: { kind: "Name", value: "title" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "credits" },
-                      },
-                    ],
-                  },
-                },
               ],
             },
           },
@@ -4009,6 +4059,14 @@ export const GetClassesDocument = {
                       { kind: "Field", name: { kind: "Name", value: "id" } },
                       {
                         kind: "Field",
+                        name: { kind: "Name", value: "section" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "classId" },
+                      },
+                      {
+                        kind: "Field",
                         name: { kind: "Name", value: "dayOfWeek" },
                       },
                       {
@@ -4144,38 +4202,12 @@ export const GetClassSchedulesDocument = {
       kind: "OperationDefinition",
       operation: "query",
       name: { kind: "Name", value: "GetClassSchedules" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "userId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
       selectionSet: {
         kind: "SelectionSet",
         selections: [
           {
             kind: "Field",
             name: { kind: "Name", value: "getClassSchedules" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "userId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "userId" },
-                },
-              },
-            ],
             selectionSet: {
               kind: "SelectionSet",
               selections: [
@@ -4199,6 +4231,10 @@ export const GetClassSchedulesDocument = {
                       },
                       {
                         kind: "Field",
+                        name: { kind: "Name", value: "sectionId" },
+                      },
+                      {
+                        kind: "Field",
                         name: { kind: "Name", value: "class" },
                         selectionSet: {
                           kind: "SelectionSet",
@@ -4217,27 +4253,67 @@ export const GetClassSchedulesDocument = {
                             },
                             {
                               kind: "Field",
+                              name: { kind: "Name", value: "courseType" },
+                            },
+                            {
+                              kind: "Field",
                               name: { kind: "Name", value: "title" },
                             },
                             {
                               kind: "Field",
-                              name: { kind: "Name", value: "dayOfWeek" },
+                              name: { kind: "Name", value: "description" },
                             },
                             {
                               kind: "Field",
-                              name: { kind: "Name", value: "startTime" },
+                              name: { kind: "Name", value: "category" },
                             },
                             {
                               kind: "Field",
-                              name: { kind: "Name", value: "endTime" },
+                              name: { kind: "Name", value: "sections" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "id" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "section" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "classId" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "dayOfWeek" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "startTime" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "endTime" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "professor" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: {
+                                      kind: "Name",
+                                      value: "rateMyProfessorRating",
+                                    },
+                                  },
+                                ],
+                              },
                             },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "color" },
-                            },
-                            {
-                              kind: "Field",
-                              name: { kind: "Name", value: "professor" },
                             },
                           ],
                         },
@@ -4301,6 +4377,7 @@ export const GetClassScheduleEntriesDocument = {
                   name: { kind: "Name", value: "classScheduleId" },
                 },
                 { kind: "Field", name: { kind: "Name", value: "classId" } },
+                { kind: "Field", name: { kind: "Name", value: "sectionId" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "class" },
@@ -4312,28 +4389,68 @@ export const GetClassScheduleEntriesDocument = {
                         kind: "Field",
                         name: { kind: "Name", value: "classCode" },
                       },
-                      { kind: "Field", name: { kind: "Name", value: "title" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "credits" },
                       },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "dayOfWeek" },
+                        name: { kind: "Name", value: "courseType" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "title" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
                       },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "startTime" },
+                        name: { kind: "Name", value: "category" },
                       },
                       {
                         kind: "Field",
-                        name: { kind: "Name", value: "endTime" },
+                        name: { kind: "Name", value: "sections" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "section" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "classId" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "dayOfWeek" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "startTime" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "endTime" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "professor" },
+                            },
+                            {
+                              kind: "Field",
+                              name: {
+                                kind: "Name",
+                                value: "rateMyProfessorRating",
+                              },
+                            },
+                          ],
+                        },
                       },
                       { kind: "Field", name: { kind: "Name", value: "color" } },
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "professor" },
-                      },
                     ],
                   },
                 },

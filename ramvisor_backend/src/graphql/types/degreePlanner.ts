@@ -317,7 +317,6 @@ export const semesterMutation = extendType({
 
                 // Start a transaction
                 return prisma.$transaction(async (transactionPrisma) => {
-                    // Update name if provided
                     if (name) {
                         await transactionPrisma.semester.update({
                             where: {id},

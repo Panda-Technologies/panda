@@ -14,6 +14,11 @@ declare global {
 }
 
 export interface NexusGenInputs {
+  ClassScheduleUpdateInput: { // input type
+    classCode: string; // String!
+    classScheduleId: number; // Int!
+    sectionId: string; // String!
+  }
   CreateClassInput: { // input type
     category: string; // String!
     classCode: string; // String!
@@ -74,8 +79,8 @@ export interface NexusGenInputs {
     isElective?: boolean | null; // Boolean
   }
   addClassToScheduleInput: { // input type
-    classId: number; // Int!
-    classScheduleId: number; // Int!
+    id: string; // String!
+    update: NexusGenInputs['ClassScheduleUpdateInput']; // ClassScheduleUpdateInput!
   }
   addClassToSemesterInput: { // input type
     classId: number; // Int!
@@ -122,7 +127,8 @@ export interface NexusGenInputs {
     year: number; // Int!
   }
   removeClassFromScheduleInput: { // input type
-    id: number; // Int!
+    id: string; // String!
+    update: NexusGenInputs['ClassScheduleUpdateInput']; // ClassScheduleUpdateInput!
   }
   removeClassFromSemesterInput: { // input type
     classId: number; // Int!
@@ -218,6 +224,7 @@ export interface NexusGenObjects {
     classSchedule?: NexusGenRootTypes['classSchedule'] | null; // classSchedule
     classScheduleId: number; // Int!
     id: number; // Int!
+    sectionId: number; // Int!
   }
   classSection: { // root type
     classId: number; // Int!
@@ -401,6 +408,7 @@ export interface NexusGenFieldTypes {
     classSchedule: NexusGenRootTypes['classSchedule'] | null; // classSchedule
     classScheduleId: number; // Int!
     id: number; // Int!
+    sectionId: number; // Int!
   }
   classSection: { // field return type
     classId: number; // Int!
@@ -574,6 +582,7 @@ export interface NexusGenFieldTypeNames {
     classSchedule: 'classSchedule'
     classScheduleId: 'Int'
     id: 'Int'
+    sectionId: 'Int'
   }
   classSection: { // field return type name
     classId: 'Int'
@@ -774,9 +783,6 @@ export interface NexusGenArgTypes {
     }
     getClassScheduleEntries: { // args
       classScheduleId: number; // Int!
-    }
-    getClassSchedules: { // args
-      userId: string; // String!
     }
     getDegree: { // args
       userId: string; // String!
