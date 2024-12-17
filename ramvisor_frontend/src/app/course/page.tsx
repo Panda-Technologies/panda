@@ -13,10 +13,12 @@ import {
 } from '@graphql/mutations';
 import useDataFetch from "@utilities/data-fetch";
 import {Class, ClassSchedule, User} from "@graphql/generated/graphql";
+import {wait} from "@apollo/client/testing";
+import {getRandomLightColor} from "@components/courses/addable-course";
 
-interface Event {
+export interface eventSection {
     id: string;
-    title: string;
+    name: string;
     day: string;
     startTime: string;
     endTime: string;
@@ -24,19 +26,10 @@ interface Event {
     professor: string;
 }
 
-const useGetUser = (userId: string) => {
-    const { data, isLoading, error } = useDataFetch<{ getUser: User }>(
-        GET_USER_QUERY,
-        { id: userId },
-        "user"
-    );
-    return { data: data?.getUser, isLoading, error };
-}
-
-const useGetClassSchedules = (userId: string) => {
+const useGetClassSchedules = () => {
     const { data, isLoading, error } = useDataFetch<{ getClassSchedules: ClassSchedule[] }>(
         GET_CLASS_SCHEDULES_QUERY,
-        { userId: userId },
+        {},
         "class schedules"
     );
     return { data: data?.getClassSchedules, isLoading, error };
@@ -54,22 +47,20 @@ const useGetClasses = () => {
 const Page: React.FC = () => {
     const [activeSchedule, setActiveSchedule] = React.useState<ClassSchedule | undefined>(undefined);
 
-    const { data: identity } = useGetIdentity<{ id: string }>();
-    const userId = identity?.id;
-
-    const { data: classSchedules } = useGetClassSchedules(userId!);
+    const { data: classSchedules, isLoading: classScheduleLoading } = useGetClassSchedules();
     const { data: classes } = useGetClasses();
 
     const { mutate: addClassToSchedule } = useCreate();
     const { mutate: removeClassFromSchedule } = useDelete();
 
     useEffect(() => {
-        if (classSchedules && classSchedules.length > 0) {
+        if (!classScheduleLoading && classSchedules && classSchedules.length > 0) {
             setActiveSchedule(classSchedules[0]);
         }
-    }, [classSchedules]);
+        console.log(classSchedules);
+    }, [classSchedules, classScheduleLoading]);
 
-    const handleEventMove = (event: Event) => {
+    const handleEventMove = (event: eventSection) => {
         if (!activeSchedule?.id) return;
 
         addClassToSchedule({
@@ -102,22 +93,22 @@ const Page: React.FC = () => {
 
             return {
                 id: `${entry.class?.id}-${section.section}`,
-                title: entry.class?.title ?? "",
+                name: entry.class?.title ?? "",
                 day: section.dayOfWeek ?? "",
                 startTime: section.startTime ?? "",
                 endTime: section.endTime ?? "",
-                color: entry.class?.color ?? "blue",
+                color: '#4ef442',
                 professor: section.professor ?? "",
-            } as Event;
+            } as eventSection;
         }) ?? [];
-    }).filter((event): event is Event => event !== undefined) ?? [];
+    }).filter((event): event is eventSection => event !== undefined) ?? [];
 
     return (
         <CourseCalendar
             courses={classes ?? []}
+            activeSchedule={activeSchedule}
+            scheduleLoading={classScheduleLoading}
             events={events}
-            onEventMove={handleEventMove}
-            onEventRemove={handleEventRemove}
         />
     );
 }
