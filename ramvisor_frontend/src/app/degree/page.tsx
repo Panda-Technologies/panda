@@ -88,7 +88,7 @@ const useGetGraduationSemester = (userId: string | undefined) => {
         { id: userId },
         "graduation semester"
     );
-    return { graduationSemester: data?.getGraduationSemester ?? false, isLoading, error };
+    return { graduationSemester: data?.getGraduationSemester, isLoading, error };
 };
 
 const useGetCheckIsTaken = (userId: string) => {
@@ -230,6 +230,7 @@ const DegreePage: React.FC = () => {
         setActiveSemester(null);
     };
 
+    // Rewrite this function to utilize onSuccess better
     const handleDropIntoSemester = useCallback(
         (courseId: number, semesterId: number) => {
             const course = getCourse(courseId);
