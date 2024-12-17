@@ -144,17 +144,26 @@ export const ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION = gql`
         addClassToClassSchedule(input: $input) {
             id
             classScheduleId
-            classId
+            sectionId
             class {
                 id
                 classCode
-                title
                 credits
-                dayOfWeek
-                startTime
-                endTime
+                courseType
+                title
+                description
+                category
+                sections {
+                    id
+                    section
+                    classId
+                    dayOfWeek
+                    startTime
+                    endTime
+                    professor
+                    rateMyProfessorRating
+                }
                 color
-                professor
             }
         }
     }
@@ -164,12 +173,6 @@ export const REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION = gql`
     mutation RemoveClassFromClassSchedule($input: removeClassFromScheduleInput!) {
         removeClassFromClassSchedule(input: $input) {
             id
-            class {
-                id
-                classCode
-                title
-                credits
-            }
         }
     }
 `;
