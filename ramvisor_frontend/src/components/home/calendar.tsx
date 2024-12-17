@@ -102,7 +102,7 @@ const Calendar: React.FC<CalendarProps> = ({ width, height, title, credits, user
             height: '100%',
             width: '40%',
             left: '60%',
-            top: '-4%',
+            top: '-6%',
           }}
           styles={{
             body: {
