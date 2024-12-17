@@ -72,6 +72,7 @@ model classScheduleEntry {
   id              Int           @id @unique @default(autoincrement())
   classScheduleId Int
   classId         Int
+  sectionId       Int
   classSchedule   classSchedule @relation(fields: [classScheduleId], references: [id])
   class           Class         @relation(fields: [classId], references: [id])
 
@@ -79,19 +80,19 @@ model classScheduleEntry {
 }
 
 model Class {
-  id                   Int                  @id @unique @default(autoincrement())
-  classCode            String
-  credits              Int
-  category             String
-  description          String
-  courseType           String
-  title                String
-  color                String
-  coreDegreeId         Int[]
-  electiveDegreeId     Int[]
-  sections             classSection[]
-  classScheduleEntries classScheduleEntry[]
-  semesterEntries      semesterEntry[]
+  id               Int                  @id @unique @default(autoincrement())
+  classCode        String
+  credits          Int
+  category         String
+  description      String
+  courseType       String
+  title            String
+  color            String
+  coreDegreeId     Int[]
+  electiveDegreeId Int[]
+  sections         classSection[]
+  semesterEntries  semesterEntry[]
+  scheduleEntries  classScheduleEntry[]
 
   @@map("classes")
 }
