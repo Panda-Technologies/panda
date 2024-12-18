@@ -6,6 +6,7 @@ export const classSchedule = objectType({
     name: "classSchedule",
     definition(t) {
         t.nonNull.int("id");
+        t.nonNull.string("title");
         t.nonNull.string("userId");
         t.nonNull.string("semesterId");
         t.field("user", {type: "user"});
@@ -28,8 +29,8 @@ export const classScheduleEntry = objectType({
 export const createClassScheduleInput = inputObjectType({
     name: 'createClassScheduleInput',
     definition(t) {
-        t.nonNull.string('userId');
-        t.string('semesterId');
+        t.nonNull.string('semesterId');
+        t.nonNull.string('title');
     },
 });
 
