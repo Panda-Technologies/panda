@@ -14,6 +14,7 @@ import { useDelete, useUpdate } from "@refinedev/core";
 import { ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION, REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION } from "@graphql/mutations";
 import {eventSection} from "@app/course/page";
 import {convertScheduleDays, convertTimeToMinutes} from "@utilities/helpers";
+import CalendarHeader from "@components/courses/header";
 
 // Types
 type CourseKey = string; // Format: "courseId-sectionId"
@@ -39,6 +40,8 @@ type Props = {
     activeSchedule?: ClassSchedule;
     scheduleLoading?: boolean;
     courses: Class[];
+    handleEventAdd: (eventId: string, eventSectionId: string) => void;
+    handleEventRemove: (eventId: string, eventSectionId: string) => void;
 };
 
 // Fuse.js options for search
@@ -63,7 +66,9 @@ const CourseCalendar: React.FC<Props> = ({
                                              events,
                                              courses,
                                              activeSchedule,
-                                             scheduleLoading
+                                             scheduleLoading,
+                                             handleEventAdd,
+                                             handleEventRemove
                                          }) => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [activeCourseMap, setActiveCourseMap] = useState<Map<CourseKey, Course>>(new Map());
@@ -135,59 +140,45 @@ const CourseCalendar: React.FC<Props> = ({
             setActiveCourseMap(new Map());
         }
     }, [activeSchedule, scheduleLoading, handleSetSchedule]);
-
-    const { mutate: addCourse } = useUpdate();
-    const { mutate: removeCourse } = useUpdate();
     // Course management handlers
-    const handleAddCourse = useCallback((course: flattenedCourse, section: Section) => {
+    const onAddCourse = useCallback((course: flattenedCourse, section: Section) => {
         const courseKey = createCourseKey(course.id, section.id);
+        const prevMap = new Map(activeCourseMap);
+
         if (checkScheduleConflict({ id: course.id, name: course.name, color: course.color, section })) {
             message.error('Course schedule conflict', 1);
             return;
         }
 
-        addCourse(
-            {
-                id: courseKey,
-                resource: 'classSchedule',
-                values: {
-                    classScheduleId: activeSchedule?.id,
-                    classCode: course.id,
-                    sectionId: section.id,
-                },
-                meta: {
-                    gqlMutation: ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION
-                }
-            },
-            {
-                onSuccess: () => {
-                    if (!activeCourseMap.has(courseKey)) {
-                        const courseToAdd: Course = {
-                            id: course.id,
-                            name: course.name,
-                            color: course.color,
-                            section: section
-                        };
-                        setActiveCourseMap(prevMap => {
-                            const newMap = new Map(prevMap);
-                            newMap.set(courseKey, courseToAdd);
-                            return newMap;
-                        });
-                        message.success('Course added successfully', 1);
-                    } else {
-                        message.error('Course section already added', 1);
-                    }
-                },
-                onError: () => {
-                    message.error('Error adding course: Please try again later', 2);
-                }
-            }
-        );
-    }, [activeSchedule?.id, addCourse, activeCourseMap]);
+        if (activeCourseMap.has(courseKey)) {
+            message.error('Course section already added', 1);
+            return;
+        }
 
-    const handleRemoveCourse = useCallback((courseId: string, sectionId?: string) => {
+        const courseToAdd: Course = {
+            id: course.id,
+            name: course.name,
+            color: course.color,
+            section: section
+        };
+
+        try {
+            setActiveCourseMap(map => {
+                const newMap = new Map(map);
+                newMap.set(courseKey, courseToAdd);
+                return newMap;
+            });
+            handleEventAdd(course.id, section.id);
+
+            message.success('Course added successfully', 1);
+        } catch (e) {
+            setActiveCourseMap(prevMap);
+            message.error(`Error adding course: ${e instanceof Error ? e.message : 'Please try again later'}`, 2);
+        }
+    }, [activeCourseMap, checkScheduleConflict, handleEventAdd]);
+
+    const onRemoveCourse = useCallback(async (courseId: string, sectionId?: string) => {
         const courseKey = courseId && sectionId ? createCourseKey(courseId, sectionId) : (() => {
-            console.log('CourseId:', courseId, 'SectionId:', sectionId);
             let foundCourseKey = '';
             activeCourseMap.forEach((_, key) => {
                 if (key.includes(courseId)) {
@@ -196,40 +187,29 @@ const CourseCalendar: React.FC<Props> = ({
             });
             return foundCourseKey;
         })();
-        const course = activeCourseMap.get(courseKey);
 
-        removeCourse(
-            {
-                id: courseKey,
-                resource: 'classSchedule',
-                values: {
-                    classScheduleId: activeSchedule?.id,
-                    classCode: course?.id,
-                    sectionId: course?.section.id,
-                },
-                meta: {
-                    gqlMutation: REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION
-                }
-            },
-            {
-                onSuccess: () => {
-                    if (activeCourseMap.has(courseKey)) {
-                        setActiveCourseMap(prevMap => {
-                            const newMap = new Map(prevMap);
-                            newMap.delete(courseKey);
-                            return newMap;
-                        });
-                        message.success('Course removed successfully', 1);
-                    } else {
-                        message.error('Course section not found', 1);
-                    }
-                },
-                onError: () => {
-                    message.error('Error removing course: Please try again later', 2);
-                }
-            }
-        );
-    }, [activeSchedule?.id, removeCourse, activeCourseMap]);
+        if (!courseKey || !activeCourseMap.has(courseKey)) {
+            message.error('Course section not found', 1);
+            return;
+        }
+
+        const course = activeCourseMap.get(courseKey);
+        const prevMap = new Map(activeCourseMap);
+
+        try {
+            setActiveCourseMap(map => {
+                const newMap = new Map(map);
+                newMap.delete(courseKey);
+                return newMap;
+            });
+            handleEventRemove(course!.id, course!.section.id);
+
+            message.success('Course removed successfully', 1);
+        } catch (e) {
+            setActiveCourseMap(prevMap);
+            message.error(`Error removing course: ${e instanceof Error ? e.message : 'Please try again later'}`, 2);
+        }
+    }, [activeCourseMap, handleEventRemove]);
 
     const checkCourseAdded = useCallback((course: flattenedCourse, section: Section) => {
         const courseKey = createCourseKey(course.id, section.id);
@@ -307,13 +287,13 @@ const CourseCalendar: React.FC<Props> = ({
                     key={`${course.id}-${section.id}`}
                     course={course}
                     section={section}
-                    handleAddCourse={handleAddCourse}
+                    handleAddCourse={onAddCourse}
                     checkCourseAdded={checkCourseAdded}
-                    handleRemoveCourse={handleRemoveCourse}
+                    handleRemoveCourse={onRemoveCourse}
                 />
             </div>
         );
-    }, [flattenedResults, handleAddCourse, handleRemoveCourse, checkCourseAdded]);
+    }, [flattenedResults, onAddCourse, onRemoveCourse, checkCourseAdded]);
 
     return (
         <CalendarContainer>
@@ -340,11 +320,17 @@ const CourseCalendar: React.FC<Props> = ({
                     </AutoSizer>
                 </ClassListWrapper>
             </Sidebar>
+            <CalendarWrapper>
+            <CalendarHeader
+                activeSchedule={activeSchedule}
+            /><DroppableCalendarWrapper>
             <DroppableCalendar
                 events={events}
                 activeCourses={Array.from(activeCourseMap.values())}
-                handleRemoveCourse={handleRemoveCourse}
+                handleRemoveCourse={onRemoveCourse}
             />
+            </DroppableCalendarWrapper>
+        </CalendarWrapper>
         </CalendarContainer>
     );
 };
@@ -410,6 +396,20 @@ export const CalendarGrid = styled.div`
     position: relative;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     min-width: 700px;
+`;
+
+export const CalendarWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    top: -10%;
+    position: relative;
+    gap: -20px;
+`;
+
+export const DroppableCalendarWrapper = styled.div`
+    margin-top: -65px;
+    position: relative;
+    z-index: 0;
 `;
 
 export const HeaderCell = styled.div`
