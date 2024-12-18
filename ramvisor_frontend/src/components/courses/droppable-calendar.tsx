@@ -24,6 +24,7 @@ const CalendarContainer = styled.div`
     height: calc(100vh - 70px);
     grid-template-rows: auto repeat(17, 80px);
     min-width: 700px;
+    margin-bottom: 10px;
 `;
 
 const HeaderWrapper = styled.div`
