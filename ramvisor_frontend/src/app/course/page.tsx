@@ -2,7 +2,7 @@
 
 import React, {useEffect} from 'react';
 import CourseCalendar from '@components/courses/calendar';
-import {BaseRecord, CreateResponse, HttpError, useCreate, useDelete, useGetIdentity} from '@refinedev/core';
+import {BaseRecord, CreateResponse, HttpError, useCreate, useDelete, useGetIdentity, useUpdate} from '@refinedev/core';
 import {
     GET_USER_QUERY,
     GET_CLASS_SCHEDULES_QUERY, GET_CLASSES_QUERY
@@ -50,8 +50,8 @@ const Page: React.FC = () => {
     const { data: classSchedules, isLoading: classScheduleLoading } = useGetClassSchedules();
     const { data: classes } = useGetClasses();
 
-    const { mutate: addClassToSchedule } = useCreate();
-    const { mutate: removeClassFromSchedule } = useDelete();
+    const { mutate: addClassToSchedule } = useUpdate();
+    const { mutate: removeClassFromSchedule } = useUpdate();
 
     useEffect(() => {
         if (!classScheduleLoading && classSchedules && classSchedules.length > 0) {
@@ -60,29 +60,56 @@ const Page: React.FC = () => {
         console.log(classSchedules);
     }, [classSchedules, classScheduleLoading]);
 
-    const handleEventMove = (event: eventSection) => {
+    const handlEventAdd = async (eventId: string, eventSectionId: string) => {
         if (!activeSchedule?.id) return;
 
         addClassToSchedule({
-            resource: "classScheduleEntries",
+            id: `${eventId}-${eventSectionId}`,
+            resource: 'classSchedule',
             values: {
-                classScheduleId: activeSchedule.id,
-                classId: Number(event.id),
+                classScheduleId: activeSchedule?.id,
+                classCode: eventId,
+                sectionId: eventSectionId,
             },
             meta: {
                 gqlMutation: ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION
+            },
+        },
+            {
+                onSuccess: () => {
+                    return true;
+                },
+                onError: (error: HttpError) => {
+                    console.error(error);
+                    return false;
+                }
             }
-        });
+        );
     };
 
-    const handleEventRemove = (eventId: string) => {
+    const handleEventRemove = (eventId: string, eventSectionId: string) => {
         removeClassFromSchedule({
-            resource: "classScheduleEntries",
-            id: eventId,
+            id: `${eventId}-${eventSectionId}`,
+            resource: 'classSchedule',
+            values: {
+                classScheduleId: activeSchedule?.id,
+                classCode: eventId,
+                sectionId: eventSectionId,
+            },
             meta: {
                 gqlMutation: REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION
+            },
+        },
+            {
+                onSuccess: () => {
+                    return true;
+                },
+                onError: (error: HttpError) => {
+                    console.error(error);
+                    throw new Error("Failed to remove class from schedule");
+                }
             }
-        });
+        );
     };
 
     const events = activeSchedule?.entries?.flatMap(entry => {
@@ -107,6 +134,8 @@ const Page: React.FC = () => {
         <CourseCalendar
             courses={classes ?? []}
             activeSchedule={activeSchedule}
+            handleEventRemove={handleEventRemove}
+            handleEventAdd={handlEventAdd}
             scheduleLoading={classScheduleLoading}
             events={events}
         />
