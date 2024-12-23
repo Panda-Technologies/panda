@@ -16,13 +16,13 @@ const Header = styled.div`
 
 type Props = {
     activeSchedule: ClassSchedule | undefined;
-    handleNewSchedule: (name: string, semesterId: string) => void;
-    handleResetSchedule: (name: string, semesterId: string) => void;
+    handleNewSchedule: () => void;
+    handleResetSchedule: () => void;
     scheduleList: ClassSchedule[] | undefined;
-    handleLoadPlanner: (scheduleId: string) => void;
+    handleLoadSchedule: (scheduleId: number) => void;
 }
 
-const CalendarHeader: React.FC<Props> = ({activeSchedule}) => {
+const CalendarHeader: React.FC<Props> = ({ activeSchedule, handleNewSchedule, handleLoadSchedule, handleResetSchedule, scheduleList }) => {
 
     return (
         <Header>
@@ -32,7 +32,7 @@ const CalendarHeader: React.FC<Props> = ({activeSchedule}) => {
                     alignItems: "center",
                     justifyContent: "center",
                     padding: "0.4rem 0.6rem",
-                    backgroundColor: "orange",
+                    backgroundColor: "#D1D1D1",
                     borderRadius: "1rem",
                     boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
                     margin: "0",
@@ -84,7 +84,7 @@ const CalendarHeader: React.FC<Props> = ({activeSchedule}) => {
                     style={{
                         marginRight: "8px",
                         padding: "4px 8px",
-                        backgroundColor: "#6599f6",
+                        backgroundColor: "#4A90E2",
                         color: "white",
                         borderRadius: "4px",
                         fontWeight: 500,
@@ -92,6 +92,7 @@ const CalendarHeader: React.FC<Props> = ({activeSchedule}) => {
                         borderTopLeftRadius: "0.375rem",
                         borderBottomLeftRadius: "0.375rem",
                     }}
+                    onClick={() => handleNewSchedule()}
                 >
                     New Schedule
                 </button>
@@ -99,7 +100,7 @@ const CalendarHeader: React.FC<Props> = ({activeSchedule}) => {
                     style={{
                         marginRight: "8px",
                         padding: "4px 8px",
-                        backgroundColor: "#10B981",
+                        backgroundColor: "#7ED321",
                         color: "white",
                         borderRadius: "4px",
                         borderTopRightRadius: "0.375rem",
@@ -107,33 +108,43 @@ const CalendarHeader: React.FC<Props> = ({activeSchedule}) => {
                         borderBottomLeftRadius: "0.375rem",
                     }}
                 >
-                    Generate AI Plan
+                    Generate From Plan
                 </button>
                 <button
                     style={{
                         marginRight: "8px",
                         padding: "4px 8px",
-                        backgroundColor: "#EF4444",
+                        backgroundColor: "#FF6B6B",
                         color: "white",
                         borderRadius: "4px",
                         borderTopRightRadius: "0.375rem",
                         borderTopLeftRadius: "0.375rem",
                         borderBottomLeftRadius: "0.375rem",
                     }}
+                    onClick={() => handleResetSchedule()}
                 >
                     Reset
                 </button>
                 <select
+                    value={activeSchedule?.id ?? ""}
+                    onChange={(queryObj) => {
+                        handleLoadSchedule(parseInt(queryObj.target.value));
+                    }}
                     style={{
                         marginRight: "8px",
                         padding: "4px 8px",
-                        backgroundColor: "white",
-                        color: "#1F2937",
+                        backgroundColor: "D1D1D1",
+                        color: "#4A4A4A",
                         borderRadius: "4px",
                     }}
                     aria-label="Select a planner"
                 >
                     <option value="">Select a schedule</option>
+                    {scheduleList?.map((schedule) => (
+                        <option key={schedule.id} value={schedule.id}>
+                            {`${schedule.title} (${schedule.semesterId})`}
+                        </option>
+                    ))}
                 </select>
             </div>
         </Header>
