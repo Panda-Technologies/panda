@@ -10,7 +10,7 @@ import Cookies from 'js-cookie';
 export const API_URL = "/graphql";
 const WS_URL = "ws://localhost:5001/graphql";
 
-const getSessionCookie = () => {
+export const getSessionCookie = () => {
     if (typeof window === 'undefined') return '';
 
     // Get the raw cookie value
