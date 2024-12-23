@@ -116,8 +116,34 @@ export const CREATE_CLASS_SCHEDULE_MUTATION = gql`
     mutation CreateClassSchedule($input: createClassScheduleInput!) {
         createClassSchedule(input: $input) {
             id
-            userId
+            title
             semesterId
+            entries {
+                id
+                classScheduleId
+                classId
+                sectionId
+                class {
+                    id
+                    classCode
+                    credits
+                    courseType
+                    title
+                    description
+                    category
+                    sections {
+                        id
+                        section
+                        classId
+                        dayOfWeek
+                        startTime
+                        endTime
+                        professor
+                        rateMyProfessorRating
+                    }
+                    color
+                }
+            }
         }
     }
 `;
@@ -134,6 +160,14 @@ export const UPDATE_CLASS_SCHEDULE_MUTATION = gql`
 export const DELETE_CLASS_SCHEDULE_MUTATION = gql`
     mutation DeleteClassSchedule($id: Int!) {
         deleteClassSchedule(id: $id) {
+            id
+        }
+    }
+`;
+
+export const RESET_CLASS_SCHEDULE_MUTATION = gql`
+    mutation ResetClassSchedule($input: resetClassScheduleInput!) {
+        resetClassSchedule(input: $input) {
             id
         }
     }
