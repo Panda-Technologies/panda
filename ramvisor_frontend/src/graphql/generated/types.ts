@@ -142,7 +142,50 @@ export type CreateClassScheduleMutationVariables = Types.Exact<{
 
 export type CreateClassScheduleMutation = {
   createClassSchedule?: Types.Maybe<
-    Pick<Types.ClassSchedule, "id" | "userId" | "semesterId">
+    Pick<Types.ClassSchedule, "id" | "title" | "semesterId"> & {
+      entries?: Types.Maybe<
+        Array<
+          Types.Maybe<
+            Pick<
+              Types.ClassScheduleEntry,
+              "id" | "classScheduleId" | "classId" | "sectionId"
+            > & {
+              class?: Types.Maybe<
+                Pick<
+                  Types.Class,
+                  | "id"
+                  | "classCode"
+                  | "credits"
+                  | "courseType"
+                  | "title"
+                  | "description"
+                  | "category"
+                  | "color"
+                > & {
+                  sections?: Types.Maybe<
+                    Array<
+                      Types.Maybe<
+                        Pick<
+                          Types.ClassSection,
+                          | "id"
+                          | "section"
+                          | "classId"
+                          | "dayOfWeek"
+                          | "startTime"
+                          | "endTime"
+                          | "professor"
+                          | "rateMyProfessorRating"
+                        >
+                      >
+                    >
+                  >;
+                }
+              >;
+            }
+          >
+        >
+      >;
+    }
   >;
 };
 
@@ -162,6 +205,14 @@ export type DeleteClassScheduleMutationVariables = Types.Exact<{
 
 export type DeleteClassScheduleMutation = {
   deleteClassSchedule?: Types.Maybe<Pick<Types.ClassSchedule, "id">>;
+};
+
+export type ResetClassScheduleMutationVariables = Types.Exact<{
+  input: Types.ResetClassScheduleInput;
+}>;
+
+export type ResetClassScheduleMutation = {
+  resetClassSchedule?: Types.Maybe<Pick<Types.ClassSchedule, "id">>;
 };
 
 export type AddClassToClassScheduleMutationVariables = Types.Exact<{
@@ -637,7 +688,7 @@ export type GetClassSchedulesQuery = {
   getClassSchedules?: Types.Maybe<
     Array<
       Types.Maybe<
-        Pick<Types.ClassSchedule, "id" | "userId" | "semesterId"> & {
+        Pick<Types.ClassSchedule, "id" | "title" | "semesterId"> & {
           entries?: Types.Maybe<
             Array<
               Types.Maybe<

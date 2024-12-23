@@ -115,6 +115,7 @@ export type Mutation = {
   register?: Maybe<Scalars["String"]["output"]>;
   removeClassFromClassSchedule?: Maybe<ClassScheduleEntry>;
   removeClassFromSemester?: Maybe<SemesterEntry>;
+  resetClassSchedule?: Maybe<ClassSchedule>;
   resetDegreePlanner?: Maybe<DegreePlanner>;
   setUserGraduationSemester?: Maybe<User>;
   updateClass?: Maybe<Class>;
@@ -206,6 +207,10 @@ export type MutationRemoveClassFromClassScheduleArgs = {
 
 export type MutationRemoveClassFromSemesterArgs = {
   input: RemoveClassFromSemesterInput;
+};
+
+export type MutationResetClassScheduleArgs = {
+  input: ResetClassScheduleInput;
 };
 
 export type MutationResetDegreePlannerArgs = {
@@ -377,6 +382,7 @@ export type ClassSchedule = {
   entries?: Maybe<Array<Maybe<ClassScheduleEntry>>>;
   id: Scalars["Int"]["output"];
   semesterId: Scalars["String"]["output"];
+  title: Scalars["String"]["output"];
   user?: Maybe<User>;
   userId: Scalars["String"]["output"];
 };
@@ -414,7 +420,7 @@ export type ClassTakenResult = {
 
 export type CreateClassScheduleInput = {
   semesterId?: InputMaybe<Scalars["String"]["input"]>;
-  userId: Scalars["String"]["input"];
+  title?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type CreateDegreeInput = {
@@ -500,6 +506,10 @@ export type Requirement = {
   isElective: Scalars["Boolean"]["output"];
 };
 
+export type ResetClassScheduleInput = {
+  id: Scalars["Int"]["input"];
+};
+
 export type ResetDegreePlannerInput = {
   id: Scalars["Int"]["input"];
 };
@@ -551,6 +561,7 @@ export type TaskInputFields = {
 export type UpdateClassScheduleInput = {
   id: Scalars["Int"]["input"];
   semesterId?: InputMaybe<Scalars["String"]["input"]>;
+  title?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type UpdateDegreeInput = {
@@ -764,8 +775,37 @@ export type CreateClassScheduleMutation = {
   createClassSchedule?: {
     __typename?: "classSchedule";
     id: number;
-    userId: string;
+    title: string;
     semesterId: string;
+    entries?: Array<{
+      __typename?: "classScheduleEntry";
+      id: number;
+      classScheduleId: number;
+      classId: number;
+      sectionId: number;
+      class?: {
+        __typename?: "Class";
+        id: number;
+        classCode: string;
+        credits: number;
+        courseType: string;
+        title: string;
+        description: string;
+        category: string;
+        color: string;
+        sections?: Array<{
+          __typename?: "classSection";
+          id: number;
+          section: number;
+          classId: number;
+          dayOfWeek: string;
+          startTime: string;
+          endTime: string;
+          professor: string;
+          rateMyProfessorRating?: string | null;
+        } | null> | null;
+      } | null;
+    } | null> | null;
   } | null;
 };
 
@@ -789,6 +829,15 @@ export type DeleteClassScheduleMutationVariables = Exact<{
 export type DeleteClassScheduleMutation = {
   __typename?: "Mutation";
   deleteClassSchedule?: { __typename?: "classSchedule"; id: number } | null;
+};
+
+export type ResetClassScheduleMutationVariables = Exact<{
+  input: ResetClassScheduleInput;
+}>;
+
+export type ResetClassScheduleMutation = {
+  __typename?: "Mutation";
+  resetClassSchedule?: { __typename?: "classSchedule"; id: number } | null;
 };
 
 export type AddClassToClassScheduleMutationVariables = Exact<{
@@ -1280,7 +1329,7 @@ export type GetClassSchedulesQuery = {
   getClassSchedules?: Array<{
     __typename?: "classSchedule";
     id: number;
-    userId: string;
+    title: string;
     semesterId: string;
     entries?: Array<{
       __typename?: "classScheduleEntry";
@@ -2252,8 +2301,115 @@ export const CreateClassScheduleDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "userId" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "semesterId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "entries" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "classScheduleId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "classId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "sectionId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "class" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "classCode" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "credits" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "courseType" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "title" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "description" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "category" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "sections" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "id" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "section" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "classId" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "dayOfWeek" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "startTime" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "endTime" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "professor" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: {
+                                      kind: "Name",
+                                      value: "rateMyProfessorRating",
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "color" },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -2367,6 +2523,60 @@ export const DeleteClassScheduleDocument = {
 } as unknown as DocumentNode<
   DeleteClassScheduleMutation,
   DeleteClassScheduleMutationVariables
+>;
+export const ResetClassScheduleDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "ResetClassSchedule" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "input" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "resetClassScheduleInput" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "resetClassSchedule" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "input" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ResetClassScheduleMutation,
+  ResetClassScheduleMutationVariables
 >;
 export const AddClassToClassScheduleDocument = {
   kind: "Document",
@@ -4212,7 +4422,7 @@ export const GetClassSchedulesDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "userId" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "semesterId" } },
                 {
                   kind: "Field",

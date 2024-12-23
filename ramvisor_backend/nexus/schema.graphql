@@ -86,6 +86,7 @@ type Mutation {
   register(input: RegisterInput!): String
   removeClassFromClassSchedule(input: removeClassFromScheduleInput!): classScheduleEntry
   removeClassFromSemester(input: removeClassFromSemesterInput!): semesterEntry
+  resetClassSchedule(input: resetClassScheduleInput!): classSchedule
   resetDegreePlanner(input: resetDegreePlannerInput!): degreePlanner
   setUserGraduationSemester(input: graduationSemesterInput!): user
   updateClass(input: UpdateClassInput!): Class
@@ -164,6 +165,7 @@ type classSchedule {
   entries: [classScheduleEntry]
   id: Int!
   semesterId: String!
+  title: String!
   user: user
   userId: String!
 }
@@ -198,7 +200,7 @@ type classTakenResult {
 
 input createClassScheduleInput {
   semesterId: String
-  userId: String!
+  title: String
 }
 
 input createDegreeInput {
@@ -281,6 +283,15 @@ type requirement {
   isElective: Boolean!
 }
 
+input resetClassScheduleInput {
+  id: String!
+  update: resetClassScheduleUpdateInput!
+}
+
+input resetClassScheduleUpdateInput {
+  id: Int!
+}
+
 input resetDegreePlannerInput {
   id: Int!
 }
@@ -329,6 +340,7 @@ input taskInputFields {
 input updateClassScheduleInput {
   id: Int!
   semesterId: String
+  title: String
 }
 
 input updateDegreeInput {
