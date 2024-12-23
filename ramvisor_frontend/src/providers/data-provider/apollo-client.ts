@@ -1,4 +1,5 @@
 import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
+import {getSessionCookie} from "@providers/data-provider/index";
 
 let client: ApolloClient<any> | null = null;
 
@@ -8,7 +9,10 @@ export const getClient = () => {
             cache: new InMemoryCache(),
             link: new HttpLink({
                 uri: 'http://localhost:5001/graphql',
-                credentials: 'same-origin',
+                credentials: 'include',
+                headers: {
+                    Cookie: getSessionCookie(),
+                }
             }),
             defaultOptions: {
                 query: {
