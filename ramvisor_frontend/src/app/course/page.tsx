@@ -9,12 +9,14 @@ import {
 } from '@graphql/queries';
 import {
     ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION, CREATE_CLASS_SCHEDULE_MUTATION,
-    REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION
+    REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION, RESET_CLASS_SCHEDULE_MUTATION
 } from '@graphql/mutations';
 import useDataFetch from "@utilities/data-fetch";
 import {Class, ClassSchedule, User} from "@graphql/generated/graphql";
 import {wait} from "@apollo/client/testing";
 import {getRandomLightColor} from "@components/courses/addable-course";
+import NewScheduleModal from "@components/courses/new-schedule";
+import {message} from "antd";
 
 export interface eventSection {
     id: string;
@@ -25,6 +27,11 @@ export interface eventSection {
     color: string;
     professor: string;
 }
+
+const availableSemesters = [
+    { id: "Fall 2024" },
+    { id: "Spring 2025" },
+];
 
 const useGetClassSchedules = () => {
     const { data, isLoading, error } = useDataFetch<{ getClassSchedules: ClassSchedule[] }>(
@@ -46,21 +53,39 @@ const useGetClasses = () => {
 
 const Page: React.FC = () => {
     const [activeSchedule, setActiveSchedule] = React.useState<ClassSchedule | undefined>(undefined);
+    const [schedules, setSchedules] = React.useState<ClassSchedule[] | undefined>(undefined);
+    const [showNewScheduleModal, setShowNewScheduleModal] = React.useState<boolean>(false);
+
+    const LAST_SCHEDULE_KEY = 'last_active_schedule';
 
     const { data: classSchedules, isLoading: classScheduleLoading } = useGetClassSchedules();
     const { data: classes } = useGetClasses();
 
     const { mutate: addClassToSchedule } = useUpdate();
     const { mutate: removeClassFromSchedule } = useUpdate();
+    const { mutate: resetSchedule } = useUpdate();
 
     useEffect(() => {
-        if (!classScheduleLoading && classSchedules && classSchedules.length > 0) {
-            setActiveSchedule(classSchedules[0]);
-        }
+        const savedScheduleId = localStorage.getItem(LAST_SCHEDULE_KEY);
+        console.log("Saved schedule id", savedScheduleId);
+            if (!classScheduleLoading && classSchedules && classSchedules.length > 0) {
+                setSchedules(classSchedules);
+                if (savedScheduleId) {
+                    const savedSchedule = classSchedules.find(schedule => schedule.id === parseInt(savedScheduleId));
+                    if (savedSchedule) {
+                        setActiveSchedule(savedSchedule);
+                    } else {
+                        localStorage.clear();
+                        setActiveSchedule(classSchedules[0]);
+                    }
+                } else {
+                    setActiveSchedule(classSchedules[0]);
+                }
+            }
         console.log(classSchedules);
     }, [classSchedules, classScheduleLoading]);
 
-    const handlEventAdd = async (eventId: string, eventSectionId: string) => {
+    const handlEventAdd = (eventId: string, eventSectionId: string) => {
         if (!activeSchedule?.id) return;
 
         addClassToSchedule({
@@ -81,7 +106,7 @@ const Page: React.FC = () => {
                 },
                 onError: (error: HttpError) => {
                     console.error(error);
-                    return false;
+                    throw new Error("Failed to add class to schedule");
                 }
             }
         );
@@ -112,6 +137,39 @@ const Page: React.FC = () => {
         );
     };
 
+    const handleActiveScheduleReset = () => {
+        resetSchedule({
+            id: 'reset',
+            resource: 'classSchedule',
+            values: {
+                id: activeSchedule?.id,
+            },
+            meta: {
+                gqlMutation: RESET_CLASS_SCHEDULE_MUTATION
+            },
+        },
+            {
+                onSuccess: () => {
+                    return true;
+                },
+                onError: (error: HttpError) => {
+                    console.error(error);
+                    throw new Error("Failed to reset schedule");
+                }
+            })
+    }
+
+    const cacheActiveSchedule = (scheduleId: number) => {
+        localStorage.setItem(LAST_SCHEDULE_KEY, scheduleId.toString());
+    }
+
+    const closeNewScheduleModal = () => {
+        setShowNewScheduleModal(false);
+    }
+    const openNewScheduleModal = () => {
+        setShowNewScheduleModal(true);
+    }
+
     const events = activeSchedule?.entries?.flatMap(entry => {
         if (!entry?.class) return [];
 
@@ -130,15 +188,34 @@ const Page: React.FC = () => {
         }) ?? [];
     }).filter((event): event is eventSection => event !== undefined) ?? [];
 
+    const handleScheduleCreation = (schedule: ClassSchedule) => {
+        setSchedules(prevSchedules => {
+            return [...prevSchedules ?? [], schedule];
+        })
+        try {
+            cacheActiveSchedule(schedule.id);
+        } catch (error) {
+            console.error('Failed to save active schedule:', error);
+        }
+        setActiveSchedule(schedule);
+    }
+
     return (
-        <CourseCalendar
+        <>{showNewScheduleModal && (
+            <NewScheduleModal onClose={closeNewScheduleModal} semesterId={activeSchedule?.semesterId ?? "Fall 2024"} semesters={availableSemesters} onFinish={handleScheduleCreation} isVisible={showNewScheduleModal}/>
+            )}
+            <CourseCalendar
             courses={classes ?? []}
+            scheduleList={schedules ?? []}
             activeSchedule={activeSchedule}
             handleEventRemove={handleEventRemove}
             handleEventAdd={handlEventAdd}
+            handleOpenNewScheduleModal={openNewScheduleModal}
+            handleActiveScheduleReset={handleActiveScheduleReset}
             scheduleLoading={classScheduleLoading}
-            events={events}
-        />
+            setActiveSchedule={setActiveSchedule}
+            cacheActiveSchedule={cacheActiveSchedule}
+            events={events}/></>
     );
 }
 
