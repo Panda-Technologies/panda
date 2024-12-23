@@ -29,8 +29,8 @@ export const classScheduleEntry = objectType({
 export const createClassScheduleInput = inputObjectType({
     name: 'createClassScheduleInput',
     definition(t) {
-        t.nonNull.string('semesterId');
-        t.nonNull.string('title');
+        t.string('semesterId');
+        t.string('title');
     },
 });
 
@@ -38,7 +38,23 @@ export const updateClassScheduleInput = inputObjectType({
     name: 'updateClassScheduleInput',
     definition(t) {
         t.nonNull.int('id');
+        t.string('title');
         t.string('semesterId');
+    },
+});
+
+export const resetClassScheduleInput = inputObjectType({
+    name: 'resetClassScheduleInput',
+    definition(t) {
+        t.nonNull.string('id');
+        t.nonNull.field('update', {
+            type: inputObjectType({
+                name: 'resetClassScheduleUpdateInput',
+                definition(t) {
+                    t.nonNull.int('id');
+                }
+            })
+        })
     },
 });
 
@@ -72,20 +88,43 @@ export const classScheduleQuery = extendType({
     definition(t) {
         t.list.field('getClassSchedules', {
             type: 'classSchedule',
-            resolve: async (_, __, {prisma, session}: IMyContext) => prisma.classSchedule.findMany({
-                where: {userId: session.userId},
-                include: {
-                    entries: {
-                        include: {
-                            class: {
-                                include: {
-                                    sections: true
+            resolve: async (_, __, {prisma, req}: IMyContext) => {
+                const userId = req.session.userId;
+                if (!userId) {
+                    throw new Error("User not authenticated");
+                }
+
+                const schedules = await prisma.classSchedule.findMany({
+                    where: {userId: userId},
+                    include: {
+                        entries: {
+                            include: {
+                                class: {
+                                    include: {
+                                        sections: true
+                                    }
                                 }
                             }
                         }
                     }
+                })
+                console.log("Schedules", schedules);
+                if (!schedules) {
+                    const defaultSchedule = await prisma.classSchedule.create({
+                        data: {
+                            userId: userId,
+                            title: 'Default Schedule',
+                            semesterId: getCurrentSemester(),
+                            entries: {
+                                create: []
+                            }
+                        }
+                    })
+                    console.log("Default Schedule", defaultSchedule);
+                    return [defaultSchedule];
                 }
-            })
+                return schedules;
+            }
         });
 
         t.field('getClassScheduleEntries', {
@@ -109,18 +148,20 @@ export const classScheduleMutation = extendType({
             args: {
                 input: createClassScheduleInput,
             },
-            resolve: async (_, {input}, {prisma}) => {
-                let {userId, semesterId} = input;
+            resolve: async (_, {input}, {prisma, req}: IMyContext) => {
+                let {semesterId, title} = input;
+                const userId = req.session.userId;
                 if (!userId) {
-                    throw new Error("userId is required");
+                    throw new Error("User not authenticated");
                 }
                 if (!semesterId) {
                     semesterId = getCurrentSemester();
                 }
 
-                return await prisma.classSchedule.create({
+                return prisma.classSchedule.create({
                     data: {
                         userId,
+                        title,
                         semesterId,
                         entries: {
                             create: []
@@ -143,6 +184,22 @@ export const classScheduleMutation = extendType({
                     where: {id: input.id},
                     data: input,
                     include: {entries: true},
+                }),
+        });
+
+        t.field("resetClassSchedule", {
+            type: "classSchedule",
+            args: {
+                input: nonNull(resetClassScheduleInput),
+            },
+            resolve: (_, {input}, {prisma}) =>
+                prisma.classSchedule.update({
+                    where: {id: input.update.id},
+                    data: {
+                        entries: {
+                            deleteMany: {}
+                        }
+                    }
                 }),
         });
 
@@ -191,12 +248,12 @@ export const classScheduleMutation = extendType({
             args: {
                 input: nonNull(removeClassFromScheduleInput),
             },
-            resolve: async (_, { input }, { prisma }) => {
-                const { update } = input;
-                const { classScheduleId, classCode, sectionId } = update;
+            resolve: async (_, {input}, {prisma}) => {
+                const {update} = input;
+                const {classScheduleId, classCode, sectionId} = update;
 
                 const classRecord = await prisma.class.findFirst({
-                    where: { classCode: classCode.split('-')[0] },
+                    where: {classCode: classCode.split('-')[0]},
                 });
 
                 if (!classRecord) {
@@ -219,7 +276,7 @@ export const classScheduleMutation = extendType({
                     where: {
                         id: entry.id
                     },
-                    include: { class: true }
+                    include: {class: true}
                 });
             }
         });
