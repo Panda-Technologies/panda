@@ -10,8 +10,6 @@ import debounce from 'lodash/debounce';
 import DroppableCalendar from "@components/courses/droppable-calendar";
 import { Class, ClassSchedule } from "@graphql/generated/graphql";
 import AddableCourse, { flattenedCourse } from "@components/courses/addable-course";
-import { useDelete, useUpdate } from "@refinedev/core";
-import { ADD_CLASS_TO_CLASS_SCHEDULE_MUTATION, REMOVE_CLASS_FROM_CLASS_SCHEDULE_MUTATION } from "@graphql/mutations";
 import {eventSection} from "@app/course/page";
 import {convertScheduleDays, convertTimeToMinutes} from "@utilities/helpers";
 import CalendarHeader from "@components/courses/header";
@@ -42,6 +40,11 @@ type Props = {
     courses: Class[];
     handleEventAdd: (eventId: string, eventSectionId: string) => void;
     handleEventRemove: (eventId: string, eventSectionId: string) => void;
+    handleOpenNewScheduleModal: () => void;
+    handleActiveScheduleReset: () => void;
+    setActiveSchedule: (schedule: ClassSchedule) => void;
+    scheduleList: ClassSchedule[];
+    cacheActiveSchedule: (scheduleId: number) => void;
 };
 
 // Fuse.js options for search
@@ -68,7 +71,12 @@ const CourseCalendar: React.FC<Props> = ({
                                              activeSchedule,
                                              scheduleLoading,
                                              handleEventAdd,
-                                             handleEventRemove
+                                             handleEventRemove,
+                                             handleOpenNewScheduleModal,
+                                             handleActiveScheduleReset,
+                                             scheduleList,
+                                             setActiveSchedule,
+                                             cacheActiveSchedule,
                                          }) => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [activeCourseMap, setActiveCourseMap] = useState<Map<CourseKey, Course>>(new Map());
@@ -77,7 +85,7 @@ const CourseCalendar: React.FC<Props> = ({
     const createCourseKey = (courseId: string, sectionId: string): CourseKey =>
         `${courseId}-${sectionId}`;
 
-    const checkScheduleConflict = (course: Course) => {
+    const checkScheduleConflict = useCallback((course: Course) => {
         let conflict = false;
         const courseToAddDays = convertScheduleDays(course.section.day);
         const startTime = convertTimeToMinutes(course.section.startTime);
@@ -96,7 +104,7 @@ const CourseCalendar: React.FC<Props> = ({
             }
         });
         return conflict;
-    };
+    }, [activeCourseMap]);
 
     // Initialize schedule
     const handleSetSchedule = useCallback((schedule: ClassSchedule) => {
@@ -140,6 +148,7 @@ const CourseCalendar: React.FC<Props> = ({
             setActiveCourseMap(new Map());
         }
     }, [activeSchedule, scheduleLoading, handleSetSchedule]);
+
     // Course management handlers
     const onAddCourse = useCallback((course: flattenedCourse, section: Section) => {
         const courseKey = createCourseKey(course.id, section.id);
@@ -169,7 +178,6 @@ const CourseCalendar: React.FC<Props> = ({
                 return newMap;
             });
             handleEventAdd(course.id, section.id);
-
             message.success('Course added successfully', 1);
         } catch (e) {
             setActiveCourseMap(prevMap);
@@ -210,6 +218,38 @@ const CourseCalendar: React.FC<Props> = ({
             message.error(`Error removing course: ${e instanceof Error ? e.message : 'Please try again later'}`, 2);
         }
     }, [activeCourseMap, handleEventRemove]);
+
+    const onResetCourse = useCallback(() => {
+        const currentSchedule = activeSchedule;
+        const prevCoursesMap = activeCourseMap;
+        console.log('Resetting schedule:', currentSchedule);
+        console.log('Resetting courses:', activeCourseMap);
+        if (!currentSchedule || activeCourseMap.size === 0) {
+            message.error('No courses to reset', 1);
+            return;
+        }
+        try {
+            setActiveCourseMap(new Map());
+            activeSchedule!.entries = [];
+            handleActiveScheduleReset();
+
+            message.success('Schedule reset successfully', 1);
+        } catch (e) {
+            setActiveCourseMap(prevCoursesMap);
+            activeSchedule!.entries = currentSchedule.entries;
+            message.error('Error resetting schedule. Please try again later');
+        }
+    }, [activeSchedule, activeCourseMap, handleActiveScheduleReset]);
+
+    const onLoadSchedule = useCallback((scheduleId: number) => {
+        const schedule = scheduleList.find(schedule => schedule.id === scheduleId);
+        if (!schedule || !schedule.title || !schedule.semesterId) {
+            message.error('Error loading schedule', 1);
+            return;
+        }
+        setActiveSchedule(schedule);
+        cacheActiveSchedule(scheduleId);
+    }, [scheduleList, setActiveSchedule]);
 
     const checkCourseAdded = useCallback((course: flattenedCourse, section: Section) => {
         const courseKey = createCourseKey(course.id, section.id);
@@ -323,6 +363,10 @@ const CourseCalendar: React.FC<Props> = ({
             <CalendarWrapper>
             <CalendarHeader
                 activeSchedule={activeSchedule}
+                handleNewSchedule={handleOpenNewScheduleModal}
+                handleResetSchedule={onResetCourse}
+                scheduleList={scheduleList}
+                handleLoadSchedule={onLoadSchedule}
             /><DroppableCalendarWrapper>
             <DroppableCalendar
                 events={events}
