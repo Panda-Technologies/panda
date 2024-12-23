@@ -124,7 +124,7 @@ export const GET_CLASS_SCHEDULES_QUERY = gql`
   query GetClassSchedules {
     getClassSchedules {
       id
-      userId
+      title
       semesterId
       entries {
         id
