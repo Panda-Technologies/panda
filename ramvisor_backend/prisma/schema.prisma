@@ -60,6 +60,7 @@ model task {
 
 model classSchedule {
   id         Int                  @id @unique @default(autoincrement())
+  title      String?
   userId     String
   semesterId String
   user       user                 @relation(fields: [userId], references: [id])
