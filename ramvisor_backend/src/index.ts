@@ -20,7 +20,8 @@ const main = async () => {
         origin: [
             'http://localhost:3000',
             'http://localhost:5001',
-            'https://studio.apollographql.com'
+            'https://studio.apollographql.com',
+            'chrome-extension://nnpfiflmamolaflafofhhppmadcgcnhf'
         ],
         credentials: true,
         methods: ['GET', 'POST', 'OPTIONS'],
@@ -40,7 +41,7 @@ const main = async () => {
             secure: false,
             sameSite: 'lax',
             path: '/',
-            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            maxAge: 24 * 60 * 60 * 1000 * 14, // 2 weeks
             domain: 'localhost',
         },
         store: new session.MemoryStore(),
