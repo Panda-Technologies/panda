@@ -175,7 +175,7 @@ const Page: React.FC = () => {
 
         return entry.class.sections?.map(section => {
             if (!section) return undefined;
-
+            console.log("Section", section);
             return {
                 id: `${entry.class?.id}-${section.section}`,
                 name: entry.class?.title ?? "",
