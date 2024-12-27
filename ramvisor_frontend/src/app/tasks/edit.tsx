@@ -43,7 +43,8 @@ const TasksEditModal: React.FC<TasksEditModalProps> = ({ task, onClose, onSave, 
       stageId: typeof updatedData.stageId === 'number' ? updatedData.stageId : editedTask.stageId,
       classes: {
         code: updatedData.classCode || editedTask.classCode,
-        color: getClassColor(updatedData.classCode || editedTask.classCode)
+        color: 'blue'
+        // color: getClassColor(updatedData.classCode || editedTask.classCode)
       }
     };
     setEditedTask(newTask as Task);
