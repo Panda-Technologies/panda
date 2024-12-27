@@ -1,292 +1,199 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useState } from "react";
 import {
-  faComment,
-  faTimes,
-  faPaperPlane,
-} from "@fortawesome/free-solid-svg-icons";
-import { Image } from "antd";
-import pandaIcon from "@config/panda2.png";
+  Button,
+  Input,
+  Card,
+  List,
+  Typography,
+  Space,
+  Divider,
+  Badge, Image
+} from "antd";
+import {
+  SearchOutlined,
+  CheckCircleFilled,
+  RightOutlined,
+  HomeOutlined,
+  MessageOutlined,
+  QuestionCircleOutlined,
+  CloseOutlined
+} from "@ant-design/icons";
 
-interface Message {
-  text: string;
-  sender: "user" | "agent";
-}
+import pandaIcon from '@config/panda2.png'
 
-const ChatWindow: React.FC = () => {
+const { Title, Text } = Typography;
+
+const HelpCenter = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState("");
-  const [isThinking, setIsThinking] = useState(false);
-  const [conversationId, setConversationId] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const chatAPI = "ragflow-NmODM3ZDg4NTJiMjExZWZhNTg4MDI0Mm";
+  const faqItems = [
+    { title: "Panda Canvas Integration" },
+    { title: "Where can I create my schedule plans?" },
+    { title: "Frequently Asked Questions" },
+    { title: "What is Panda AI?" }
+  ];
 
-  useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      createNewConversation();
-    }
-  }, [isOpen]);
-
-  const createNewConversation = async () => {
-    try {
-      const response = await fetch("http://127.0.0.1/v1/api/new_conversation", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${chatAPI}`,
-        },
-      });
-      const data = await response.json();
-      setConversationId(data.data.id);
-      setMessages([{ text: data.data.message[0].content, sender: "agent" }]);
-    } catch (error) {
-      console.error("Error creating new conversation:", error);
-    }
-  };
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(scrollToBottom, [messages]);
-
-  const handleSend = async () => {
-    if (inputMessage.trim()) {
-      const userMessage: Message = { text: inputMessage, sender: "user" };
-      setMessages((prev) => [...prev, userMessage]);
-      setInputMessage("");
-      setIsThinking(true);
-
-      try {
-        const response = await fetch("http://127.0.0.1/v1/api/completion", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${chatAPI}`,
-          },
-          body: JSON.stringify({
-            conversation_id: conversationId,
-            messages: [{ role: "user", content: inputMessage }],
-            quote: false,
-            stream: false,
-          }),
-        });
-
-        const data = await response.json();
-        if (data.retcode === 0 && data.data && data.data.answer) {
-          const agentMessage: Message = {
-            text: data.data.answer,
-            sender: "agent",
-          };
-          setMessages((prev) => [...prev, agentMessage]);
-        } else {
-          console.error("Unexpected response format:", data);
-          // You might want to set an error message here
-        }
-      } catch (error) {
-        console.error("Error getting response:", error);
-        // You might want to set an error message here
-      } finally {
-        setIsThinking(false);
-      }
-    }
-  };
-
-  const buttonStyle: React.CSSProperties = {
+  const containerStyle: React.CSSProperties = {
     position: "fixed",
     bottom: "16px",
     right: "16px",
-    width: "52px",
-    height: "52px",
-    borderRadius: "50%",
-    backgroundColor: "#4CAF50",
-    color: "#fff",
-    border: "none",
-    boxShadow: "12px 15px 20px 0 rgba(46, 61, 73, 0.15)",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  };
-
-  const chatboxStyle: React.CSSProperties = {
-    position: "fixed",
-    bottom: "84px",
-    right: "16px",
-    width: "300px",
-    height: "400px",
-    backgroundColor: "#fff",
-    borderRadius: "12px",
-    boxShadow: "5px 5px 25px 0 rgba(46, 61, 73, 0.2)",
-    display: "flex",
-    flexDirection: "column",
+    width: "400px",
+    zIndex: 1000,
   };
 
   const headerStyle: React.CSSProperties = {
-    display: "flex",
-    padding: "12px",
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#9BA3BF",
+    padding: "60px 24px 24px",
     color: "#fff",
-    borderTopLeftRadius: "12px",
-    borderTopRightRadius: "12px",
-    alignItems: "center",
+    position: "relative",
+    borderTopLeftRadius: "24px",
+    borderTopRightRadius: "24px"
   };
 
-  const mainStyle: React.CSSProperties = {
-    flex: 1,
-    overflowY: "auto",
-    padding: "16px",
-    display: "flex",
-    flexDirection: "column",
+  const toggleButtonStyle: React.CSSProperties = {
+    position: "fixed",
+    bottom: "16px",
+    right: "16px",
+    width: "56px",
+    height: "56px",
+    borderRadius: "50%",
+    backgroundColor: "#9BA3BF",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
   };
 
-  const footerStyle: React.CSSProperties = {
-    display: "flex",
-    padding: "12px",
-    borderTop: "1px solid #ddd",
-    alignItems: "center",
-  };
-
-  const inputStyle: React.CSSProperties = {
-    flex: 1,
-    border: "none",
-    outline: "none",
-    fontSize: "14px",
-    lineHeight: "20px",
-    color: "#888",
-  };
-
-  const iconButtonStyle: React.CSSProperties = {
-    background: "none",
-    border: "none",
-    color: "#fff",
-    cursor: "pointer",
-    padding: "4px",
-  };
+  if (!isOpen) {
+    return (
+        <Button
+            type="primary"
+            style={toggleButtonStyle}
+            onClick={() => setIsOpen(true)}
+            icon={<QuestionCircleOutlined style={{ fontSize: "24px" }} />}
+        />
+    );
+  }
 
   return (
-    <>
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          style={buttonStyle}
-          type="button"
-          aria-label="Open chat with Panda AI"
-        >
-          <FontAwesomeIcon icon={faComment} size="2x" />
-        </button>
-      )}
-      {isOpen && (
-        <div style={chatboxStyle}>
-          <div style={headerStyle}>
-            <div style={{ flex: 1, marginRight: "8px" }}>
-              <div
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "50%",
-                  overflow: "hidden",
-                  border: "2px solid #ffffff",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: "#ffffff",
-                }}
-              >
-                <Image
-                  src={pandaIcon.src}
-                  alt="Panda"
-                  width={27}
-                  height={27}
-                  preview={false}
-                  style={{ objectFit: "cover" }}
-                />
-              </div>
-            </div>
-            <div style={{ flex: 4 }}>
-              <h1 style={{ margin: 0, fontSize: "16px" }}>Panda</h1>
-              <div style={{ fontSize: "12px" }}>AI Academic Advisor</div>
-            </div>
-            <div style={{ flex: 1, textAlign: "right" }}>
-              <button
-                onClick={() => setIsOpen(false)}
-                style={iconButtonStyle}
-                type="button"
-                aria-label="Close chat"
-              >
-                <FontAwesomeIcon icon={faTimes} />
-              </button>
-            </div>
-          </div>
-          <div style={mainStyle}>
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                style={{
-                  alignSelf: msg.sender === "user" ? "flex-end" : "flex-start",
-                  marginBottom: "8px",
-                  maxWidth: "80%",
-                }}
-              >
-                <span
-                  style={{
-                    backgroundColor:
-                      msg.sender === "user" ? "#4CAF50" : "#f1f0f0",
-                    color: msg.sender === "user" ? "#fff" : "#000",
-                    padding: "8px 12px",
-                    borderRadius: "16px",
-                    display: "inline-block",
-                    wordWrap: "break-word",
-                    fontSize: "14px",
-                  }}
-                >
-                  {msg.text}
-                </span>
-              </div>
-            ))}
-            {isThinking && (
-              <div style={{ alignSelf: "flex-start", marginBottom: "8px" }}>
-                <span
-                  style={{
-                    backgroundColor: "#f1f0f0",
-                    color: "#000",
-                    padding: "8px 12px",
-                    borderRadius: "16px",
-                    display: "inline-block",
-                    fontSize: "14px",
-                  }}
-                >
-                  ...
-                </span>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-          <div style={footerStyle}>
-            <input
-              type="text"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Type your message here..."
-              style={inputStyle}
-              aria-label="Message input"
+      <Card
+          style={containerStyle}
+          styles={{body: { padding: 0 }}}
+          bordered={true}
+      >
+        <div style={headerStyle}>
+          <Space style={{ position: "absolute", top: "20px", width: "100%", justifyContent: "space-between", paddingRight: "40px" }}>
+            <Image
+                src={pandaIcon.src}
+                alt="Panda"
+                width={40}
+                height={40}
+                preview={false}
+                style={{ objectFit: "cover", borderRadius: "50%" }}
             />
-            <button
-              onClick={handleSend}
-              style={{ ...iconButtonStyle, color: "#888" }}
-              type="button"
-              aria-label="Send message"
-            >
-              <FontAwesomeIcon icon={faPaperPlane} />
-            </button>
-          </div>
+            <Button
+                type="text"
+                icon={<CloseOutlined style={{ color: "#fff", fontSize: "16px" }} />}
+                onClick={() => setIsOpen(false)}
+            />
+          </Space>
+          <Title level={2} style={{ color: "#fff", margin: "0 0 8px 0", fontSize: "30px" }}>
+            Hi there 👋
+          </Title>
+          <Title level={2} style={{ color: "#fff", margin: 0, fontSize: "30px" }}>
+            How can we help?
+          </Title>
         </div>
-      )}
-    </>
+
+        <Card bordered={false} styles={{ body: {padding: "10px" }}}>
+          <Button
+              type="text"
+              block
+              style={{
+                textAlign: "left",
+                height: "auto",
+                padding: "16px 20px",
+                marginBottom: "24px",
+                borderRadius: "12px",
+                backgroundColor: "#fff",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
+              }}
+          >
+            <Space style={{ width: "100%", justifyContent: "space-between" }}>
+              <span>Send us a message</span>
+              <RightOutlined style={{ color: "#999" }} />
+            </Space>
+          </Button>
+
+          <Card style={{ marginBottom: "16px", borderRadius: '12px' }} styles={{ body: { padding: '12px' }}} bordered={true}>
+            <Space align="start" style={{ padding: '0 0 0 10px'}}>
+              <Badge
+                  count={<CheckCircleFilled style={{ color: "#52c41a", fontSize: "28px" }} />}
+                  offset={[-1, 13]}
+              />
+              <div>
+                <Text strong style={{ fontSize: "14px" }}>
+                  Status: All Systems Operational
+                </Text>
+                <div style={{ color: "#666", marginTop: "4px", fontWeight: '300', fontSize: '13px' }}>
+                  Updated Dec 26, 20:36 UTC
+                </div>
+              </div>
+            </Space>
+          </Card>
+          <Card styles={{ body: { padding: '10px' }}}>
+          <Card
+              style={{ marginBottom: "8px", backgroundColor: "#F5F5F5" }}
+              bordered={true}
+              styles={{body: { padding: "5px" }}}
+          >
+            <Input
+                prefix={<SearchOutlined style={{ color: "#999", height: '10px'}} />}
+                placeholder="Search for help"
+                variant={"borderless"}
+                style={{ backgroundColor: "#F5F5F5" }}
+            />
+          </Card>
+          <List
+              dataSource={faqItems}
+              renderItem={item => (
+                  <List.Item
+                      style={{ padding: "14px 14px 8px", cursor: "pointer" }}
+                      extra={<RightOutlined style={{ color: "#999" }} />}
+                  >
+                    <Text>{item.title}</Text>
+                  </List.Item>
+              )}
+          />
+          </Card>
+        </Card>
+
+        <Divider style={{ margin: 0 }} />
+
+        <Space style={{ width: "100%", justifyContent: "space-around", padding: "14px" }}>
+          {[
+            { icon: <HomeOutlined />, text: "Home" },
+            { icon: <MessageOutlined />, text: "Messages" },
+            { icon: <QuestionCircleOutlined />, text: "Help" }
+          ].map((item, index) => (
+              <Button
+                  key={index}
+                  type="text"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    color: "#666",
+                    height: "auto",
+                    padding: "0"
+                  }}
+              >
+                {React.cloneElement(item.icon, { style: { fontSize: "24px" } })}
+                <span style={{ marginTop: "-4px", fontSize: "14px", fontWeight: '500' }}>{item.text}</span>
+              </Button>
+          ))}
+        </Space>
+      </Card>
   );
 };
 
-export default ChatWindow;
+export default HelpCenter;
