@@ -22,6 +22,7 @@ export const getDate = (startDate: string, endDate: string) => {
 };
 
 export const convertTimeToMinutes = (time: string): number => {
+    if (!time) return 0;
     const [hours, minutes] = time.split(":").map(Number);
     return hours * 60 + minutes;
 }
@@ -42,6 +43,21 @@ export const getClassColor = (course: Class, degree: Degree | null): React.CSSPr
         return colors.default;
     }
     return null;
+};
+
+export const processDays = (days?: string[]): string => {
+    if (!days || days.length === 0) return 'TBA';
+    const dayMap: { [key: string]: string } = {
+        'Monday': 'M',
+        'Tuesday': 'Tu',
+        'Wednesday': 'W',
+        'Thursday': 'Th',
+        'Friday': 'F'
+    };
+
+    return ['M', 'Tu', 'W', 'Th', 'F']
+        .filter(abbr => days.some(day => dayMap[day] === abbr))
+        .join('');
 };
 
 export const convertScheduleDays = (dayStr: string): string[] => {
