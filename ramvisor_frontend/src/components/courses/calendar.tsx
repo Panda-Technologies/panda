@@ -1,18 +1,19 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, {useState, useMemo, useCallback, useEffect} from 'react';
 import styled from 'styled-components';
-import { Input, Button, message } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import { List, AutoSizer } from 'react-virtualized';
+import {Input, Button, message} from 'antd';
+import {FilterOutlined, SearchOutlined} from '@ant-design/icons';
+import {List, AutoSizer} from 'react-virtualized';
 import Fuse from 'fuse.js';
 import debounce from 'lodash/debounce';
 import DroppableCalendar from "@components/courses/droppable-calendar";
-import { Class, ClassSchedule } from "@graphql/generated/graphql";
-import AddableCourse, { flattenedCourse } from "@components/courses/addable-course";
+import {Class, ClassSchedule} from "@graphql/generated/graphql";
+import AddableCourse, {flattenedCourse} from "@components/courses/addable-course";
 import {eventSection} from "@app/course/page";
-import {convertScheduleDays, convertTimeToMinutes} from "@utilities/helpers";
+import {convertScheduleDays, convertTimeToMinutes, processDays} from "@utilities/helpers";
 import CalendarHeader from "@components/courses/header";
+import CourseFilterPopover from "@components/courses/search-filter";
 
 // Types
 type CourseKey = string; // Format: "courseId-sectionId"
@@ -33,6 +34,15 @@ export type Course = {
     color: string;
 };
 
+export type courseFilter = {
+    dayOfWeek?: string[];
+    startTime?: string;
+    endTime?: string;
+    rating?: number;
+    credits?: number;
+    time?: any;
+}
+
 type Props = {
     events: eventSection[] | undefined;
     activeSchedule?: ClassSchedule;
@@ -50,9 +60,10 @@ type Props = {
 // Fuse.js options for search
 const fuseOptions = {
     keys: [
-        { name: 'classCode', weight: 2 },
-        { name: 'title', weight: 1 },
-        { name: 'searchString', weight: 1 }
+        {name: 'classCode', weight: 2},
+        {name: 'title', weight: 1},
+        {name: 'searchString', weight: 1},
+        {name: 'professors', weight: 1},
     ],
     threshold: 0.3,
     distance: 50,
@@ -79,6 +90,8 @@ const CourseCalendar: React.FC<Props> = ({
                                              cacheActiveSchedule,
                                          }) => {
     const [searchTerm, setSearchTerm] = useState<string>('');
+    const [courseFilter, setCourseFilter] = useState<courseFilter | null>(null);
+    const [filterOpen, setFilterOpen] = useState<boolean>(false);
     const [activeCourseMap, setActiveCourseMap] = useState<Map<CourseKey, Course>>(new Map());
 
     // Helper function to create unique course key
@@ -90,15 +103,20 @@ const CourseCalendar: React.FC<Props> = ({
         const courseToAddDays = convertScheduleDays(course.section.day);
         const startTime = convertTimeToMinutes(course.section.startTime);
         const endTime = convertTimeToMinutes(course.section.endTime);
+
         activeCourseMap.forEach((activeCourse) => {
             const days = convertScheduleDays(activeCourse.section.day);
+
             if (days.some(day => courseToAddDays.includes(day))) {
                 const activeStartTime = convertTimeToMinutes(activeCourse.section.startTime);
                 const activeEndTime = convertTimeToMinutes(activeCourse.section.endTime);
+
                 if ((startTime >= activeStartTime && startTime < activeEndTime) ||
                     (endTime > activeStartTime && endTime <= activeEndTime) ||
                     (startTime <= activeStartTime && endTime >= activeEndTime)) {
+
                     console.log('Conflict:', course, activeCourse);
+
                     conflict = true;
                 }
             }
@@ -149,12 +167,16 @@ const CourseCalendar: React.FC<Props> = ({
         }
     }, [activeSchedule, scheduleLoading, handleSetSchedule]);
 
+    useEffect(() => {
+        setSearchTerm('');
+    }, []);
+
     // Course management handlers
     const onAddCourse = useCallback((course: flattenedCourse, section: Section) => {
         const courseKey = createCourseKey(course.id, section.id);
         const prevMap = new Map(activeCourseMap);
 
-        if (checkScheduleConflict({ id: course.id, name: course.name, color: course.color, section })) {
+        if (checkScheduleConflict({id: course.id, name: course.name, color: course.color, section})) {
             message.error('Course schedule conflict', 1);
             return;
         }
@@ -256,33 +278,82 @@ const CourseCalendar: React.FC<Props> = ({
         return activeCourseMap.has(courseKey);
     }, [activeCourseMap]);
 
+    const onCloseFilter = () => {
+        setFilterOpen(false);
+    }
+
+    const applyFilter = (filter?: courseFilter) => {
+        if (!filter) {
+            setCourseFilter(null);
+            console.log("course removed" + courseFilter);
+        }
+        const newCourseFilter = {
+            dayOfWeek: filter?.dayOfWeek ?? undefined,
+            startTime: filter?.startTime ?? undefined,
+            endTime: filter?.endTime ?? undefined,
+            rating: filter?.rating ?? undefined,
+            credits: filter?.credits ?? undefined,
+            time: filter?.time ?? undefined
+        }
+        setCourseFilter(newCourseFilter);
+        console.log(newCourseFilter);
+    }
+
     const fuse = useMemo(() => {
-        const searchData = courses.map(course => ({
-            ...course,
-            searchString: `${course.title.toLowerCase()} ${course.classCode.toLowerCase()}`
-        }));
+        const searchData = courses.flatMap(course =>
+            course.sections?.map(section => ({
+                ...course,
+                section: section,
+                searchString: `${course.title.toLowerCase()} ${course.classCode.toLowerCase()}`,
+                sectionStartTime: convertTimeToMinutes(section?.startTime || ''),
+                sectionEndTime: convertTimeToMinutes(section?.endTime || ''),
+                sectionDay: section?.dayOfWeek,
+                professor: section?.professor.toLowerCase()
+            })) || []
+        );
         return new Fuse(searchData, fuseOptions);
     }, [courses]);
 
     const searchResults = useMemo(() => {
         const term = searchTerm.trim().toLowerCase();
-        if (!term) return [];
 
-        const exactMatches = courses.filter(course =>
-            course.classCode.toLowerCase() === term ||
-            course.classCode.toLowerCase().replace(/\s+/g, '') === term.replace(/\s+/g, '')
-        );
-
-        if (exactMatches.length > 0) {
-            return exactMatches;
+        if (term === '') {
+            return courses.flatMap(course =>
+                course.sections?.map(section => ({
+                    ...course,
+                    section: section,
+                    searchString: `${course.title.toLowerCase()} ${course.classCode.toLowerCase()}`,
+                    sectionStartTime: convertTimeToMinutes(section?.startTime || ''),
+                    sectionEndTime: convertTimeToMinutes(section?.endTime || ''),
+                    sectionDay: section?.dayOfWeek,
+                    professor: section?.professor.toLowerCase()
+                })) || []
+            );
         }
 
         const results = fuse.search(term)
-            .filter(result => (result.score || 1) < 0.4)
+            .filter(result => {
+                if ((result.score || 1) >= 0.4) return false;
+                if (!courseFilter) return true;
+
+                const item = result.item;
+                const filterStartTime = courseFilter.time?.[0] ?
+                    convertTimeToMinutes(courseFilter.time[0].format('HH:mm')) : null;
+                const filterEndTime = courseFilter.time?.[1] ?
+                    convertTimeToMinutes(courseFilter.time[1].format('HH:mm')) : null;
+
+                return (
+                    (!courseFilter.dayOfWeek || item.sectionDay === processDays(courseFilter.dayOfWeek)) &&
+                    (!filterStartTime || item.sectionStartTime >= filterStartTime) &&
+                    (!filterEndTime || item.sectionEndTime <= filterEndTime) &&
+                    (!courseFilter.rating || item.rateMyProfessorRating >= courseFilter.rating) &&
+                    (!courseFilter.credits || item.credits === courseFilter.credits)
+                );
+            })
             .map(result => result.item);
 
         return results.slice(0, 100);
-    }, [fuse, searchTerm, courses]);
+    }, [fuse, searchTerm, courseFilter]);
 
     const debouncedSearch = debounce((value: string) => {
         setSearchTerm(value.toLowerCase().trim());
@@ -319,7 +390,7 @@ const CourseCalendar: React.FC<Props> = ({
         index: number;
         style: React.CSSProperties;
     }) => {
-        const { course, section } = flattenedResults[index];
+        const {course, section} = flattenedResults[index];
 
         return (
             <div key={key} style={style}>
@@ -340,13 +411,15 @@ const CourseCalendar: React.FC<Props> = ({
             <Sidebar>
                 <Input
                     placeholder="Search courses"
-                    prefix={<SearchOutlined />}
+                    prefix={<SearchOutlined/>}
                     onChange={(e) => debouncedSearch(e.target.value)}
-                    style={{ marginBottom: '20px' }}
+                    style={{marginBottom: '20px'}}
+                    suffix={<FilterOutlined style={{cursor: 'pointer'}} onClick={() => setFilterOpen(!filterOpen)}/>}
                 />
+                <CourseFilterPopover open={filterOpen} onFilterChange={applyFilter} onClose={onCloseFilter}/>
                 <ClassListWrapper>
                     <AutoSizer>
-                        {({ width, height }) => (
+                        {({width, height}) => (
                             <List
                                 width={width - 5}
                                 height={height}
@@ -354,27 +427,27 @@ const CourseCalendar: React.FC<Props> = ({
                                 rowHeight={165}
                                 rowRenderer={rowRenderer}
                                 overscanRowCount={5}
-                                style={{ scrollbarWidth: 'none' }}
+                                style={{scrollbarWidth: 'none'}}
                             />
                         )}
                     </AutoSizer>
                 </ClassListWrapper>
             </Sidebar>
             <CalendarWrapper>
-            <CalendarHeader
-                activeSchedule={activeSchedule}
-                handleNewSchedule={handleOpenNewScheduleModal}
-                handleResetSchedule={onResetCourse}
-                scheduleList={scheduleList}
-                handleLoadSchedule={onLoadSchedule}
-            /><DroppableCalendarWrapper>
-            <DroppableCalendar
-                events={events}
-                activeCourses={Array.from(activeCourseMap.values())}
-                handleRemoveCourse={onRemoveCourse}
-            />
+                <CalendarHeader
+                    activeSchedule={activeSchedule}
+                    handleNewSchedule={handleOpenNewScheduleModal}
+                    handleResetSchedule={onResetCourse}
+                    scheduleList={scheduleList}
+                    handleLoadSchedule={onLoadSchedule}
+                /><DroppableCalendarWrapper>
+                <DroppableCalendar
+                    events={events}
+                    activeCourses={Array.from(activeCourseMap.values())}
+                    handleRemoveCourse={onRemoveCourse}
+                />
             </DroppableCalendarWrapper>
-        </CalendarWrapper>
+            </CalendarWrapper>
         </CalendarContainer>
     );
 };
@@ -411,13 +484,14 @@ export const Sidebar = styled.div`
     }
 
     /* Hide scrollbar for WebKit browsers */
+
     &::-webkit-scrollbar {
         width: 0;
     }
 
     /* Hide scrollbar for IE, Edge and Firefox */
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
 
     .ant-input-affix-wrapper {
         position: sticky;
@@ -544,13 +618,14 @@ export const RemoveButton = styled(Button)`
 const ClassListWrapper = styled.div`
     height: calc(100% - 60px);
     overflow: hidden;
+
     &::-webkit-scrollbar {
         width: 0;
     }
 
     /* Hide scrollbar for IE, Edge and Firefox */
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
 `;
 
 // Export memoized component
