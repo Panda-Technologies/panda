@@ -62,7 +62,8 @@ const TasksPage: React.FC = () => {
     const processedTasks = memoizedTasks.map(task => ({
       ...task,
       stageId: task.stageId || 1,
-      classes: task.classes || { code: task.classCode, color: 'blue' }, // Remove the second part of || after data
+      classes: task.classes
+      // classes: task.classes || { code: task.classCode, color: 'blue' }, // Remove the second part of || after data
     }));
     const newTasks = processedTasks.filter(task => !pendingTasksRef.current.has(task.id));
     console.log('New Tasks:', newTasks);
