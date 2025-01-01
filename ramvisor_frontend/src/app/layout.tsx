@@ -16,7 +16,7 @@ import "@refinedev/antd/dist/reset.css";
 import "@styles/global.css";
 import Layout from "@components/layout";
 import { BookOutlined, CalendarOutlined, DashboardOutlined, ProjectOutlined } from "@ant-design/icons";
-import ChatWindow from "@components/chat/window";
+import ChatWindow from "@components/chat/chat";
 import {ApolloWrapper} from "@providers/data-provider/apollo-provider";
 
 export default function RootLayout({
