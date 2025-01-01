@@ -13,11 +13,7 @@ export const Class = objectType({
     t.nonNull.string('title');
     t.nonNull.string('description');
     t.nonNull.string('category');
-    t.nonNull.string('dayOfWeek');
-    t.nonNull.string('startTime');
-    t.nonNull.string('endTime');
     t.nonNull.string('color');
-    t.nonNull.string('professor');
     t.nonNull.float('rateMyProfessorRating');
     t.nonNull.list.int('coreDegreeId');
     t.list.int('electiveDegreeId');
