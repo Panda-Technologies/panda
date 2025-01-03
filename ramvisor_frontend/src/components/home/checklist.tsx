@@ -22,6 +22,54 @@ interface Task {
   isChecked?: boolean;
 }
 
+const cardStyle = {
+  width: '100%',
+  height: '34%',
+  borderRadius: '16px',
+  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+  background: 'linear-gradient(135deg, #ffffff, #f0f8ff)',
+  border: 'none',
+  overflow: 'hidden'
+};
+
+const headerStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '0 20px 8px',
+  marginTop: '-7px',
+  borderBottom: '1px solid #e8e8e8'
+};
+
+const titleContainerStyle = {
+  display: 'flex',
+  alignItems: 'center'
+};
+
+const iconStyle = {
+  fontSize: '24px',
+  color: '#28b34e'
+};
+
+const titleStyle = {
+  marginLeft: '12px',
+  fontWeight: 'bold',
+  fontSize: '18px',
+  color: '#333'
+};
+
+const listItemStyle = {
+  padding: '12px 0',
+  borderBottom: '1px solid #f0f0f0',
+  transition: 'background-color 0.3s ease'
+};
+
+const listItemContentStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%'
+};
+
 const Checklist: React.FC = () => {
   const { data: identity } = useGetIdentity<{ id: string }>();
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -77,85 +125,61 @@ const Checklist: React.FC = () => {
   };
 
   return (
-    <Card
-      style={{
-        height: "100%",
-        boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-        borderRadius: "16px",
-        background: "linear-gradient(135deg, #ffffff, #f0f8ff)",
-        border: "none",
-        overflow: "hidden",
-        width: '76%',
-        left: '99%',
-        top: '-613px'
-      }}
-      styles={{ 
-        header: { padding: "16px 24px" }, 
-        body: { padding: "0 1.5rem" } 
-      }}
-      title={
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <CheckSquareOutlined style={{ fontSize: "24px", color: "#28b34e" }} />
-          <span style={{
-            marginLeft: "12px",
-            fontWeight: "bold",
-            fontSize: "18px",
-            color: "#333",
-          }}>
-            Pending Assignments
-          </span>
-          <Link href='/tasks'><ArrowRightOutlined style={{ marginLeft: '80%' }} /></Link>
+      <Card style={cardStyle}>
+        <div style={headerStyle}>
+          <div style={titleContainerStyle}>
+            <CheckSquareOutlined style={iconStyle} />
+            <span style={titleStyle}>Pending Assignments</span>
+          </div>
+          <Link href='/tasks'>
+            <ArrowRightOutlined />
+          </Link>
         </div>
-      }
-    >
-      <List
-        itemLayout="horizontal"
-        dataSource={tasks.filter(task => task.stageId === 1)}
-        pagination={{ pageSize: 7 }}
-        renderItem={(item: Task) => (
-          <List.Item
-            key={item.id}
-            style={{
-              padding: "12px 0",
-              borderBottom: "1px solid #f0f0f0",
-              transition: "all 0.3s ease",
-              opacity: 1,
-              height: 'auto',
-              overflow: 'hidden',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f9f9f9"}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-              <Checkbox 
-                checked={item.isChecked} 
-                onChange={(e) => handleCheckboxChange(item.id, e.target.checked)}
-                style={{ marginRight: "12px", flexShrink: 0 }}
-              />
-              <Text style={{ 
-                color: item.class?.color || '#4285F4', 
-                fontSize: "14px", 
-                fontWeight: "600",
-                marginRight: "8px",
-                flexShrink: 0
-              }}>
-                [{item.classCode}]:
-              </Text>
-              <Text ellipsis={{ tooltip: true }} style={{ 
-                color: "#666", 
-                fontSize: "14px", 
-                flex: 1,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }}>
-                {item.title}
-              </Text>
-            </div>
-          </List.Item>
-        )}
-      />
-    </Card>
+        <List
+            itemLayout="horizontal"
+            dataSource={tasks.filter(task => task.stageId === 1)}
+            pagination={{ pageSize: 3 }}
+            renderItem={(item: Task) => (
+                <List.Item
+                    key={item.id}
+                    style={listItemStyle}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f9f9f9';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                >
+                  <div style={listItemContentStyle}>
+                    <Checkbox
+                        checked={item.isChecked}
+                        onChange={(e) => handleCheckboxChange(item.id, e.target.checked)}
+                        style={{ marginRight: '12px', flexShrink: 0 }}
+                    />
+                    <Text style={{
+                      color: item.class?.color || '#4285F4',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      marginRight: '8px',
+                      flexShrink: 0
+                    }}>
+                      [{item.classCode}]:
+                    </Text>
+                    <Text ellipsis={{ tooltip: true }} style={{
+                      color: '#666',
+                      fontSize: '14px',
+                      flex: 1,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {item.title}
+                    </Text>
+                  </div>
+                </List.Item>
+            )}
+        />
+      </Card>
   );
 };
 
