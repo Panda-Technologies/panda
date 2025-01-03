@@ -74,7 +74,7 @@ const UpcomingEvents = ({ isLoading }: Props) => {
         border: "none",
         overflow: "hidden",
         position: 'relative',
-        zIndex: 1,
+        zIndex: 0,
       }}
       styles={{ 
         header: { padding: "16px 24px" }, 
