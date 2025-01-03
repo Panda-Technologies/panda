@@ -1,5 +1,5 @@
-import { Card, Space, Button } from "antd";
-import React, { SetStateAction } from "react";
+import {Card, Space, Button} from "antd";
+import React, {SetStateAction} from "react";
 import NavigationBar from "@components/chat/navigation-bar";
 
 type MainContainerProps = {
@@ -7,23 +7,28 @@ type MainContainerProps = {
     setIsOpen: React.Dispatch<SetStateAction<boolean>>;
     currentTab: "Home" | "Messages" | "Help";
     setCurrentTab: React.Dispatch<SetStateAction<"Home" | "Messages" | "Help">>;
+    isMessageOpen: boolean;
+    isArticleOpen: boolean;
 };
 
 const MainContainer = ({
                            children,
                            setIsOpen,
                            currentTab,
-                           setCurrentTab
+                           setCurrentTab,
+                           isMessageOpen,
+                           isArticleOpen,
                        }: MainContainerProps) => {
+
     return (
         <Card
             style={{
                 position: "fixed",
                 bottom: "10%",
                 right: "24px",
-                width: "400px",
-                height: "min(78vh, 720px)",
-                maxHeight: "78vh",
+                width: isArticleOpen ? "800px" : "400px",
+                height: isArticleOpen ? "min(85vh, 800px)" : "min(78vh, 720px)",
+                maxHeight: isArticleOpen ? "80vh" : "78vh",
                 zIndex: 1,
                 borderRadius: '16px',
                 background: currentTab == 'Home' ? 'linear-gradient(180deg, #9BA3BF 150px, #FCFCFC 400px)' : 'white',
@@ -43,12 +48,14 @@ const MainContainer = ({
             <div style={{
                 height: '100%',
                 overflow: 'auto',
-                paddingBottom: '60px'
+                borderRadius: (isMessageOpen || isArticleOpen) ? '0 0 16px 16px' : '',
+                paddingBottom: (isMessageOpen || isArticleOpen) ? '0px' : '60px'
             }}>
                 {children}
             </div>
-
-            <NavigationBar currentTab={currentTab} setCurrentTab={setCurrentTab} />
+            {(!isMessageOpen && !isArticleOpen) && (
+                <NavigationBar currentTab={currentTab} setCurrentTab={setCurrentTab}/>
+            )}
         </Card>
     );
 };
