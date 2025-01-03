@@ -90,12 +90,16 @@ export async function serverLogin(email: string, password: string) {
   }
 }
 
+export async function getCookie() {
+    return cookies().get("gql-api");
+}
+
 export async function serverCheck() {
   if (!API_URL) throw new Error('API_URL is not defined');
 
   try {
     // Get session cookie from Next.js
-    const sessionCookie = (await cookies()).get("gql-api");
+    const sessionCookie = cookies().get("gql-api");
 
     const response = await fetch(API_URL, {
       method: "POST",
