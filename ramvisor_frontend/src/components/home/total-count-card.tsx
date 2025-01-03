@@ -65,7 +65,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ title, data, color, icon, isLoa
         {React.cloneElement(icon as React.ReactElement, { style: { fontSize: '24px', color: color } })}
         <Text size="md" style={{ color: '#555', fontWeight: 500 }}>{title}</Text>
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+      <div style={{ display: "flex", justifyContent: "left", alignItems: "flex-end" }}>
         <div>
           <Text size="xxl" strong style={{ fontSize: '32px', lineHeight: '1', color: '#333' }}>
             {isLoading ? '-' : totalCount}
@@ -79,7 +79,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ title, data, color, icon, isLoa
             {isLoading ? '-' : `${changePercent! > 0 ? '↑' : changePercent! < 0 ? '↓' : ''} ${Math.abs(changePercent!)}% /month`}
           </Text>
         </div>
-        <div style={{ width: "60%", height: "80px" }}>
+        <div style={{ width: "65%", height: "80px" }}>
           <ChartComponent
             id={`chart-${title}`}
             primaryXAxis={primaryxAxis}
@@ -88,7 +88,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ title, data, color, icon, isLoa
             tooltip={{ enable: false }}
             height="100%"
             background="transparent"
-            style = {{ width: '130%' }}
+            style = {{ maxWidth: '100%' }}
           >
             <Inject services={[SplineAreaSeries, DateTime]} />
             <SeriesCollectionDirective>
