@@ -67,63 +67,76 @@ const timeOnSiteData = [
 ];
 
 const IndexPage: React.FC = () => {
-
   const { data: identity } = useGetIdentity<{ id: string }>();
   const userId = identity?.id;
 
-  return (
-    <AntLayout style={{ padding: "24px", overflowY: 'hidden', position: 'fixed' }}
-    >
-      <Row gutter={[32, 32]}>
-        <Col xs={24} sm={24} md={8} lg={8} xl={8}>
-          <TrendChart
-            title="Attendance"
-            data={bounceRateData}
-            color="#4285F4"
-            icon={<UserOutlined />}
-            isLoading={false}
-            totalCount="97%"
-            changePercent={18}
-          />
-        </Col>
-        <Col xs={24} sm={24} md={8} lg={8} xl={8}>
-          <TrendChart
-            title="Grade Point Average"
-            data={pageViewsData}
-            color="#0F9D58"
-            icon={<BookOutlined />}
-            isLoading={false}
-            totalCount="3.286"
-            changePercent={22}
-          />
-        </Col>
-        <Col xs={24} sm={24} md={8} lg={8} xl={8}>
-          <TrendChart
-            title="Sleep"
-            data={timeOnSiteData}
-            color="#DB4437"
-            icon={<ClockCircleOutlined />}
-            isLoading={false}
-            totalCount="6.2 hrs"
-            changePercent={-8}
-          />
-        </Col>
-      </Row>
-      <Row gutter={[32, 32]} style={{ marginTop: "25px" }}>
-        <Col xs={24} sm={15} xl={8} style={{ height: "1px" }}>
-          <UpcomingEvents />
-        </Col>
-      </Row>
-      <Row gutter={[32, 32]} style={{ marginTop: "25px", flex: 1 }}>
-        <Col xs={24} md={24} lg={24} xl={24} style={{ maxHeight: "618px" }}>
-          <Calendar title="Spring 2024" credits={12} userId={userId ? userId : "null"}/>
-        </Col>
-      </Row>
-      <Col xs={24} sm={24} md={8} lg={8} xl={8} style={{ maxHeight: '1px'}}>
-        <Checklist />
-      </Col>
-    </AntLayout>
-  );
-};
 
-export default IndexPage;
+  return (
+      <AntLayout
+          style={{
+            background: '#f5f5f5',
+            padding: '2px 14px',
+            maxWidth: '1600px',
+            margin: '0 auto',
+          }}
+      >
+          {/* Top Stats Row */}
+          <Row gutter={[16, 16]} style={{marginBottom: '12px'}}>
+            <Col xs={24} sm={24} md={8}>
+              <TrendChart
+                  title="Attendance"
+                  data={bounceRateData}
+                  color="#4285F4"
+                  icon={<UserOutlined/>}
+                  isLoading={false}
+                  totalCount="97%"
+                  changePercent={18}
+              />
+            </Col>
+            <Col xs={24} sm={24} md={8}>
+              <TrendChart
+                  title="Grade Point Average"
+                  data={pageViewsData}
+                  color="#0F9D58"
+                  icon={<BookOutlined/>}
+                  isLoading={false}
+                  totalCount="3.286"
+                  changePercent={22}
+              />
+            </Col>
+            <Col xs={24} sm={24} md={8}>
+              <TrendChart
+                  title="Sleep"
+                  data={timeOnSiteData}
+                  color="#DB4437"
+                  icon={<ClockCircleOutlined/>}
+                  isLoading={false}
+                  totalCount="6.2 hrs"
+                  changePercent={-8}
+              />
+            </Col>
+          </Row>
+
+          {/* Main Content Area */}
+          <Row gutter={[16, 16]} style={{flex: 1, maxHeight: '695px'}}>
+            <Col xs={24} lg={16} style={{height: '100%'}}>
+              <div style={{height: '695px'}}>
+                <Calendar
+                    title="Spring 2024"
+                    credits={12}
+                    userId={userId ? userId : "null"}
+                />
+              </div>
+            </Col>
+
+            {/* Sidebar Section */}
+            <Col xs={24} lg={8} style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+              <UpcomingEvents/>
+              <Checklist/>
+            </Col>
+          </Row>
+      </AntLayout>
+        );
+        };
+
+        export default IndexPage;
