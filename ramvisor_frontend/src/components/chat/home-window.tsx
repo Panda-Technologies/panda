@@ -90,7 +90,7 @@ const HomeContent = ({
                         height: "auto",
                         padding: "14px 20px",
                         marginBottom: "10px",
-                        border: '1px solid #f0f0f0',
+                        border: '1px solid #bfbfbf',
                         borderRadius: "12px",
                         backgroundColor: isMessageHovered ? 'rgba(248,248,248,0.84)' : '#fff',
                         boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
@@ -116,6 +116,7 @@ const HomeContent = ({
                         borderRadius: '12px',
                         backgroundColor: isStatusHovered ? 'rgba(248,248,248,0.84)' : '#fff',
                         cursor: 'pointer',
+                        border: '1px solid #d6d6d6',
                         transition: 'background-color 0.2s ease'
                     }}
                     styles={{
@@ -155,7 +156,7 @@ const HomeContent = ({
 
                 {/* Search and FAQ section */}
                 <Card
-                    style={{backgroundColor: '#fff', borderRadius: '12px'}}
+                    style={{backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #e9e9e9',}}
                     styles={{body: {padding: '16px'}}}
                 >
                     <Button
