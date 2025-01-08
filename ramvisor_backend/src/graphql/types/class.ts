@@ -2,6 +2,7 @@ import {extendType, inputObjectType, intArg, nonNull, objectType} from "nexus";
 import {PrismaClient} from "@prisma/client";
 import {getEndTime, getStartTime, parseCSV, processComponent, processInstructor} from "../../utils";
 import {headers} from "../../constants";
+import {canvasClass, IMyContext} from "../../interface";
 
 export const Class = objectType({
   name: 'Class',
@@ -75,6 +76,23 @@ export const UpdateClassInput = inputObjectType({
     t.float('rateMyProfessorRating');
     t.int('coreDegreeId');
     t.list.int('electiveDegreeId');
+  },
+});
+
+export const listClassInput = inputObjectType({
+    name: 'listClassInput',
+    definition(t) {
+        t.nonNull.string('classCode');
+        t.nonNull.string('color');
+        t.nonNull.string('sectionId');
+        t.nonNull.string('semesterId');
+    },
+})
+
+export const importCanvasClassesInput = inputObjectType({
+  name: 'importCanvasClassesInput',
+  definition(t) {
+   t.list.field('courseInput', { type: 'listClassInput' });
   },
 });
 
@@ -265,6 +283,115 @@ export const classMutation = extendType({
         where: { id: input.id },
         data: input,
       })
+    });
+
+    t.field('importCanvasClasses', {
+      type: 'Class',
+      args: {
+        input: nonNull(importCanvasClassesInput)
+      },
+      resolve: async (_, { input }, { prisma, req }: IMyContext) => {
+        const userId = req.session.userId;
+        if (!userId) {
+          throw new Error('User not authenticated');
+        }
+
+        // Format course codes and prepare input
+        const formattedCourses = input.courseInput.map((course: canvasClass) => ({
+          ...course,
+          classCode: course.classCode.replace(/([A-Z]+)(\d)/, '$1 $2')
+        }));
+
+        const classCodes = formattedCourses.map((course: canvasClass) => course.classCode);
+        console.log('Processing courses:', classCodes);
+
+        try {
+          return await prisma.$transaction(async (tx) => {
+            // Step 1: Find and validate existing classes
+            const existingClasses = await tx.class.findMany({
+              where: {
+                classCode: { in: classCodes }
+              },
+              include: {
+                sections: true
+              }
+            });
+
+            if (existingClasses.length !== classCodes.length) {
+              const foundCodes = existingClasses.map(c => c.classCode);
+              const missingCodes = classCodes.filter((code: string) => !foundCodes.includes(code));
+              throw new Error(`Classes not found: ${missingCodes.join(', ')}`);
+            }
+
+            // Step 2: Update class colors if needed
+            const classMap = new Map(existingClasses.map(c => [c.classCode, c]));
+
+            for (const course of formattedCourses) {
+              const existingClass = classMap.get(course.classCode);
+              if (existingClass && existingClass.color === 'blue' && existingClass.color !== course.color) {
+                await tx.class.update({
+                  where: { id: existingClass.id },
+                  data: { color: course.color }
+                });
+              }
+            }
+
+            // Step 3: Handle schedule
+            const currentSchedule = await tx.classSchedule.findFirst({
+              where: {
+                userId: req.session.userId,
+                isCurrent: true
+              }
+            });
+
+            const scheduleEntries = formattedCourses.map((course: canvasClass) => ({
+              classId: classMap.get(course.classCode)!.id,
+              sectionId: parseInt(course.sectionId)
+            }));
+
+            if (currentSchedule) {
+              await tx.classSchedule.update({
+                where: { id: currentSchedule.id },
+                data: {
+                  entries: {
+                    deleteMany: {},
+                    create: scheduleEntries
+                  }
+                }
+              });
+            } else {
+              await tx.classSchedule.create({
+                data: {
+                  userId: userId,
+                  semesterId: formattedCourses[0].semesterId,
+                  title: 'Current Schedule',
+                  isCurrent: true,
+                  entries: {
+                    create: scheduleEntries
+                  }
+                }
+              });
+            }
+
+            // Step 4: Return updated class
+            const updatedClass = await tx.class.findFirst({
+              where: { id: existingClasses[0].id },
+              include: {
+                sections: true
+              }
+            });
+
+            if (!updatedClass) {
+              throw new Error('Failed to fetch updated class');
+            }
+
+            return updatedClass;
+          });
+        } catch (error) {
+          console.error('Failed to import classes:', error);
+          throw error;
+        }
+      }
     });
 
     t.field('deleteClass', {
