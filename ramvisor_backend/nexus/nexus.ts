@@ -126,6 +126,22 @@ export interface NexusGenInputs {
     semesterName: string; // String!
     year: number; // Int!
   }
+  importCanvasClassesInput: { // input type
+    courseInput?: Array<NexusGenInputs['listClassInput'] | null> | null; // [listClassInput]
+  }
+  importCanvasTasksInput: { // input type
+    taskInput?: Array<NexusGenInputs['listTaskInput'] | null> | null; // [listTaskInput]
+  }
+  listClassInput: { // input type
+    classCode: string; // String!
+    color: string; // String!
+    sectionId: string; // String!
+    semesterId: string; // String!
+  }
+  listTaskInput: { // input type
+    assignment: Array<NexusGenInputs['taskInputFields'] | null>; // [taskInputFields]!
+    classCode: string; // String!
+  }
   removeClassFromScheduleInput: { // input type
     id: string; // String!
     update: NexusGenInputs['ClassScheduleUpdateInput']; // ClassScheduleUpdateInput!
@@ -206,15 +222,11 @@ export interface NexusGenObjects {
     coreDegreeId: Array<number | null>; // [Int]!
     courseType: string; // String!
     credits: number; // Int!
-    dayOfWeek: string; // String!
     description: string; // String!
     electiveDegreeId?: Array<number | null> | null; // [Int]
-    endTime: string; // String!
     id: number; // Int!
-    professor: string; // String!
     rateMyProfessorRating: number; // Float!
     sections?: Array<NexusGenRootTypes['classSection'] | null> | null; // [classSection]
-    startTime: string; // String!
     title: string; // String!
   }
   Mutation: {};
@@ -222,6 +234,7 @@ export interface NexusGenObjects {
   classSchedule: { // root type
     entries?: Array<NexusGenRootTypes['classScheduleEntry'] | null> | null; // [classScheduleEntry]
     id: number; // Int!
+    isCurrent?: boolean | null; // Boolean
     semesterId: string; // String!
     title: string; // String!
     user?: NexusGenRootTypes['user'] | null; // user
@@ -339,15 +352,11 @@ export interface NexusGenFieldTypes {
     coreDegreeId: Array<number | null>; // [Int]!
     courseType: string; // String!
     credits: number; // Int!
-    dayOfWeek: string; // String!
     description: string; // String!
     electiveDegreeId: Array<number | null> | null; // [Int]
-    endTime: string; // String!
     id: number; // Int!
-    professor: string; // String!
     rateMyProfessorRating: number; // Float!
     sections: Array<NexusGenRootTypes['classSection'] | null> | null; // [classSection]
-    startTime: string; // String!
     title: string; // String!
   }
   Mutation: { // field return type
@@ -368,6 +377,8 @@ export interface NexusGenFieldTypes {
     deleteSemester: NexusGenRootTypes['semester'] | null; // semester
     deleteTask: NexusGenRootTypes['task'] | null; // task
     generateClassesFromScrape: NexusGenRootTypes['Class'] | null; // Class
+    importCanvasClasses: NexusGenRootTypes['Class'] | null; // Class
+    importCanvasTasks: NexusGenRootTypes['task'] | null; // task
     login: string | null; // String
     logout: boolean | null; // Boolean
     register: string | null; // String
@@ -408,6 +419,7 @@ export interface NexusGenFieldTypes {
   classSchedule: { // field return type
     entries: Array<NexusGenRootTypes['classScheduleEntry'] | null> | null; // [classScheduleEntry]
     id: number; // Int!
+    isCurrent: boolean | null; // Boolean
     semesterId: string; // String!
     title: string; // String!
     user: NexusGenRootTypes['user'] | null; // user
@@ -515,15 +527,11 @@ export interface NexusGenFieldTypeNames {
     coreDegreeId: 'Int'
     courseType: 'String'
     credits: 'Int'
-    dayOfWeek: 'String'
     description: 'String'
     electiveDegreeId: 'Int'
-    endTime: 'String'
     id: 'Int'
-    professor: 'String'
     rateMyProfessorRating: 'Float'
     sections: 'classSection'
-    startTime: 'String'
     title: 'String'
   }
   Mutation: { // field return type name
@@ -544,6 +552,8 @@ export interface NexusGenFieldTypeNames {
     deleteSemester: 'semester'
     deleteTask: 'task'
     generateClassesFromScrape: 'Class'
+    importCanvasClasses: 'Class'
+    importCanvasTasks: 'task'
     login: 'String'
     logout: 'Boolean'
     register: 'String'
@@ -584,6 +594,7 @@ export interface NexusGenFieldTypeNames {
   classSchedule: { // field return type name
     entries: 'classScheduleEntry'
     id: 'Int'
+    isCurrent: 'Boolean'
     semesterId: 'String'
     title: 'String'
     user: 'user'
@@ -731,6 +742,12 @@ export interface NexusGenArgTypes {
     }
     deleteTask: { // args
       input?: NexusGenInputs['deleteTaskInput'] | null; // deleteTaskInput
+    }
+    importCanvasClasses: { // args
+      input: NexusGenInputs['importCanvasClassesInput']; // importCanvasClassesInput!
+    }
+    importCanvasTasks: { // args
+      input?: NexusGenInputs['importCanvasTasksInput'] | null; // importCanvasTasksInput
     }
     login: { // args
       input: NexusGenInputs['LoginInput']; // LoginInput!
