@@ -65,6 +65,21 @@ export const deleteTaskInput = inputObjectType({
   },
 });
 
+export const listTaskInput = inputObjectType({
+  name: 'listTaskInput',
+  definition(t) {
+    t.nonNull.string('classCode');
+    t.nonNull.list.field('assignment', { type: taskInputFields }); // Changed to list
+  },
+})
+
+export const importCanvasTasksInput = inputObjectType({
+  name: 'importCanvasTasksInput',
+  definition(t) {
+    t.list.field('taskInput', { type: 'listTaskInput' });
+  },
+});
+
 export const taskQuery = extendType({
   type: "Query",
   definition(t) {
@@ -117,6 +132,56 @@ export const taskMutation = extendType({
           },
         });
       },
+    });
+
+    t.field("importCanvasTasks", {
+      type: 'task',
+      args: {
+        input: importCanvasTasksInput,
+      },
+      resolve: async (_, { input }, { prisma, req }: IMyContext) => {
+        const userId = authenticateUser(req.session);
+        const { taskInput } = input;
+
+        try {
+          const existingTasks = await prisma.task.findMany({
+            where: { userId },
+            select: { title: true }
+          });
+
+          const existingTitles = new Set(existingTasks.map(t => t.title));
+
+          return await prisma.$transaction(async (tx) => {
+            const createdTasks = [];
+
+            for (const taskList of taskInput) {
+              for (const assignment of taskList.assignment) { // This matches your data structure
+                if (existingTitles.has(assignment.title)) {
+                  continue;
+                }
+
+                const newTask = await tx.task.create({
+                  data: {
+                    title: assignment.title,
+                    stageId: assignment.stageId || 1,
+                    userId: userId,
+                    dueDate: assignment.dueDate,
+                    classCode: taskList.classCode,
+                    description: assignment.description || undefined,
+                  },
+                });
+                createdTasks.push(newTask);
+              }
+            }
+
+            return createdTasks[createdTasks.length - 1] ||
+                await tx.task.findFirst({ where: { userId } });
+          });
+        } catch (error) {
+          console.error('Error importing tasks:', error);
+          throw error;
+        }
+      }
     });
 
     t.field("updateTask", {
