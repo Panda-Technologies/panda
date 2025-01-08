@@ -24,12 +24,14 @@ interface Task {
 
 const cardStyle = {
   width: '100%',
-  height: '34%',
+  height: '40%',
   borderRadius: '16px',
   boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
   background: 'linear-gradient(135deg, #ffffff, #f0f8ff)',
   border: 'none',
-  overflow: 'hidden'
+  overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column' as const
 };
 
 const headerStyle = {
@@ -56,6 +58,19 @@ const titleStyle = {
   fontWeight: 'bold',
   fontSize: '18px',
   color: '#333'
+};
+
+const listContainerStyle = {
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column' as const,
+  height: '100%'
+};
+
+const listStyle = {
+  flex: 1,
+  minHeight: '100%',
+  overflow: 'auto'
 };
 
 const listItemStyle = {
@@ -108,10 +123,10 @@ const Checklist: React.FC = () => {
         }
       });
 
-      setTasks(prevTasks => 
-        prevTasks.map(task => 
-          task.id === taskId ? { ...task, isChecked: true, stageId: checked ? 2 : 1 } : task
-        )
+      setTasks(prevTasks =>
+          prevTasks.map(task =>
+              task.id === taskId ? { ...task, isChecked: true, stageId: checked ? 2 : 1 } : task
+          )
       );
 
       setTimeout(() => {
@@ -135,50 +150,56 @@ const Checklist: React.FC = () => {
             <ArrowRightOutlined />
           </Link>
         </div>
-        <List
-            itemLayout="horizontal"
-            dataSource={tasks.filter(task => task.stageId === 1)}
-            pagination={{ pageSize: 3 }}
-            renderItem={(item: Task) => (
-                <List.Item
-                    key={item.id}
-                    style={listItemStyle}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f9f9f9';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                    }}
-                >
-                  <div style={listItemContentStyle}>
-                    <Checkbox
-                        checked={item.isChecked}
-                        onChange={(e) => handleCheckboxChange(item.id, e.target.checked)}
-                        style={{ marginRight: '12px', flexShrink: 0 }}
-                    />
-                    <Text style={{
-                      color: item.class?.color || '#4285F4',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      marginRight: '8px',
-                      flexShrink: 0
-                    }}>
-                      [{item.classCode}]:
-                    </Text>
-                    <Text ellipsis={{ tooltip: true }} style={{
-                      color: '#666',
-                      fontSize: '14px',
-                      flex: 1,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {item.title}
-                    </Text>
-                  </div>
-                </List.Item>
-            )}
-        />
+        <div style={listContainerStyle}>
+          <List
+              style={listStyle}
+              itemLayout="horizontal"
+              dataSource={tasks.filter(task => task.stageId === 1)}
+              pagination={{
+                pageSize: 4,
+
+              }}
+              renderItem={(item: Task) => (
+                  <List.Item
+                      key={item.id}
+                      style={listItemStyle}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f9f9f9';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                  >
+                    <div style={listItemContentStyle}>
+                      <Checkbox
+                          checked={item.isChecked}
+                          onChange={(e) => handleCheckboxChange(item.id, e.target.checked)}
+                          style={{ marginRight: '12px', flexShrink: 0 }}
+                      />
+                      <Text style={{
+                        color: item.class?.color || '#4285F4',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        marginRight: '8px',
+                        flexShrink: 0
+                      }}>
+                        [{item.classCode}]:
+                      </Text>
+                      <Text ellipsis={{ tooltip: true }} style={{
+                        color: '#666',
+                        fontSize: '14px',
+                        flex: 1,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {item.title}
+                      </Text>
+                    </div>
+                  </List.Item>
+              )}
+          />
+        </div>
       </Card>
   );
 };
