@@ -21,6 +21,7 @@ const main = async () => {
             'http://localhost:3000',
             'http://localhost:5001',
             'https://studio.apollographql.com',
+            'https://uncch.instructure.com',
             'chrome-extension://nnpfiflmamolaflafofhhppmadcgcnhf'
         ],
         credentials: true,
