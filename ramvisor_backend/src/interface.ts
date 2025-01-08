@@ -44,3 +44,19 @@ export interface columnTypes {
     [classColumns.MIN_ENROLL]: number;
 }
 
+export interface canvasClass {
+    classCode: string;
+    sectionId: string;
+    semesterId: string;
+    color: string;
+}
+export interface canvasTasks {
+    classCode: string;
+    assignment: {
+        dueDate: string;
+        stageId: number;
+        description: string;
+        title: string;
+    }[];
+}
+

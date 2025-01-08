@@ -63,6 +63,7 @@ model classSchedule {
   title      String?
   userId     String
   semesterId String
+  isCurrent  Boolean?
   user       user                 @relation(fields: [userId], references: [id])
   entries    classScheduleEntry[]
 

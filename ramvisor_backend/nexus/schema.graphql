@@ -10,15 +10,11 @@ type Class {
   coreDegreeId: [Int]!
   courseType: String!
   credits: Int!
-  dayOfWeek: String!
   description: String!
   electiveDegreeId: [Int]
-  endTime: String!
   id: Int!
-  professor: String!
   rateMyProfessorRating: Float!
   sections: [classSection]
-  startTime: String!
   title: String!
 }
 
@@ -81,6 +77,8 @@ type Mutation {
   deleteSemester(id: Int!): semester
   deleteTask(input: deleteTaskInput): task
   generateClassesFromScrape: Class
+  importCanvasClasses(input: importCanvasClassesInput!): Class
+  importCanvasTasks(input: importCanvasTasksInput): task
   login(input: LoginInput!): String
   logout: Boolean
   register(input: RegisterInput!): String
@@ -164,6 +162,7 @@ input addClassToSemesterInput {
 type classSchedule {
   entries: [classScheduleEntry]
   id: Int!
+  isCurrent: Boolean
   semesterId: String!
   title: String!
   user: user
@@ -263,6 +262,26 @@ input graduationSemesterInput {
   id: String!
   semesterName: String!
   year: Int!
+}
+
+input importCanvasClassesInput {
+  courseInput: [listClassInput]
+}
+
+input importCanvasTasksInput {
+  taskInput: [listTaskInput]
+}
+
+input listClassInput {
+  classCode: String!
+  color: String!
+  sectionId: String!
+  semesterId: String!
+}
+
+input listTaskInput {
+  assignment: [taskInputFields]!
+  classCode: String!
 }
 
 input removeClassFromScheduleInput {
