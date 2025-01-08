@@ -8,6 +8,7 @@ export const classSchedule = objectType({
         t.nonNull.int("id");
         t.nonNull.string("title");
         t.nonNull.string("userId");
+        t.boolean("isCurrent");
         t.nonNull.string("semesterId");
         t.field("user", {type: "user"});
         t.list.field("entries", {type: "classScheduleEntry"});
