@@ -120,7 +120,7 @@ const IndexPage: React.FC = () => {
           {/* Main Content Area */}
           <Row gutter={[16, 16]} style={{flex: 1, maxHeight: '695px'}}>
             <Col xs={24} lg={16} style={{height: '100%'}}>
-              <div style={{height: '695px'}}>
+              <div style={{height: '750px'}}>
                 <Calendar
                     title="Spring 2024"
                     credits={12}
