@@ -15,6 +15,7 @@ export const task = objectType({
     t.nonNull.int("stageId");
     t.string("classCode");
     t.string("description");
+    t.nonNull.string("source");
     t.nonNull.string("title");
     t.field("user", { type: "user" });
   },
@@ -28,6 +29,7 @@ const taskInputFields = inputObjectType({
     t.nonNull.string("dueDate");
     t.string("classCode");
     t.string("description");
+    t.string("source");
   },
 });
 
@@ -85,24 +87,40 @@ export const taskQuery = extendType({
   definition(t) {
     t.list.field("getTasks", {
       type: "task",
-      resolve: async (_, __, { prisma, req, session }: IMyContext) => {
+      resolve: async (_, __, { prisma, session }: IMyContext) => {
         console.log('\n=== GetTasks Query ===');
-        console.log('Session ID:', req.sessionID);
-        console.log('Session:', session);
-        console.log('User ID in session:', session.userId);
-
         if (!session.userId) {
-          console.log('Authentication failed - no userId in session');
-          console.log('Raw Cookie:', req.headers.cookie);
-          console.log('Signed Cookies:', req.signedCookies);
           throw new Error("Not authenticated");
         }
 
-        console.log('User authenticated, fetching tasks for:', session.userId);
+        const oneDayAgo = new Date();
+        oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+
+        const oldCompletedTasks = await prisma.completedTasks.findMany({
+          where: {
+            userId: session.userId,
+            completedAt: {
+              lt: oneDayAgo
+            }
+          },
+          select: {
+            classCode: true,
+            title: true
+          }
+        });
 
         return prisma.task.findMany({
           where: {
-            userId: session.userId
+            userId: session.userId,
+            NOT: {
+              OR: oldCompletedTasks.map(ct => ({
+                classCode: ct.classCode,
+                title: ct.title
+              }))
+            }
+          },
+          orderBy: {
+            dueDate: 'asc'
           }
         });
       }
@@ -121,14 +139,27 @@ export const taskMutation = extendType({
       resolve: async (_, { input }, { prisma, session }: IMyContext) => {
         const { task } = input;
         const userId = authenticateUser(session);
+
+        if (task.stageId === 3) {
+          await prisma.completedTasks.create({
+            data: {
+              userId,
+              classCode: task.classCode,
+              title: task.title,
+              source: task.source
+            }
+          });
+        }
+
         return prisma.task.create({
           data: {
             title: task.title,
-            stageId: task.stageId || 1, // Default to 1 if not provided
+            stageId: task.stageId || 1,
             userId: userId,
             dueDate: task.dueDate,
             classCode: task.classCode || undefined,
             description: task.description || undefined,
+            source: 'app'
           },
         });
       },
@@ -144,39 +175,86 @@ export const taskMutation = extendType({
         const { taskInput } = input;
 
         try {
-          const existingTasks = await prisma.task.findMany({
-            where: { userId },
-            select: { title: true }
-          });
-
-          const existingTitles = new Set(existingTasks.map(t => t.title));
-
           return await prisma.$transaction(async (tx) => {
-            const createdTasks = [];
+            // Get all existing tasks and completed tasks in parallel
+            const [existingTasks, completedTasks] = await Promise.all([
+              tx.task.findMany({
+                where: {
+                  userId,
+                },
+                select: {
+                  title: true,
+                  classCode: true
+                }
+              }),
+              tx.completedTasks.findMany({
+                where: {
+                  userId
+                },
+                select: {
+                  title: true,
+                  classCode: true
+                }
+              })
+            ]);
+
+            // Create efficient lookup maps
+            const existingMap = new Map(
+                existingTasks.map(task =>
+                    [`${task.classCode}-${task.title.toLowerCase().trim()}`, true]
+                )
+            );
+            const completedMap = new Map(
+                completedTasks.map(task =>
+                    [`${task.classCode}-${task.title.toLowerCase().trim()}`, true]
+                )
+            );
+
+            const tasksToCreate = [];
 
             for (const taskList of taskInput) {
-              for (const assignment of taskList.assignment) { // This matches your data structure
-                if (existingTitles.has(assignment.title)) {
+              const classCode = taskList.classCode;
+
+              for (const assignment of taskList.assignment) {
+                const taskKey = `${classCode}-${assignment.title.toLowerCase().trim()}`;
+
+                if (existingMap.has(taskKey) || completedMap.has(taskKey)) {
                   continue;
                 }
 
-                const newTask = await tx.task.create({
-                  data: {
-                    title: assignment.title,
-                    stageId: assignment.stageId || 1,
-                    userId: userId,
-                    dueDate: assignment.dueDate,
-                    classCode: taskList.classCode,
-                    description: assignment.description || undefined,
-                  },
+                tasksToCreate.push({
+                  title: assignment.title,
+                  stageId: assignment.stageId || 1,
+                  userId,
+                  dueDate: assignment.dueDate,
+                  classCode,
+                  description: assignment.description || undefined,
+                  source: 'canvas'
                 });
-                createdTasks.push(newTask);
               }
             }
 
-            return createdTasks[createdTasks.length - 1] ||
-                await tx.task.findFirst({ where: { userId } });
+            if (tasksToCreate.length === 0) {
+              return tx.task.findFirst({
+                where: { userId },
+                orderBy: { dueDate: 'asc' }
+              });
+            }
+
+            await tx.task.createMany({
+              data: tasksToCreate,
+              skipDuplicates: true
+            });
+
+            return tx.task.findFirst({
+              where: {
+                userId,
+                title: tasksToCreate[tasksToCreate.length - 1].title,
+                classCode: tasksToCreate[tasksToCreate.length - 1].classCode
+              }
+            });
           });
+
         } catch (error) {
           console.error('Error importing tasks:', error);
           throw error;
@@ -189,17 +267,57 @@ export const taskMutation = extendType({
       args: {
         input: updateTaskInput,
       },
-      resolve: async (_, { input }, { prisma }) => {
+      resolve: async (_, { input }, { prisma, session }: IMyContext) => {
+        const userId = authenticateUser(session);
         const { id, update } = input;
-        return prisma.task.update({
-          where: { id },
-          data: {
-            title: update.title,
-            dueDate: update.dueDate,
-            stageId: update.stageId,
-            classCode: update.classCode,
-            description: update.description,
-          },
+
+        return prisma.$transaction(async (tx) => {
+          const task = await tx.task.findUnique({
+            where: { id }
+          });
+
+          if (!task) {
+            throw new Error("Task not found");
+          }
+
+          if (update.stageId === 3) {
+            try {
+              await tx.completedTasks.create({
+                data: {
+                  userId,
+                  classCode: update.classCode || task.classCode,
+                  title: update.title || task.title,
+                  source: task.source
+                }
+              });
+            } catch (error: any) {
+              if (error.code === 'P2002') {
+                console.log('Task already marked as completed');
+              } else {
+                throw error;
+              }
+            }
+          }
+          else if (task.stageId === 3 && (update.stageId === 1 || update.stageId === 2)) {
+            await tx.completedTasks.deleteMany({
+              where: {
+                userId,
+                classCode: task.classCode || update.classCode,
+                title: task.title
+              }
+            });
+          }
+
+          return tx.task.update({
+            where: { id },
+            data: {
+              title: update.title,
+              dueDate: update.dueDate,
+              stageId: update.stageId,
+              classCode: update.classCode,
+              description: update.description,
+            },
+          });
         });
       },
     });
@@ -210,7 +328,7 @@ export const taskMutation = extendType({
         input: deleteTaskInput,
       },
       resolve: (_, { input }, { prisma }) =>
-        prisma.task.delete({ where: { id: input.id } }),
+          prisma.task.delete({ where: { id: input.id } }),
     });
   },
 });
