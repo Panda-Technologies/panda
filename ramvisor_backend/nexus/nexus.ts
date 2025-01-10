@@ -167,6 +167,7 @@ export interface NexusGenInputs {
     classCode?: string | null; // String
     description?: string | null; // String
     dueDate: string; // String!
+    source?: string | null; // String
     stageId?: number | null; // Int
     title: string; // String!
   }
@@ -308,6 +309,7 @@ export interface NexusGenObjects {
     description?: string | null; // String
     dueDate: string; // String!
     id: number; // Int!
+    source: string; // String!
     stageId: number; // Int!
     title: string; // String!
     user?: NexusGenRootTypes['user'] | null; // user
@@ -493,6 +495,7 @@ export interface NexusGenFieldTypes {
     description: string | null; // String
     dueDate: string; // String!
     id: number; // Int!
+    source: string; // String!
     stageId: number; // Int!
     title: string; // String!
     user: NexusGenRootTypes['user'] | null; // user
@@ -668,6 +671,7 @@ export interface NexusGenFieldTypeNames {
     description: 'String'
     dueDate: 'String'
     id: 'Int'
+    source: 'String'
     stageId: 'Int'
     title: 'String'
     user: 'user'

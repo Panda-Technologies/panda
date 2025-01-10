@@ -342,6 +342,7 @@ type task {
   description: String
   dueDate: String!
   id: Int!
+  source: String!
   stageId: Int!
   title: String!
   user: user
@@ -352,6 +353,7 @@ input taskInputFields {
   classCode: String
   description: String
   dueDate: String!
+  source: String
   stageId: Int
   title: String!
 }

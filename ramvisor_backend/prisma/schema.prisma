@@ -40,7 +40,8 @@ model user {
   questionnaireCompleted         Boolean         @default(false)
 
   // New: Relation to the Class model (many-to-many)
-  classes classSection[]
+  classes        classSection[]
+  completedTasks completedTasks[]
 
   @@map("users")
 }
@@ -52,10 +53,26 @@ model task {
   stageId     Int
   classCode   String?
   description String?
+  source      String // 'canvas' or 'app'
   title       String
   user        user    @relation(fields: [userId], references: [id])
 
+  @@index([userId, classCode, title])
   @@map("tasks")
+}
+
+model completedTasks {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  classCode   String
+  title       String
+  completedAt DateTime @default(now())
+  source      String // 'canvas' or 'app'
+  user        user     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, classCode, title])
+  @@index([userId, completedAt])
+  @@map("completed_tasks")
 }
 
 model classSchedule {
