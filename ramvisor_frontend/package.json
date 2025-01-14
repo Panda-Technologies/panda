@@ -64,7 +64,10 @@
     "react-router-dom": "^6.25.1",
     "react-toastify": "^10.0.5",
     "react-virtualized": "^9.22.5",
-    "styled-components": "^6.1.12"
+    "styled-components": "^6.1.12",
+    "ts-node": "^10.9.2",
+    "typechat": "^0.1.1",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.2",
@@ -76,7 +79,7 @@
     "@types/js-cookie": "^3.0.6",
     "@types/json-bigint": "^1.0.4",
     "@types/lodash": "^4.17.13",
-    "@types/node": "^18.16.2",
+    "@types/node": "^18.19.70",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@types/react-virtualized": "^9.21.30",
@@ -84,7 +87,7 @@
     "cross-env": "^7.0.3",
     "eslint": "^8",
     "eslint-config-next": "^14.1.0",
-    "typescript": "^5.4.2"
+    "typescript": "^5.7.3"
   },
   "refine": {
     "projectId": "mrBuj1-0X8B8V-AEWw5N"
