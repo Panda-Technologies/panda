@@ -316,6 +316,7 @@ export const taskMutation = extendType({
               stageId: update.stageId,
               classCode: update.classCode,
               description: update.description,
+              source: update.source,
             },
           });
         });
