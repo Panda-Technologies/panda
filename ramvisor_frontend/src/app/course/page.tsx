@@ -13,7 +13,6 @@ import {
 } from '@graphql/mutations';
 import useDataFetch from "@utilities/data-fetch";
 import {Class, ClassSchedule, User} from "@graphql/generated/graphql";
-import {wait} from "@apollo/client/testing";
 import {getRandomLightColor} from "@components/courses/addable-course";
 import NewScheduleModal from "@components/courses/new-schedule";
 import {message} from "antd";
