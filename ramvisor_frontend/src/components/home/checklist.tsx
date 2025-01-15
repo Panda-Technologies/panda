@@ -38,14 +38,15 @@ const headerStyle = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: '0 20px 8px',
+  padding: '0 10px 8px',
   marginTop: '-7px',
   borderBottom: '1px solid #e8e8e8'
 };
 
 const titleContainerStyle = {
   display: 'flex',
-  alignItems: 'center'
+  alignItems: 'center',
+  maxWidth: '100%',
 };
 
 const iconStyle = {
@@ -57,7 +58,11 @@ const titleStyle = {
   marginLeft: '12px',
   fontWeight: 'bold',
   fontSize: '18px',
-  color: '#333'
+  color: '#333',
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  maxWidth: '100%',
 };
 
 const listContainerStyle = {
@@ -133,7 +138,7 @@ const Checklist: React.FC = () => {
         setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
       }, 300);
 
-      message.success(`Task ${checked ? 'completed' : 'marked as not started'}`);
+      message.success(`Task ${checked ? 'started' : 'marked as not started'}`, 0.5);
     } catch (error) {
       message.error('Failed to update task status');
     }
@@ -143,12 +148,12 @@ const Checklist: React.FC = () => {
       <Card style={cardStyle}>
         <div style={headerStyle}>
           <div style={titleContainerStyle}>
-            <CheckSquareOutlined style={iconStyle} />
+            <CheckSquareOutlined style={iconStyle}/>
             <span style={titleStyle}>Pending Assignments</span>
           </div>
-          <Link href='/tasks'>
-            <ArrowRightOutlined />
-          </Link>
+            <Link href='/tasks'>
+              <ArrowRightOutlined/>
+            </Link>
         </div>
         <div style={listContainerStyle}>
           <List
@@ -156,7 +161,10 @@ const Checklist: React.FC = () => {
               itemLayout="horizontal"
               dataSource={tasks.filter(task => task.stageId === 1)}
               pagination={{
+                size: 'default',
                 pageSize: 4,
+                responsive: true,
+                hideOnSinglePage: true
 
               }}
               renderItem={(item: Task) => (
