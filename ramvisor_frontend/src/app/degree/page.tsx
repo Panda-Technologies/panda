@@ -435,6 +435,9 @@ const DegreePage: React.FC = () => {
             display: "flex",
             flexDirection: "column",
             height: "100vh",
+            margin: '-24px',
+            border: '1px solid #e5e7eb',
+            position: 'relative',
             backgroundColor: "#f3f4f6",
         }}>
             <DegreeHeader
