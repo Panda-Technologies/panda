@@ -38,15 +38,11 @@ export type Class = {
   coreDegreeId: Array<Maybe<Scalars["Int"]["output"]>>;
   courseType: Scalars["String"]["output"];
   credits: Scalars["Int"]["output"];
-  dayOfWeek: Scalars["String"]["output"];
   description: Scalars["String"]["output"];
   electiveDegreeId?: Maybe<Array<Maybe<Scalars["Int"]["output"]>>>;
-  endTime: Scalars["String"]["output"];
   id: Scalars["Int"]["output"];
-  professor: Scalars["String"]["output"];
   rateMyProfessorRating: Scalars["Float"]["output"];
   sections?: Maybe<Array<Maybe<ClassSection>>>;
-  startTime: Scalars["String"]["output"];
   title: Scalars["String"]["output"];
 };
 
@@ -77,13 +73,12 @@ export type CreateRequirementInput = {
   category: Scalars["String"]["input"];
   classIds: Array<InputMaybe<Scalars["Int"]["input"]>>;
   degreeId: Scalars["Int"]["input"];
-  isElective: Scalars["Boolean"]["input"];
+  reqType: Scalars["String"]["input"];
 };
 
 export type DegreePlannerDegreeInput = {
   degreeId: Scalars["Int"]["input"];
   title: Scalars["String"]["input"];
-  userId: Scalars["String"]["input"];
 };
 
 export type LoginInput = {
@@ -94,12 +89,12 @@ export type LoginInput = {
 export type Mutation = {
   __typename?: "Mutation";
   addClassToClassSchedule?: Maybe<ClassScheduleEntry>;
-  addClassTosemester?: Maybe<SemesterEntry>;
+  addClassToSemester?: Maybe<SemesterEntry>;
   createClass?: Maybe<Class>;
   createClassSchedule?: Maybe<ClassSchedule>;
   createDegree?: Maybe<Degree>;
+  createDegreeAndRequirements?: Maybe<Scalars["Boolean"]["output"]>;
   createDegreePlanner?: Maybe<DegreePlanner>;
-  createDegreeRequirements?: Maybe<Scalars["Boolean"]["output"]>;
   createRequirement?: Maybe<Requirement>;
   createSemester?: Maybe<Semester>;
   createTask?: Maybe<Task>;
@@ -110,6 +105,8 @@ export type Mutation = {
   deleteSemester?: Maybe<Semester>;
   deleteTask?: Maybe<Task>;
   generateClassesFromScrape?: Maybe<Class>;
+  importCanvasClasses?: Maybe<Class>;
+  importCanvasTasks?: Maybe<Task>;
   login?: Maybe<Scalars["String"]["output"]>;
   logout?: Maybe<Scalars["Boolean"]["output"]>;
   register?: Maybe<Scalars["String"]["output"]>;
@@ -133,7 +130,7 @@ export type MutationAddClassToClassScheduleArgs = {
   input: AddClassToScheduleInput;
 };
 
-export type MutationAddClassTosemesterArgs = {
+export type MutationAddClassToSemesterArgs = {
   input: AddClassToSemesterInput;
 };
 
@@ -151,10 +148,6 @@ export type MutationCreateDegreeArgs = {
 
 export type MutationCreateDegreePlannerArgs = {
   input: CreateDegreePlannerInput;
-};
-
-export type MutationCreateDegreeRequirementsArgs = {
-  degreeId: Scalars["Int"]["input"];
 };
 
 export type MutationCreateRequirementArgs = {
@@ -191,6 +184,14 @@ export type MutationDeleteSemesterArgs = {
 
 export type MutationDeleteTaskArgs = {
   input?: InputMaybe<DeleteTaskInput>;
+};
+
+export type MutationImportCanvasClassesArgs = {
+  input: ImportCanvasClassesInput;
+};
+
+export type MutationImportCanvasTasksArgs = {
+  input?: InputMaybe<ImportCanvasTasksInput>;
 };
 
 export type MutationLoginArgs = {
@@ -259,8 +260,7 @@ export type MutationUpdateUserAcademicInfoArgs = {
 };
 
 export type MutationUpdateUserProfileArgs = {
-  degreeId?: InputMaybe<Scalars["Int"]["input"]>;
-  id: Scalars["String"]["input"];
+  degreeIds?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
   questionnaireCompleted?: InputMaybe<Scalars["Boolean"]["input"]>;
   university?: InputMaybe<Scalars["String"]["input"]>;
   yearInUniversity?: InputMaybe<Scalars["Int"]["input"]>;
@@ -269,21 +269,21 @@ export type MutationUpdateUserProfileArgs = {
 export type Query = {
   __typename?: "Query";
   classTaken?: Maybe<ClassTakenResult>;
-  getAlldegrees?: Maybe<Array<Maybe<Degree>>>;
+  getAllDegrees?: Maybe<Array<Maybe<Degree>>>;
   getClass?: Maybe<Class>;
   getClassScheduleEntries?: Maybe<Array<Maybe<ClassScheduleEntry>>>;
   getClassSchedules?: Maybe<Array<Maybe<ClassSchedule>>>;
   getClasses?: Maybe<Array<Maybe<Class>>>;
   getDegree?: Maybe<Degree>;
+  getDegreePlanners?: Maybe<Array<Maybe<DegreePlanner>>>;
   getGraduationSemester?: Maybe<Scalars["String"]["output"]>;
   getPremiumStatus?: Maybe<Scalars["Boolean"]["output"]>;
   getRequirement?: Maybe<Array<Maybe<Requirement>>>;
   getRequirements?: Maybe<Array<Maybe<Requirement>>>;
   getSemester?: Maybe<Semester>;
+  getSemesters?: Maybe<Array<Maybe<Semester>>>;
   getTasks?: Maybe<Array<Maybe<Task>>>;
   getUser?: Maybe<User>;
-  getdegreePlanners?: Maybe<Array<Maybe<DegreePlanner>>>;
-  getsemesters?: Maybe<Array<Maybe<Semester>>>;
   me?: Maybe<User>;
 };
 
@@ -297,10 +297,6 @@ export type QueryGetClassArgs = {
 
 export type QueryGetClassScheduleEntriesArgs = {
   classScheduleId: Scalars["Int"]["input"];
-};
-
-export type QueryGetDegreeArgs = {
-  userId: Scalars["String"]["input"];
 };
 
 export type QueryGetGraduationSemesterArgs = {
@@ -324,15 +320,7 @@ export type QueryGetSemesterArgs = {
   id: Scalars["Int"]["input"];
 };
 
-export type QueryGetUserArgs = {
-  id: Scalars["String"]["input"];
-};
-
-export type QueryGetdegreePlannersArgs = {
-  userId: Scalars["String"]["input"];
-};
-
-export type QueryGetsemestersArgs = {
+export type QueryGetSemestersArgs = {
   plannerId: Scalars["Int"]["input"];
 };
 
@@ -364,7 +352,7 @@ export type UpdateRequirementInput = {
   classIds?: InputMaybe<Array<InputMaybe<Scalars["Int"]["input"]>>>;
   degreeId?: InputMaybe<Scalars["Int"]["input"]>;
   id: Scalars["Int"]["input"];
-  isElective?: InputMaybe<Scalars["Boolean"]["input"]>;
+  reqType?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type AddClassToScheduleInput = {
@@ -381,6 +369,7 @@ export type ClassSchedule = {
   __typename?: "classSchedule";
   entries?: Maybe<Array<Maybe<ClassScheduleEntry>>>;
   id: Scalars["Int"]["output"];
+  isCurrent?: Maybe<Scalars["Boolean"]["output"]>;
   semesterId: Scalars["String"]["output"];
   title: Scalars["String"]["output"];
   user?: Maybe<User>;
@@ -426,6 +415,7 @@ export type CreateClassScheduleInput = {
 export type CreateDegreeInput = {
   coreCategories: Array<InputMaybe<Scalars["String"]["input"]>>;
   electiveCategories: Array<InputMaybe<Scalars["String"]["input"]>>;
+  gatewayCategories: Array<InputMaybe<Scalars["String"]["input"]>>;
   name: Scalars["String"]["input"];
   numberOfCores: Scalars["Int"]["input"];
   numberOfElectives: Scalars["Int"]["input"];
@@ -450,11 +440,13 @@ export type Degree = {
   __typename?: "degree";
   coreCategories: Array<Maybe<Scalars["String"]["output"]>>;
   electiveCategories: Array<Maybe<Scalars["String"]["output"]>>;
+  gatewayCategories: Array<Maybe<Scalars["String"]["output"]>>;
   id: Scalars["Int"]["output"];
   name: Scalars["String"]["output"];
-  numberOfCores: Scalars["Int"]["output"];
-  numberOfElectives: Scalars["Int"]["output"];
+  numberOfCores: Scalars["Float"]["output"];
+  numberOfElectives: Scalars["Float"]["output"];
   semesters?: Maybe<Array<Maybe<Semester>>>;
+  type: Scalars["String"]["output"];
   users?: Maybe<Array<Maybe<User>>>;
 };
 
@@ -487,6 +479,26 @@ export type GraduationSemesterInput = {
   year: Scalars["Int"]["input"];
 };
 
+export type ImportCanvasClassesInput = {
+  courseInput?: InputMaybe<Array<InputMaybe<ListClassInput>>>;
+};
+
+export type ImportCanvasTasksInput = {
+  taskInput?: InputMaybe<Array<InputMaybe<ListTaskInput>>>;
+};
+
+export type ListClassInput = {
+  classCode: Scalars["String"]["input"];
+  color: Scalars["String"]["input"];
+  sectionId: Scalars["String"]["input"];
+  semesterId: Scalars["String"]["input"];
+};
+
+export type ListTaskInput = {
+  assignment: Array<InputMaybe<TaskInputFields>>;
+  classCode: Scalars["String"]["input"];
+};
+
 export type RemoveClassFromScheduleInput = {
   id: Scalars["String"]["input"];
   update: ClassScheduleUpdateInput;
@@ -503,10 +515,15 @@ export type Requirement = {
   classIds: Array<Maybe<Scalars["Int"]["output"]>>;
   degreeId: Scalars["Int"]["output"];
   id: Scalars["Int"]["output"];
-  isElective: Scalars["Boolean"]["output"];
+  reqType: Scalars["String"]["output"];
 };
 
 export type ResetClassScheduleInput = {
+  id: Scalars["String"]["input"];
+  update: ResetClassScheduleUpdateInput;
+};
+
+export type ResetClassScheduleUpdateInput = {
   id: Scalars["Int"]["input"];
 };
 
@@ -544,6 +561,7 @@ export type Task = {
   description?: Maybe<Scalars["String"]["output"]>;
   dueDate: Scalars["String"]["output"];
   id: Scalars["Int"]["output"];
+  source: Scalars["String"]["output"];
   stageId: Scalars["Int"]["output"];
   title: Scalars["String"]["output"];
   user?: Maybe<User>;
@@ -554,6 +572,7 @@ export type TaskInputFields = {
   classCode?: InputMaybe<Scalars["String"]["input"]>;
   description?: InputMaybe<Scalars["String"]["input"]>;
   dueDate: Scalars["String"]["input"];
+  source?: InputMaybe<Scalars["String"]["input"]>;
   stageId?: InputMaybe<Scalars["Int"]["input"]>;
   title: Scalars["String"]["input"];
 };
@@ -569,6 +588,7 @@ export type UpdateDegreeInput = {
   electiveCategories?: InputMaybe<
     Array<InputMaybe<Scalars["String"]["input"]>>
   >;
+  gatewayCategories?: InputMaybe<Array<InputMaybe<Scalars["String"]["input"]>>>;
   id: Scalars["Int"]["input"];
   name?: InputMaybe<Scalars["String"]["input"]>;
   numberOfCores?: InputMaybe<Scalars["Int"]["input"]>;
@@ -600,9 +620,8 @@ export type User = {
   assignmentCompletionPercentage?: Maybe<Scalars["Float"]["output"]>;
   attendancePercentage?: Maybe<Scalars["Float"]["output"]>;
   classSchedules?: Maybe<Array<Maybe<ClassSchedule>>>;
-  degree?: Maybe<Degree>;
-  degreeId?: Maybe<Scalars["Int"]["output"]>;
   degreePlanners?: Maybe<Array<Maybe<DegreePlanner>>>;
+  degrees?: Maybe<Array<Maybe<Degree>>>;
   email: Scalars["String"]["output"];
   gpa?: Maybe<Scalars["Float"]["output"]>;
   graduationSemesterName?: Maybe<Scalars["String"]["output"]>;
@@ -638,10 +657,11 @@ export type LogoutMutation = {
 };
 
 export type UpdateUserProfileMutationVariables = Exact<{
-  id: Scalars["String"]["input"];
   university: Scalars["String"]["input"];
   yearInUniversity: Scalars["Int"]["input"];
-  degreeId: Scalars["Int"]["input"];
+  degreeIds:
+    | Array<InputMaybe<Scalars["Int"]["input"]>>
+    | InputMaybe<Scalars["Int"]["input"]>;
 }>;
 
 export type UpdateUserProfileMutation = {
@@ -651,7 +671,11 @@ export type UpdateUserProfileMutation = {
     id: string;
     university?: string | null;
     yearInUniversity?: number | null;
-    degreeId?: number | null;
+    degrees?: Array<{
+      __typename?: "degree";
+      id: number;
+      name: string;
+    } | null> | null;
   } | null;
 };
 
@@ -720,11 +744,7 @@ export type CreateClassMutation = {
     title: string;
     description: string;
     category: string;
-    dayOfWeek: string;
-    startTime: string;
-    endTime: string;
     color: string;
-    professor: string;
     rateMyProfessorRating: number;
     coreDegreeId: Array<number | null>;
     electiveDegreeId?: Array<number | null> | null;
@@ -746,11 +766,7 @@ export type UpdateClassMutation = {
     title: string;
     description: string;
     category: string;
-    dayOfWeek: string;
-    startTime: string;
-    endTime: string;
     color: string;
-    professor: string;
     rateMyProfessorRating: number;
     coreDegreeId: Array<number | null>;
     electiveDegreeId?: Array<number | null> | null;
@@ -1004,7 +1020,7 @@ export type AddClassToSemesterMutationVariables = Exact<{
 
 export type AddClassToSemesterMutation = {
   __typename?: "Mutation";
-  addClassTosemester?: {
+  addClassToSemester?: {
     __typename?: "semesterEntry";
     id: number;
     semesterId: number;
@@ -1049,6 +1065,7 @@ export type CreateDegreeMutation = {
     id: number;
     name: string;
     coreCategories: Array<string | null>;
+    gatewayCategories: Array<string | null>;
     electiveCategories: Array<string | null>;
     numberOfCores: number;
     numberOfElectives: number;
@@ -1066,6 +1083,7 @@ export type UpdateDegreeMutation = {
     id: number;
     name: string;
     coreCategories: Array<string | null>;
+    gatewayCategories: Array<string | null>;
     electiveCategories: Array<string | null>;
     numberOfCores: number;
     numberOfElectives: number;
@@ -1079,15 +1097,6 @@ export type DeleteDegreeMutationVariables = Exact<{
 export type DeleteDegreeMutation = {
   __typename?: "Mutation";
   deleteDegree?: { __typename?: "degree"; id: number } | null;
-};
-
-export type CreateDegreeRequirementsMutationVariables = Exact<{
-  degreeId: Scalars["Int"]["input"];
-}>;
-
-export type CreateDegreeRequirementsMutation = {
-  __typename?: "Mutation";
-  createDegreeRequirements?: boolean | null;
 };
 
 export type CreateTaskMutationVariables = Exact<{
@@ -1134,40 +1143,7 @@ export type DeleteTaskMutation = {
   deleteTask?: { __typename?: "task"; id: number } | null;
 };
 
-export type CreateRequirementMutationVariables = Exact<{
-  data: CreateRequirementInput;
-}>;
-
-export type CreateRequirementMutation = {
-  __typename?: "Mutation";
-  createRequirement?: {
-    __typename?: "requirement";
-    id: number;
-    category: string;
-    isElective: boolean;
-    classIds: Array<number | null>;
-    degreeId: number;
-  } | null;
-};
-
-export type UpdateRequirementMutationVariables = Exact<{
-  data: UpdateRequirementInput;
-}>;
-
-export type UpdateRequirementMutation = {
-  __typename?: "Mutation";
-  updateRequirement?: {
-    __typename?: "requirement";
-    id: number;
-    category: string;
-    isElective: boolean;
-    classIds: Array<number | null>;
-    degreeId: number;
-  } | null;
-};
-
 export type MarkQuestionnaireCompletedMutationVariables = Exact<{
-  userId: Scalars["String"]["input"];
   isQuestionnaireCompleted?: InputMaybe<Scalars["Boolean"]["input"]>;
 }>;
 
@@ -1180,9 +1156,7 @@ export type MarkQuestionnaireCompletedMutation = {
   } | null;
 };
 
-export type GetUserQueryVariables = Exact<{
-  id: Scalars["String"]["input"];
-}>;
+export type GetUserQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetUserQuery = {
   __typename?: "Query";
@@ -1197,17 +1171,18 @@ export type GetUserQuery = {
     gpa?: number | null;
     attendancePercentage?: number | null;
     assignmentCompletionPercentage?: number | null;
-    degreeId?: number | null;
     takenClassIds?: Array<number | null> | null;
-    degree?: {
+    degrees?: Array<{
       __typename?: "degree";
       id: number;
       name: string;
+      type: string;
       coreCategories: Array<string | null>;
+      gatewayCategories: Array<string | null>;
       electiveCategories: Array<string | null>;
       numberOfCores: number;
       numberOfElectives: number;
-    } | null;
+    } | null> | null;
   } | null;
 };
 
@@ -1226,9 +1201,12 @@ export type MeQuery = {
     gpa?: number | null;
     attendancePercentage?: number | null;
     assignmentCompletionPercentage?: number | null;
-    degreeId?: number | null;
     takenClassIds?: Array<number | null> | null;
-    degree?: { __typename?: "degree"; id: number; name: string } | null;
+    degrees?: Array<{
+      __typename?: "degree";
+      id: number;
+      name: string;
+    } | null> | null;
   } | null;
 };
 
@@ -1400,13 +1378,11 @@ export type GetClassScheduleEntriesQuery = {
   } | null> | null;
 };
 
-export type GetDegreePlannersQueryVariables = Exact<{
-  userId: Scalars["String"]["input"];
-}>;
+export type GetDegreePlannersQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetDegreePlannersQuery = {
   __typename?: "Query";
-  getdegreePlanners?: Array<{
+  getDegreePlanners?: Array<{
     __typename?: "degreePlanner";
     id: number;
     title: string;
@@ -1439,7 +1415,7 @@ export type GetSemestersQueryVariables = Exact<{
 
 export type GetSemestersQuery = {
   __typename?: "Query";
-  getsemesters?: Array<{
+  getSemesters?: Array<{
     __typename?: "semester";
     id: number;
     name: string;
@@ -1493,20 +1469,19 @@ export type GetAllDegreesQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetAllDegreesQuery = {
   __typename?: "Query";
-  getAlldegrees?: Array<{
+  getAllDegrees?: Array<{
     __typename?: "degree";
     id: number;
     name: string;
     coreCategories: Array<string | null>;
+    gatewayCategories: Array<string | null>;
     electiveCategories: Array<string | null>;
     numberOfCores: number;
     numberOfElectives: number;
   } | null> | null;
 };
 
-export type GetDegreeQueryVariables = Exact<{
-  userId: Scalars["String"]["input"];
-}>;
+export type GetDegreeQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetDegreeQuery = {
   __typename?: "Query";
@@ -1515,6 +1490,7 @@ export type GetDegreeQuery = {
     id: number;
     name: string;
     coreCategories: Array<string | null>;
+    gatewayCategories: Array<string | null>;
     electiveCategories: Array<string | null>;
     numberOfCores: number;
     numberOfElectives: number;
@@ -1548,7 +1524,7 @@ export type GetRequirementQuery = {
     __typename?: "requirement";
     id: number;
     category: string;
-    isElective: boolean;
+    reqType: string;
     classIds: Array<number | null>;
     degreeId: number;
   } | null> | null;
@@ -1564,7 +1540,7 @@ export type GetRequirementsQuery = {
     __typename?: "requirement";
     id: number;
     category: string;
-    isElective: boolean;
+    reqType: string;
     classIds: Array<number | null>;
     degreeId: number;
   } | null> | null;
@@ -1686,17 +1662,6 @@ export const UpdateUserProfileDocument = {
       variableDefinitions: [
         {
           kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-        {
-          kind: "VariableDefinition",
           variable: {
             kind: "Variable",
             name: { kind: "Name", value: "university" },
@@ -1724,11 +1689,14 @@ export const UpdateUserProfileDocument = {
           kind: "VariableDefinition",
           variable: {
             kind: "Variable",
-            name: { kind: "Name", value: "degreeId" },
+            name: { kind: "Name", value: "degreeIds" },
           },
           type: {
             kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+            type: {
+              kind: "ListType",
+              type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+            },
           },
         },
       ],
@@ -1739,14 +1707,6 @@ export const UpdateUserProfileDocument = {
             kind: "Field",
             name: { kind: "Name", value: "updateUserProfile" },
             arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "university" },
@@ -1765,10 +1725,10 @@ export const UpdateUserProfileDocument = {
               },
               {
                 kind: "Argument",
-                name: { kind: "Name", value: "degreeId" },
+                name: { kind: "Name", value: "degreeIds" },
                 value: {
                   kind: "Variable",
-                  name: { kind: "Name", value: "degreeId" },
+                  name: { kind: "Name", value: "degreeIds" },
                 },
               },
             ],
@@ -1781,7 +1741,17 @@ export const UpdateUserProfileDocument = {
                   kind: "Field",
                   name: { kind: "Name", value: "yearInUniversity" },
                 },
-                { kind: "Field", name: { kind: "Name", value: "degreeId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "degrees" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -2108,11 +2078,7 @@ export const CreateClassDocument = {
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "category" } },
-                { kind: "Field", name: { kind: "Name", value: "dayOfWeek" } },
-                { kind: "Field", name: { kind: "Name", value: "startTime" } },
-                { kind: "Field", name: { kind: "Name", value: "endTime" } },
                 { kind: "Field", name: { kind: "Name", value: "color" } },
-                { kind: "Field", name: { kind: "Name", value: "professor" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "rateMyProfessorRating" },
@@ -2182,11 +2148,7 @@ export const UpdateClassDocument = {
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "category" } },
-                { kind: "Field", name: { kind: "Name", value: "dayOfWeek" } },
-                { kind: "Field", name: { kind: "Name", value: "startTime" } },
-                { kind: "Field", name: { kind: "Name", value: "endTime" } },
                 { kind: "Field", name: { kind: "Name", value: "color" } },
-                { kind: "Field", name: { kind: "Name", value: "professor" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "rateMyProfessorRating" },
@@ -3220,7 +3182,7 @@ export const AddClassToSemesterDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "addClassTosemester" },
+            name: { kind: "Name", value: "addClassToSemester" },
             arguments: [
               {
                 kind: "Argument",
@@ -3390,6 +3352,10 @@ export const CreateDegreeDocument = {
                 },
                 {
                   kind: "Field",
+                  name: { kind: "Name", value: "gatewayCategories" },
+                },
+                {
+                  kind: "Field",
                   name: { kind: "Name", value: "electiveCategories" },
                 },
                 {
@@ -3458,6 +3424,10 @@ export const UpdateDegreeDocument = {
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "coreCategories" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "gatewayCategories" },
                 },
                 {
                   kind: "Field",
@@ -3535,51 +3505,6 @@ export const DeleteDegreeDocument = {
 } as unknown as DocumentNode<
   DeleteDegreeMutation,
   DeleteDegreeMutationVariables
->;
-export const CreateDegreeRequirementsDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateDegreeRequirements" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "degreeId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createDegreeRequirements" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "degreeId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "degreeId" },
-                },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreateDegreeRequirementsMutation,
-  CreateDegreeRequirementsMutationVariables
 >;
 export const CreateTaskDocument = {
   kind: "Document",
@@ -3745,116 +3670,6 @@ export const DeleteTaskDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteTaskMutation, DeleteTaskMutationVariables>;
-export const CreateRequirementDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "CreateRequirement" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "data" } },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "CreateRequirementInput" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "createRequirement" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "data" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "data" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "category" } },
-                { kind: "Field", name: { kind: "Name", value: "isElective" } },
-                { kind: "Field", name: { kind: "Name", value: "classIds" } },
-                { kind: "Field", name: { kind: "Name", value: "degreeId" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreateRequirementMutation,
-  CreateRequirementMutationVariables
->;
-export const UpdateRequirementDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "UpdateRequirement" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "data" } },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "UpdateRequirementInput" },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "updateRequirement" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "data" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "data" },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "category" } },
-                { kind: "Field", name: { kind: "Name", value: "isElective" } },
-                { kind: "Field", name: { kind: "Name", value: "classIds" } },
-                { kind: "Field", name: { kind: "Name", value: "degreeId" } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdateRequirementMutation,
-  UpdateRequirementMutationVariables
->;
 export const MarkQuestionnaireCompletedDocument = {
   kind: "Document",
   definitions: [
@@ -3863,20 +3678,6 @@ export const MarkQuestionnaireCompletedDocument = {
       operation: "mutation",
       name: { kind: "Name", value: "MarkQuestionnaireCompleted" },
       variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "userId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
         {
           kind: "VariableDefinition",
           variable: {
@@ -3893,14 +3694,6 @@ export const MarkQuestionnaireCompletedDocument = {
             kind: "Field",
             name: { kind: "Name", value: "updateUserProfile" },
             arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "userId" },
-                },
-              },
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "questionnaireCompleted" },
@@ -3936,35 +3729,12 @@ export const GetUserDocument = {
       kind: "OperationDefinition",
       operation: "query",
       name: { kind: "Name", value: "GetUser" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
       selectionSet: {
         kind: "SelectionSet",
         selections: [
           {
             kind: "Field",
             name: { kind: "Name", value: "getUser" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "id" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "id" },
-                },
-              },
-            ],
             selectionSet: {
               kind: "SelectionSet",
               selections: [
@@ -3992,22 +3762,26 @@ export const GetUserDocument = {
                     value: "assignmentCompletionPercentage",
                   },
                 },
-                { kind: "Field", name: { kind: "Name", value: "degreeId" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "takenClassIds" },
                 },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "degree" },
+                  name: { kind: "Name", value: "degrees" },
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
                       { kind: "Field", name: { kind: "Name", value: "id" } },
                       { kind: "Field", name: { kind: "Name", value: "name" } },
+                      { kind: "Field", name: { kind: "Name", value: "type" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "coreCategories" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "gatewayCategories" },
                       },
                       {
                         kind: "Field",
@@ -4072,14 +3846,13 @@ export const MeDocument = {
                     value: "assignmentCompletionPercentage",
                   },
                 },
-                { kind: "Field", name: { kind: "Name", value: "degreeId" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "takenClassIds" },
                 },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "degree" },
+                  name: { kind: "Name", value: "degrees" },
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
@@ -4682,38 +4455,12 @@ export const GetDegreePlannersDocument = {
       kind: "OperationDefinition",
       operation: "query",
       name: { kind: "Name", value: "GetDegreePlanners" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "userId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
       selectionSet: {
         kind: "SelectionSet",
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "getdegreePlanners" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "userId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "userId" },
-                },
-              },
-            ],
+            name: { kind: "Name", value: "getDegreePlanners" },
             selectionSet: {
               kind: "SelectionSet",
               selections: [
@@ -4814,7 +4561,7 @@ export const GetSemestersDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "getsemesters" },
+            name: { kind: "Name", value: "getSemesters" },
             arguments: [
               {
                 kind: "Argument",
@@ -4980,7 +4727,7 @@ export const GetAllDegreesDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "getAlldegrees" },
+            name: { kind: "Name", value: "getAllDegrees" },
             selectionSet: {
               kind: "SelectionSet",
               selections: [
@@ -4989,6 +4736,10 @@ export const GetAllDegreesDocument = {
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "coreCategories" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "gatewayCategories" },
                 },
                 {
                   kind: "Field",
@@ -5017,38 +4768,12 @@ export const GetDegreeDocument = {
       kind: "OperationDefinition",
       operation: "query",
       name: { kind: "Name", value: "GetDegree" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "userId" },
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" },
-            },
-          },
-        },
-      ],
       selectionSet: {
         kind: "SelectionSet",
         selections: [
           {
             kind: "Field",
             name: { kind: "Name", value: "getDegree" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "userId" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "userId" },
-                },
-              },
-            ],
             selectionSet: {
               kind: "SelectionSet",
               selections: [
@@ -5057,6 +4782,10 @@ export const GetDegreeDocument = {
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "coreCategories" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "gatewayCategories" },
                 },
                 {
                   kind: "Field",
@@ -5172,7 +4901,7 @@ export const GetRequirementDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "category" } },
-                { kind: "Field", name: { kind: "Name", value: "isElective" } },
+                { kind: "Field", name: { kind: "Name", value: "reqType" } },
                 { kind: "Field", name: { kind: "Name", value: "classIds" } },
                 { kind: "Field", name: { kind: "Name", value: "degreeId" } },
               ],
@@ -5224,7 +4953,7 @@ export const GetRequirementsDocument = {
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 { kind: "Field", name: { kind: "Name", value: "category" } },
-                { kind: "Field", name: { kind: "Name", value: "isElective" } },
+                { kind: "Field", name: { kind: "Name", value: "reqType" } },
                 { kind: "Field", name: { kind: "Name", value: "classIds" } },
                 { kind: "Field", name: { kind: "Name", value: "degreeId" } },
               ],
