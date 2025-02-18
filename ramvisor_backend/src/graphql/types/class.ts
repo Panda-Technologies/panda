@@ -1,8 +1,8 @@
 import {extendType, inputObjectType, intArg, nonNull, objectType} from "nexus";
 import {PrismaClient} from "@prisma/client";
 import {getEndTime, getStartTime, parseCSV, processComponent, processInstructor} from "../../utils";
-import {headers} from "../../constants";
-import {canvasClass, IMyContext} from "../../interface";
+import {classHeaders, intColumns} from "../../constants";
+import {canvasClass, classColumnTypes, IMyContext} from "../../interface";
 
 export const Class = objectType({
   name: 'Class',
@@ -140,7 +140,7 @@ export const classMutation = extendType({
     t.field('generateClassesFromScrape', {
       type: 'Class',
       resolve: async (_, __, { prisma }: { prisma: PrismaClient }) => {
-        const classes = await parseCSV('../big_pdf_lessons.csv', headers);
+        const classes = await parseCSV<classColumnTypes>('../big_pdf_lessons.csv', classHeaders, intColumns);
 
         const processTime = (timeStr: string): { startTime: string, endTime: string } => {
           if (!timeStr || timeStr.trim().includes("TBA") || timeStr.trim().includes("NULL")) {
