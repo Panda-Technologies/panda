@@ -1,10 +1,9 @@
 import Argon from 'argon2'
-import {columnTypes, ISession} from './interface';
+import {ISession} from './interface';
 import { v4 as uuidv4 } from 'uuid';
 import path from "path";
 import * as fs from "node:fs";
 import {parse} from "csv-parse";
-import {intColumns} from "./constants";
 
 export const hashPassword = async (password: string): Promise<string> => {
         return await Argon.hash(password);
@@ -22,21 +21,21 @@ export const generateUUID = (): string => {
     return uuidv4();
 }
 
-export const parseCSV = (filepath: string, headers: string[]): Promise<columnTypes[]> => {
+export const parseCSV = <T>(filepath: string, headers: string[], intColumnType: string[]): Promise<T[]> => {
     return new Promise((resolve, reject) => {
-        const csvFilePath = path.resolve(__dirname, filepath);
+        const csvFilePath = path.resolve('/Users/maxim/Desktop/Computer Science/panda/ramvisor_backend/', filepath);
         const fileContent = fs.readFileSync(csvFilePath, { encoding: 'utf-8' });
 
         parse(fileContent, {
             delimiter: ',',
             columns: headers,
             cast: (columnVal, context) => {
-                if (typeof context.column === 'string' && intColumns.includes(context.column)) {
+                if (typeof context.column === 'string' && intColumnType.includes(context.column)) {
                     return parseInt(columnVal, 10);
                 }
                 return columnVal;
             }
-        }, (err, result: columnTypes[]) => {
+        }, (err, result: T[]) => {
             if (err) {
                 console.error(err);
                 reject(err);
