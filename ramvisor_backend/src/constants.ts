@@ -25,6 +25,15 @@ export enum classColumns {
     MIN_ENROLL = 'Class Min Enrl',
 }
 
+export enum degreeColumns {
+    COURSE = 'Course',
+    COURSE_NAME = 'Course Name',
+    TYPE = 'Type',
+    IDEAs = 'IDEAs in Action Gen Ed',
+    PREREQUISITES = 'Prerequisites',
+    CREDIT_HOURS = 'Credit Hours',
+}
+
 export const intColumns: string[] = [
     classColumns.ID,
     classColumns.CATALOG_NBR,
@@ -38,7 +47,11 @@ export const intColumns: string[] = [
     classColumns.MIN_ENROLL
 ];
 
-export const headers = [
+export const degreeIntColumns: string[] = [
+    degreeColumns.CREDIT_HOURS
+];
+
+export const classHeaders = [
     'id',
     'code',
     'subject',
@@ -60,3 +73,12 @@ export const headers = [
     'Class Wait Tot',
     'Class Min Enrl',
 ];
+
+export const degreeHeaders = [
+    'Course',
+    'Course Name',
+    'Type',
+    'IDEAs in Action Gen Ed',
+    'Prerequisites',
+    'Credit Hours',
+]
