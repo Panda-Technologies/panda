@@ -1,0 +1,134 @@
+﻿Course,Course Name,Type,IDEAs in Action Gen Ed,Prerequisites,Credit Hours
+Calculus (choose 1 of 4),,Gateway,,,
+MATH 152,Calculus for Business and Social Sciences,Gateway,None,None,3
+MATH 231,Calculus of Functions of One Variable I,Gateway,None,None,4
+MATH 232,Calculus of Functions of One Variable II,Gateway,None,Typically MATH 231 or AP Calc AB/BC,4
+STOR 113,Decision Models for Business and Economics,Gateway,None,None,3
+,,,,,
+STOR 155,Introduction to Data Models and Inference,Gateway,None,None,3
+ECON 101,Introduction to Economics,Gateway,None,None,4
+BUSI 100,"Introduction to Business: People, Profits, Planet",Gateway,None,None,1.5
+,,,,,
+BUSI 188,Foundations of Leadership,Elective,None,Restricted to first-year Assured Enrollment students,1.5
+BUSI 189,Introduction to Careers in Business,Elective,None,Restricted to first-year Assured Enrollment students,1.5
+BUSI 190,Business Topics,Elective,None,None,1–3
+BUSI 203,Business in South East Asia,Elective,None,Permission of the School required,0.5–15
+BUSI 220,Persuasion with Data,Elective,None,Luther Hodges Scholars only,1
+BUSI 221,Luther Hodges Scholars Leadership Seminar,Elective,None,Luther Hodges Scholars only,1
+BUSI 286,Introduction to Personal Finance,Elective,None,Intended for juniors/seniors not pursuing a BUSI major/minor,3
+BUSI 290,Business Topics,Elective,None,None,1.5–3
+BUSI 293,Affordable Housing Practicum,Elective,None,Prereq: BUSI 408; Pre- or coreq: BUSI 585,3
+BUSI 305,Business German,Elective,"FC-GLOBAL, COMMBEYOND",Prereq: GERM 204 or permission of instructor,3
+BUSI 350,Symposium Core Committee,Elective,HI-PERFORM,Permission of the instructor,1.5–3
+BUSI 390,Business Topics,Elective,None,None,1–3
+BUSI 393,Business Internship Project I,Elective,HI-INTERN,Permission of the department,1.5–3
+,,,,,
+BUSI 401,Management and Corporate Communication,Core,COMMBEYOND,None,3
+Microeconomics (Choose 1 of 2),,Core,,,
+BUSI 402,Applied Microeconomics for Business,Core,None,Prereq: ECON 101,1.5
+ECON 410,Intermediate Microeconomics,Core,FC-KNOWING,"Prereq: ECON 101 with a grade of C or better; MATH 152, 231, STOR 112, or 113 with a grade of C- or better. ",4
+,,,,,
+BUSI 403,Operations Management,Core,None,None,3
+BUSI 404,Business Ethics,Core,None,None,1.5
+BUSI 405,Leading and Managing (Org. Behavior),Core,FC-KNOWING,None,3
+BUSI 406,Marketing,Core,None,None,3
+BUSI 407,Financial Accounting,Core,None,None,3
+BUSI 408,Corporate Finance,Core,None,Prereq: ECON 101,3
+BUSI 409,Advanced Corporate Finance,Elective,None,Prereq: BUSI 408,1.5
+BUSI 410,Business Analytics,Core,None,Prereq: STOR 155,3
+BUSI 411,Strategic Management at the Business Level,Core,None,None,1.5
+BUSI 412,Strategic Management in the Modern Corp.,Core,None,Pre- or coreq: BUSI 411,1.5
+BUSI 463,Corporate Environmental Stewardship,Elective,FC-GLOBAL or FC-VALUES,Prereq: ENEC 201,3
+BUSI 470,Storytelling to Influence and Inspire,Elective,None,None,1.5
+BUSI 488,Data Science in the Business World,Elective,None,None,3
+BUSI 490,Business Topics,Elective,None,None,1.5
+BUSI 493,Business Internship Project II,Elective,HI-INTERN,Permission of the department,1.5–3
+BUSI 496,Independent Study in Business,Elective,None,Permission of the department,0.5–3
+BUSI 500,Entrepreneurship and Business Planning,Elective,None,None,3
+BUSI 501,Professional Selling Strategies,Elective,None,None,1.5
+BUSI 502,Entrepreneurial Finance,Elective,None,Prereq: BUSI 408,1.5
+BUSI 503,Family Business I,Elective,None,None,1.5
+BUSI 504,Startup UNC,Elective,None,Prereq: BUSI 500 (application required),1.5 (repeatable)
+BUSI 505,Entrepreneurial Consulting,Elective,HI-PERFORM,None (heavy workload caution re BUSI 554),3
+BUSI 506,Entrepreneurial Strategy (VC Thinking),Elective,None,None,3
+BUSI 507,Sustainable Business and Social Enterprise,Elective,None,None,3
+BUSI 508,Sustainable Business & Impact Entrepreneurship,Elective,None,None,1.5
+BUSI 509,Entrepreneurs Lab,Elective,None,Application required,3
+BUSI 510,The Challenge of Healthcare,Elective,None,None,1.5
+BUSI 511,Regional Venture Capital Immersion,Elective,None,Prereq: BUSI 506,1.5
+BUSI 512,Family Business II: Governance & Ownership,Elective,None,Prereq: BUSI 503,1.5
+BUSI 514,STAR - Experiential Learning Project,Elective,HI-PERFORM,Pre- or coreq: BUSI 554,4.5
+BUSI 517,Private Equity and Debt Markets,Elective,None,Prereq: BUSI 408,1.5
+BUSI 518,Applied Private Equity,Elective,None,"Prereqs: BUSI 502, 517",3
+BUSI 520,Advanced Spreadsheet Modeling,Elective,None,None,3
+BUSI 521,Design Thinking: Innovation Process,Elective,None,None,3
+BUSI 522,Personal Branding & Professional Relationships,Elective,None,None,1.5
+BUSI 523,Diversity and Inclusion at Work,Elective,None,None,1.5
+BUSI 524,Applied Improvisation for Business Communication,Elective,None,None,3
+BUSI 525,Advanced Business Presentations,Elective,None,Prereq: BUSI 401,1.5
+BUSI 526,Leadership in Action,Elective,None,Permission of the department,3
+BUSI 527,Gender at Work,Elective,None,None,1.5
+BUSI 528,Leadership Communication,Elective,None,None,1.5
+BUSI 529,Intercultural Communication in Global Workplace,Elective,None,None,1.5
+BUSI 530,Corporate Communication: Social Advocacy,Elective,None,None,1.5
+BUSI 532,Healthcare & Service Operations,Elective,None,Prereq: BUSI 403,3
+BUSI 533,Supply Chain Management,Elective,None,Prereq: BUSI 403,3
+BUSI 534,Business Modeling with Excel,Elective,None,None,3
+BUSI 536,Project Management,Elective,None,Prereq: BUSI 403,1.5
+BUSI 537,Retail Operations,Elective,None,Prereq: BUSI 403,1.5
+BUSI 538,Sustainable Operations,Elective,None,Prereq: BUSI 403,1.5
+BUSI 539,Health Care Operations,Elective,None,Prereq: BUSI 403,1.5
+BUSI 545,Negotiations,Elective,None,Prereq: BUSI 405,1.5
+BUSI 546,Sport Marketing and Media,Elective,None,None,1.5
+BUSI 547,Managerial Decision Making,Elective,None,Prereq: BUSI 405,1.5
+BUSI 548,Financing Affordable Housing,Elective,None,Pre- or coreq: BUSI 408 and BUSI 585,1.5
+BUSI 550,People Analytics,Elective,None,None,1.5
+BUSI 552,Strategic Innovation,Elective,None,None,1.5
+BUSI 554,Consulting Skills and Frameworks,Elective,None,Prereq or coreq: BUSI 408,3
+BUSI 555,Groups and Teams in Organizations,Elective,None,Prereq: BUSI 405,1.5
+BUSI 558,Digital Marketing,Elective,None,Prereq: BUSI 406,3
+BUSI 562,Consumer Behavior,Elective,None,None,3
+BUSI 563,Retail & E-tail Marketing,Elective,None,None,1.5
+BUSI 564,Design Thinking & Product Development,Elective,None,None,3
+BUSI 565,Market Research,Elective,None,Prereq: BUSI 406,3
+BUSI 566,Marketing Strategy,Elective,None,Prereq: BUSI 406,3
+BUSI 567,Customer Journeys,Elective,None,Prereq: STOR 155,3
+BUSI 568,Customer Insights and Analytics,Elective,None,Prereq: MATH 152 or STOR 113 or STOR 155,1.5
+BUSI 571,Strategic Cost Analysis & Performance Mgmt,Elective,None,None,1.5
+BUSI 574,Taxes and Business Strategy,Elective,None,Prereq: BUSI 407,3
+BUSI 575,Financial Statement Analysis & Valuation,Elective,None,"Prereqs: BUSI 407, BUSI 408",1.5
+BUSI 580,Investments,Elective,None,Prereq: BUSI 408,3
+BUSI 581,Financial Modeling for LBOs,Elective,None,Prereq: BUSI 408,1.5
+BUSI 582,Mergers and Acquisitions,Elective,None,Pre- or coreq: BUSI 408,3
+BUSI 583,Applied Investment Management,Elective,HI-PERFORM,"Prereqs: BUSI 407, BUSI 408",3 (repeatable)
+BUSI 584,Financial Modeling,Elective,None,Prereq: BUSI 408,3
+BUSI 585,Introduction to Real Estate,Elective,None,None,3
+BUSI 586,Personal Finance,Elective,None,Prereq: BUSI 408,1.5
+BUSI 587,Investment Banking,Elective,None,Prereq: BUSI 408,1.5
+BUSI 588,Intro to Derivative Securities,Elective,None,Prereq: BUSI 408,1.5
+BUSI 589,Fixed Income,Elective,None,Prereq: BUSI 408,1.5
+BUSI 590,Business Seminar,Elective,None,None,3
+BUSI 591,Behavioral Finance,Elective,None,Prereq: BUSI 408,1.5
+BUSI 592,Applied Private Equity: Real Estate,Elective,HI-PERFORM,"Prereqs: BUSI 408, BUSI 601, BUSI 603",3
+BUSI 597,Sustainable Finance,Elective,None,Prereq: BUSI 408,1.5
+BUSI 598,Alternative Investments,Elective,None,Prereqs: BUSI 408 and (BUSI 580 or BUSI 588),1.5
+BUSI 600,Risk Management,Elective,None,Prereq: BUSI 408,1.5
+BUSI 601,Real Estate Finance,Elective,None,Prereq: BUSI 408,1.5
+BUSI 602,Strategic Economics,Elective,None,None,1.5
+BUSI 603,Real Estate Development,Elective,None,Prereq: BUSI 408; Co-req: BUSI 585,1.5
+BUSI 604,Real Estate & Capital Markets,Elective,None,Prereq: BUSI 408,1.5
+BUSI 605,Real Estate Capstone,Elective,None,"Prereqs: BUSI 601, BUSI 603, BUSI 604; Pre- or coreqs: BUSI 408, 585",3
+BUSI 606,Buyout Structures and Deals,Elective,None,Prereq: BUSI 408,1.5
+BUSI 607,Inside the Capital Markets,Elective,None,Prereq: BUSI 408,1.5
+BUSI 608,Intro to FinTech (Blockchain),Elective,None,Recommended prep: BUSI 408 (no formal prereq),1.5
+BUSI 610,Global Environment of Business,Elective,None,None,3
+BUSI 611,International Development,Elective,None,None,3
+BUSI 617,Global Marketing,Elective,None,Prereq: BUSI 406,3
+BUSI 618,Global Financial Markets,Elective,None,Prereq: BUSI 408,1.5
+BUSI 625,Global Healthcare Management,Elective,None,None,1.5
+BUSI 626,Introduction to Healthcare Management,Elective,None,None,1.5
+BUSI 627,Healthcare Brand Plan,Elective,None,None,1.5
+BUSI 653,Applied Learning: Symposium Core Committee,Elective,None,Permission of the department,1.5 (repeatable)
+BUSI 688,Applied Trading Strategies,Elective,None,"Prereqs: BUSI 408, BUSI 588",1.5
+BUSI 691H,Honors Research Proposal,Elective,RESEARCH,Senior BUSI majors (3.5 BUSI GPA),3
+BUSI 692H,Honors Thesis,Elective,RESEARCH,Prereq: BUSI 691H,3
