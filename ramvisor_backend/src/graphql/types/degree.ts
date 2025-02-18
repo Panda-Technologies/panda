@@ -1,163 +1,248 @@
-import { PrismaClient } from "@prisma/client";
 import {
-  extendType,
-  nonNull,
-  intArg,
-  objectType,
-  inputObjectType,
-  stringArg,
+    extendType,
+    nonNull,
+    objectType,
+    inputObjectType,
 } from "nexus";
+import {authenticateUser, parseCSV} from "../../utils";
+import {degreeColumnTypes, DegreeRequirement, IMyContext} from "../../interface";
+import {degreeColumns, degreeHeaders, degreeIntColumns} from "../../constants";
 
 export const degree = objectType({
-  name: "degree",
-  definition(t) {
-    t.nonNull.int("id");
-    t.nonNull.string("name");
-    t.nonNull.list.string("coreCategories");
-    t.nonNull.list.string("electiveCategories");
-    t.nonNull.int("numberOfCores");
-    t.nonNull.int("numberOfElectives");
-    t.list.field("semesters", { type: "semester" });
-    t.list.field("users", { type: "user" });
-  },
+    name: "degree",
+    definition(t) {
+        t.nonNull.int("id");
+        t.nonNull.string("name");
+        t.nonNull.string("type");
+        t.nonNull.list.string("coreCategories");
+        t.nonNull.list.string("electiveCategories");
+        t.nonNull.list.string("gatewayCategories");
+        t.nonNull.float("numberOfCores");
+        t.nonNull.float("numberOfElectives");
+        t.list.field("semesters", {type: "semester"});
+        t.list.field("users", {type: "user"});
+    },
 });
 
 export const createDegreeInput = inputObjectType({
-  name: "createDegreeInput",
-  definition(t) {
-    t.nonNull.string("name");
-    t.nonNull.int("numberOfCores");
-    t.nonNull.list.string("coreCategories");
-    t.nonNull.list.string("electiveCategories");
-    t.nonNull.int("numberOfElectives");
-  },
+    name: "createDegreeInput",
+    definition(t) {
+        t.nonNull.string("name");
+        t.nonNull.int("numberOfCores");
+        t.nonNull.list.string("coreCategories");
+        t.nonNull.list.string("gatewayCategories");
+        t.nonNull.list.string("electiveCategories");
+        t.nonNull.int("numberOfElectives");
+    },
 });
 
 export const updateDegreeInput = inputObjectType({
-  name: "updateDegreeInput",
-  definition(t) {
-    t.nonNull.int("id");
-    t.string("name");
-    t.list.string("coreCategories");
-    t.list.string("electiveCategories");
-    t.int("numberOfCores");
-    t.int("numberOfElectives");
-  },
+    name: "updateDegreeInput",
+    definition(t) {
+        t.nonNull.int("id");
+        t.string("name");
+        t.list.string("coreCategories");
+        t.list.string("gatewayCategories");
+        t.list.string("electiveCategories");
+        t.int("numberOfCores");
+        t.int("numberOfElectives");
+    },
 });
 
 export const deleteDegreeInput = inputObjectType({
-  name: "deleteDegreeInput",
-  definition(t) {
-    t.nonNull.int("id");
-  },
+    name: "deleteDegreeInput",
+    definition(t) {
+        t.nonNull.int("id");
+    },
 });
 
 export const degreeQuery = extendType({
-  type: "Query",
-  definition(t) {
-    t.list.field("getAlldegrees", {
-      type: "degree",
-      resolve: (_, __, { prisma }) => prisma.degree.findMany(),
-    });
+    type: "Query",
+    definition(t) {
+        t.list.field("getAllDegrees", {
+            type: "degree",
+            resolve: (_, __, {prisma}) => prisma.degree.findMany(),
+        });
 
-    t.field("getDegree", {
-      type: "degree",
-      args: {
-        userId: nonNull(stringArg()),
-      },
-      resolve: (_, { userId }, { prisma }) =>
-        prisma.degree.findMany({ where: { user: { some: { id: userId } } } }),
-    });
-  },
+        t.field("getDegree", {
+            type: "degree",
+            resolve: (_, __, {prisma, req }: IMyContext) => {
+                const userId = authenticateUser(req.session);
+                return prisma.degree.findMany({where: {user: {some: {id: userId }}}})
+            }
+        });
+    },
 });
 
 export const degreeMutation = extendType({
-  type: "Mutation",
-  definition(t) {
-    t.field("createDegree", {
-      type: "degree",
-      args: {
-        input: nonNull(createDegreeInput),
-      },
-      resolve: (_, { input }, { prisma }) =>
-        prisma.degree.create({ data: input }),
-    });
-
-    t.field("updateDegree", {
-      type: "degree",
-      args: {
-        input: nonNull(updateDegreeInput),
-      },
-      resolve: (_, { input }, { prisma }) =>
-        prisma.degree.update({
-          where: { id: input.id },
-          data: input,
-        }),
-    });
-
-    t.field("deleteDegree", {
-      type: "degree",
-      args: {
-        input: nonNull(deleteDegreeInput),
-      },
-      resolve: (_, { input }, { prisma }) =>
-        prisma.degree.delete({ where: { id: input.id } }),
-    });
-
-    t.field("createDegreeRequirements", {
-      type: "Boolean",
-      args: {
-        degreeId: nonNull(intArg()),
-      },
-      resolve: async (
-        _,
-        { degreeId },
-        { prisma }: { prisma: PrismaClient }
-      ) => {
-        try {
-          const degree = await prisma.degree.findUnique({
-            where: { id: degreeId },
-            select: {
-              name: true,
-              coreCategories: true,
-              electiveCategories: true,
+    type: "Mutation",
+    definition(t) {
+        t.field("createDegree", {
+            type: "degree",
+            args: {
+                input: nonNull(createDegreeInput),
             },
-          });
+            resolve: (_, {input}, {prisma}) =>
+                prisma.degree.create({data: input}),
+        });
 
-          if (!degree) {
-            throw new Error(`Degree with id ${degreeId} not found`);
-          }
+        t.field("updateDegree", {
+            type: "degree",
+            args: {
+                input: nonNull(updateDegreeInput),
+            },
+            resolve: (_, {input}, {prisma}) =>
+                prisma.degree.update({
+                    where: {id: input.id},
+                    data: input,
+                }),
+        });
 
-          const createRequirement = async (
-            categories: string[],
-            isElective: boolean
-          ) => {
-            await Promise.all( // Used to run multiple promises concurrently on each element in the map
-              categories.map(async (category) => {
-                const classes = await prisma.class.findMany({
-                  where: { category: category },
+        t.field("deleteDegree", {
+            type: "degree",
+            args: {
+                input: nonNull(deleteDegreeInput),
+            },
+            resolve: (_, {input}, {prisma}) =>
+                prisma.degree.delete({where: {id: input.id}}),
+        });
+
+        t.field("createDegreeAndRequirements", {
+            type: "Boolean",
+            resolve: async (_, __, { prisma }: IMyContext) => {
+                const degreeData = await parseCSV<degreeColumnTypes>(
+                    "src/unc_degrees/Business_Admin.csv",
+                    degreeHeaders,
+                    degreeIntColumns
+                );
+
+                const degree = await prisma.degree.create({
+                    data: {
+                        name: "Business Administration",
+                        type: "B.S.B.A.",
+                        coreCategories: ["Core"],
+                        electiveCategories: ["Electives"],
+                        numberOfCores: 23,
+                        numberOfElectives: 19.5,
+                    },
                 });
-                await prisma.requirement.create({
-                  data: {
-                    category,
-                    classIds: classes.map((cls) => cls.id),
-                    isElective,
-                    degreeId,
-                  },
+
+                const coreRequirement = await prisma.requirement.create({
+                    data: {
+                        degreeId: degree.id,
+                        category: "Core",
+                        classIds: [],
+                        reqType: "CORE",
+                    },
                 });
-              })
-            );
-          };
 
-          await createRequirement(degree.coreCategories, false);
-          await createRequirement(degree.electiveCategories, true);
+                const electiveRequirement = await prisma.requirement.create({
+                    data: {
+                        degreeId: degree.id,
+                        category: "Electives",
+                        classIds: [],
+                        reqType: "ELECTIVE",
+                    },
+                });
 
-          return true;
-        } catch (error) {
-          console.error("Error creating degree requirements:", error);
-          return false;
-        }
-      },
-    });
-  },
+                const gatewayRequirement = await prisma.requirement.create({
+                    data: {
+                        degreeId: degree.id,
+                        category: "Gateway",
+                        classIds: [],
+                        reqType: "GATEWAY",
+                    }
+                });
+
+                let currentRequirement: DegreeRequirement | null = null;
+                let courseGroup: number[] = [];
+
+                for (let i = 0; i < degreeData.length; i++) {
+                    const row = degreeData[i];
+                    const course = row[degreeColumns.COURSE];
+                    const type = row[degreeColumns.TYPE];
+
+                    if (!course) {
+                        if (currentRequirement && courseGroup.length > 0) {
+                            await prisma.requirement.create({
+                                data: {
+                                    ...currentRequirement,
+                                    classIds: courseGroup,
+                                },
+                            });
+                            courseGroup = [];
+                            currentRequirement = null;
+                        }
+                        continue;
+                    }
+
+                    if (course.toLowerCase().includes("choose")) {
+                        if (currentRequirement) {
+                            await prisma.requirement.create({
+                                data: {
+                                    ...currentRequirement,
+                                    classIds: courseGroup,
+                                },
+                            });
+                            courseGroup = [];
+                        }
+
+                        const categoryName = course.split(" ")[0];
+                        const categoryChoose = course.split("(")[1].split(")")[0];
+                        const category = `${categoryName}; ${categoryChoose}`;
+
+                        await prisma.degree.update({
+                            where: { id: degree.id },
+                            data: {
+                                [(type == 'Elective') ? "electiveCategories" : ((type == 'Gateway') ? "gatewayCategories" : "coreCategories")]: {
+                                    push: category,
+                                },
+                            },
+                        });
+
+                        currentRequirement = {
+                            degreeId: degree.id,
+                            category: category,
+                            classIds: [],
+                            reqType: type.toUpperCase(),
+                        };
+                        continue;
+                    }
+
+                    const class_ = await prisma.class.findFirst({
+                        where: { classCode: course }
+                    });
+
+                    if (class_) {
+                        if (currentRequirement) {
+                            courseGroup.push(class_.id);
+                        } else {
+                            const targetRequirement = type?.toLowerCase() === "elective"
+                                ? electiveRequirement
+                                : (type?.toLowerCase() === "gateway" ? gatewayRequirement : coreRequirement);
+
+                            await prisma.requirement.update({
+                                where: { id: targetRequirement.id },
+                                data: {
+                                    classIds: {
+                                        push: class_.id,
+                                    },
+                                },
+                            });
+                        }
+                    }
+                }
+
+                if (currentRequirement && courseGroup.length > 0) {
+                    await prisma.requirement.create({
+                        data: {
+                            ...currentRequirement,
+                            classIds: courseGroup,
+                        },
+                    });
+                }
+                return true;
+            },
+        });
+    },
 });
