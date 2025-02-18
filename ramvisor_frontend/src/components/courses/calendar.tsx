@@ -279,7 +279,9 @@ const CourseCalendar: React.FC<Props> = ({
     }, [activeCourseMap]);
 
     const onCloseFilter = () => {
-        setFilterOpen(false);
+        if (filterOpen) {
+            setFilterOpen(false);
+        }
     }
 
     const applyFilter = (filter?: courseFilter) => {
@@ -414,7 +416,16 @@ const CourseCalendar: React.FC<Props> = ({
                     prefix={<SearchOutlined/>}
                     onChange={(e) => debouncedSearch(e.target.value)}
                     style={{marginBottom: '20px'}}
-                    suffix={<FilterOutlined style={{cursor: 'pointer'}} onClick={() => setFilterOpen(!filterOpen)}/>}
+                    suffix={
+                        <FilterOutlined
+                            className="filter-button"
+                            style={{cursor: 'pointer'}}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setFilterOpen(!filterOpen);
+                            }}
+                        />
+                    }
                 />
                 <CourseFilterPopover open={filterOpen} onFilterChange={applyFilter} onClose={onCloseFilter}/>
                 <ClassListWrapper>
