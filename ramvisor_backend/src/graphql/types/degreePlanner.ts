@@ -1,5 +1,7 @@
 import {PrismaClient, semesterEntry as prismaSemesterEntry} from "@prisma/client";
-import {extendType, inputObjectType, intArg, nonNull, objectType, stringArg,} from "nexus";
+import {extendType, inputObjectType, intArg, nonNull, objectType,} from "nexus";
+import {IMyContext} from "../../interface";
+import {authenticateUser} from "../../utils";
 // Destructure all inputs from prisma client into separate consts for readability
 export const degreePlanner = objectType({
     name: "degreePlanner",
@@ -41,16 +43,8 @@ export const semesterEntry = objectType({
 export const createDegreePlannerInput = inputObjectType({
     name: "createDegreePlannerInput",
     definition(t) {
-        t.nonNull.field("degree", {
-            type: inputObjectType({
-                name: "DegreePlannerDegreeInput",
-                definition(t) {
-                    t.nonNull.string("title");
-                    t.nonNull.string("userId");
-                    t.nonNull.int("degreeId");
-                },
-            }),
-        });
+        t.nonNull.string("title");
+        t.nonNull.int("degreeId");
     },
 });
 
@@ -106,13 +100,11 @@ export const removeClassFromSemesterInput = inputObjectType({
 export const degreePlannerQuery = extendType({
     type: "Query",
     definition(t) {
-        t.list.field("getdegreePlanners", {
+        t.list.field("getDegreePlanners", {
             type: "degreePlanner",
-            args: {
-                userId: nonNull(stringArg()),
-            },
-            resolve: (_, {userId}, {prisma}) =>
-                prisma.degreePlanner.findMany({
+            resolve: (_, __, { prisma, req }: IMyContext) => {
+                const userId = authenticateUser(req.session)
+                return prisma.degreePlanner.findMany({
                     where: {userId},
                     include: {
                         semester: {
@@ -123,7 +115,8 @@ export const degreePlannerQuery = extendType({
                             },
                         },
                     },
-                }),
+                })
+            }
         });
     },
 });
@@ -131,7 +124,7 @@ export const degreePlannerQuery = extendType({
 export const semesterQuery = extendType({
     type: "Query",
     definition(t) {
-        t.list.field("getsemesters", {
+        t.list.field("getSemesters", {
             type: "semester",
             args: {
                 plannerId: nonNull(intArg()),
@@ -173,8 +166,9 @@ export const degreePlannerMutation = extendType({
             args: {
                 input: nonNull(createDegreePlannerInput),
             },
-            resolve: async (_, { input }, { prisma }: { prisma: PrismaClient }) => {
-                const { title, userId, degreeId } = input.degree;
+            resolve: async (_, { input }, { prisma, req }: IMyContext) => {
+                const { title, degreeId } = input;
+                const userId = authenticateUser(req.session)
 
                 const user = await prisma.user.findUnique({
                     where: { id: userId },
@@ -399,7 +393,7 @@ export const semesterMutation = extendType({
                 }),
         });
 
-        t.field("addClassTosemester", {
+        t.field("addClassToSemester", {
             type: "semesterEntry",
             args: {
                 input: nonNull(addClassToSemesterInput),
