@@ -1,5 +1,5 @@
-import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
-import {getSessionCookie} from "@providers/data-provider/index";
+import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
+import {getSessionCookie} from "@providers/data-provider/index.ts";
 
 let client: ApolloClient<any> | null = null;
 
@@ -19,7 +19,7 @@ export const getClient = () => {
                     fetchPolicy: 'cache-first',
                 },
                 watchQuery: {
-                    fetchPolicy: 'cache-and-network',
+                    fetchPolicy: 'cache-first',
                 },
             },
             ssrMode: typeof window === 'undefined',
