@@ -26,7 +26,6 @@ model user {
   password                       String
   university                     String?
   yearInUniversity               Int?
-  degreeId                       Int?
   isPremium                      Boolean
   graduationSemesterName         String?
   gpa                            Float?
@@ -36,7 +35,7 @@ model user {
   classSchedule                  classSchedule[]
   degreePlanners                 degreePlanner[]
   takenClassIds                  Int[]
-  degree                         degree?         @relation(fields: [degreeId], references: [id])
+  degrees                        degree[]
   questionnaireCompleted         Boolean         @default(false)
 
   // New: Relation to the Class model (many-to-many)
@@ -107,6 +106,7 @@ model Class {
   courseType       String
   title            String
   color            String
+  ideaGenEd        String[]
   coreDegreeId     Int[]
   electiveDegreeId Int[]
   sections         classSection[]
@@ -133,11 +133,11 @@ model classSection {
 }
 
 model requirement {
-  id         Int     @id @unique @default(autoincrement())
-  degreeId   Int
-  isElective Boolean
-  category   String
-  classIds   Int[]
+  id       Int    @id @unique @default(autoincrement())
+  degreeId Int
+  reqType  String
+  category String
+  classIds Int[]
 
   @@map("requirements")
 }
@@ -179,10 +179,12 @@ model semesterEntry {
 model degree {
   id                 Int             @id @unique @default(autoincrement())
   name               String
+  type               String
   coreCategories     String[]
   electiveCategories String[]
-  numberOfCores      Int
-  numberOfElectives  Int
+  gatewayCategories  String[]
+  numberOfCores      Float
+  numberOfElectives  Float
   degreePlanners     degreePlanner[]
   user               user[]
 
