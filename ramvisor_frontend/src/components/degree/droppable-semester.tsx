@@ -34,7 +34,6 @@ const DroppableSemester = ({
         padding: "12px",
         borderRadius: "8px",
         minHeight: "320px",
-        overflowY: "auto",
         display: "flex",
         flexDirection: "column",
         transition: "background-color 0.2s",
@@ -44,44 +43,44 @@ const DroppableSemester = ({
     >
       <h3
         style={{
-          marginBottom: "8px",
-          fontWeight: "bold",
-          textAlign: "center",
-          fontSize: "14px",
-          padding: "8px 0",
-          borderRadius: "4px",
-          backgroundColor: "#bfdbfe",
-          color: "#1e40af",
+            marginBottom: "8px",
+            fontWeight: "bold",
+            textAlign: "center",
+            fontSize: "14px",
+            padding: "8px 0",
+            borderRadius: "4px",
+            backgroundColor: "#bfdbfe",
+            color: "#1e40af",
         }}
       >
         {semester.name}
       </h3>
       <p
-        style={{
-          textAlign: "center",
-          fontSize: "12px",
-          marginBottom: "8px",
-          color: isOverCreditLimit ? "#dc2626" : "#2563eb",
-          fontWeight: isOverCreditLimit ? "bold" : "normal",
-        }}
+          style={{
+              textAlign: "center",
+              fontSize: "12px",
+              marginBottom: "8px",
+              color: isOverCreditLimit ? "#dc2626" : "#2563eb",
+              fontWeight: isOverCreditLimit ? "bold" : "normal",
+          }}
       >
-        Credits: {semester.credits}
+          Credits: {semester.credits}
       </p>
       {isOverCreditLimit && (
-        <p
-          style={{
-            textAlign: "center",
-            fontSize: "12px",
-            color: "#dc2626",
-            fontWeight: "bold",
-            marginBottom: '8px',
-          }}
-        >
-          Maximum credits (18) exceeded!
-        </p>
-      )};
-      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {children}
+          <p
+              style={{
+                  textAlign: "center",
+                  fontSize: "12px",
+                  color: "#dc2626",
+                  fontWeight: "bold",
+                  marginBottom: '8px',
+              }}
+          >
+              Maximum credits (18) exceeded!
+          </p>
+      )}
+      <div style={{flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '8px'}}>
+          {children}
       </div>
     </div>
   );
