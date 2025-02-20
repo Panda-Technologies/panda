@@ -1,9 +1,10 @@
 'use client';
 
 import {Class, Requirement} from "@graphql/generated/graphql";
-import React, {isValidElement, useCallback, useMemo, useState} from "react";
+import React, {isValidElement, useCallback, useEffect, useMemo, useState} from "react";
 import {SortableCourse} from "./sortable-course";
 import {Degree, Semester} from "@graphql/generated/graphql";
+import styled from "styled-components";
 
 type Props = {
     getSemesters: Semester[];
@@ -34,6 +35,33 @@ const DegreeSearch = ({
         );
     }, [getSemesters]);
 
+    const takenCourseIds = useMemo(() => {
+        const ids = new Set<number>();
+        getSemesters.forEach(semester => {
+            semester.entries?.forEach(entry => {
+                if (entry?.classId) {
+                    ids.add(entry.classId);
+                }
+            });
+        });
+        return ids;
+    }, [getSemesters]);
+
+    useEffect(() => {
+        if (searchTerm) {
+            setSearchResults(
+                getClasses.filter(
+                    (course) =>
+                        (course.classCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            course.title.toLowerCase().includes(searchTerm.toLowerCase())) &&
+                        !takenCourseIds.has(course.id)
+                )
+            );
+        } else {
+            setSearchResults([]);
+        }
+    }, [searchTerm, takenCourseIds, getClasses]);
+
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         const term = event.target.value.toLowerCase();
         setSearchTerm(term);
@@ -43,9 +71,9 @@ const DegreeSearch = ({
             setSearchResults(
                 getClasses.filter(
                     (course) =>
-                        course.classCode.toLowerCase().includes(term) ||
-                        (course.description.toLowerCase().includes(term) &&
-                            !isCourseTaken(course.id))
+                        (course.classCode.toLowerCase().includes(term) ||
+                            course.title.toLowerCase().includes(term)) &&
+                        !takenCourseIds.has(course.id)
                 )
             );
         } else {
@@ -88,44 +116,61 @@ const DegreeSearch = ({
                 width: "20%",
                 padding: "16px",
                 backgroundColor: "white",
-                overflowY: "auto",
                 borderRight: "1px solid #e5e7eb",
+                display: "flex",
+                flexDirection: "column",
+                height: "100vh",
             }}
         >
-            <input
-                type="text"
-                placeholder="Search for courses"
-                value={searchTerm}
-                onChange={handleSearch}
-                style={{
-                    width: "100%",
-                    padding: "8px",
-                    marginBottom: "16px",
-                    borderRadius: "4px",
-                    border: "1px solid #d1d5db",
-                    backgroundColor: "white",
-                    color: "#111827",
-                }}
-            />
-            <div style={{ marginBottom: "8px", color: "#4B5563" }}>
-                Total items: {searchResults.length}
+            <div style={{ flex: "0 0 auto" }}>
+                <input
+                    type="text"
+                    placeholder="Search for courses"
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    style={{
+                        width: "100%",
+                        padding: "8px",
+                        marginBottom: "16px",
+                        borderRadius: "4px",
+                        border: "1px solid #d1d5db",
+                        backgroundColor: "white",
+                        color: "#111827",
+                    }}
+                />
+                <div style={{ marginBottom: "8px", color: "#4B5563" }}>
+                    Total items: {searchResults.length}
+                </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column" }}>
+
+            <ClassListWrapper>
                 {searchResults.map((course) => (
                     <SortableCourse
                         Semesters={getSemesters}
                         course={course}
                         degree={getDegree}
                         onRemoveFromSemester={removeFromSemester}
-                        semesterId={getSemesters.find((semester) =>
-                            semester.entries?.some((entry) => entry?.classId === course.id)
-                        )?.id}
+                        semesterId={undefined}
                         key={course.id}
                     />
                 ))}
-            </div>
+            </ClassListWrapper>
         </div>
     );
 };
+
+const ClassListWrapper = styled.div`
+    overflow-y: auto;
+    height: calc(100vh - 120px); // Subtract header height
+    padding-right: 8px;
+
+    &::-webkit-scrollbar {
+        width: 0;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+`;
 
 export default DegreeSearch;
