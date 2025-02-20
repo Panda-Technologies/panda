@@ -6,7 +6,7 @@ import {
 } from "@dnd-kit/sortable";
 import React from "react";
 import { CSS } from "@dnd-kit/utilities";
-import { getClassColor } from "@utilities/helpers";
+import {getAlphabetColor, getClassColor} from "@utilities/helpers";
 import { Class, Degree, Semester } from "@graphql/generated/graphql";
 
 type Props = {
@@ -20,7 +20,6 @@ type Props = {
 export const SortableCourse = ({
   course,
   Semesters,
-  degree,
   onRemoveFromSemester,
 }: Props) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -42,16 +41,25 @@ export const SortableCourse = ({
 
   const semesterId = getSemesterId();
 
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    ...getClassColor(course, degree),
-    marginBottom: "4px",
-    borderRadius: "4px",
-    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
-    display: "flex",
-    alignItems: "center",
-  };
+// Add this function at the top of the file
+    const toTitleCase = (str: string) => {
+        return str.toLowerCase().split(' ').map(word =>
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
+    };
+
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        marginBottom: "4px",
+        borderRadius: "4px",
+        boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
+        display: "flex",
+        alignItems: "center",
+        backgroundColor: getAlphabetColor(course.classCode).bg,
+        color: getAlphabetColor(course.classCode).text
+    };
 
   const handleRemove = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -88,17 +96,17 @@ export const SortableCourse = ({
             fontSize: "12px",
           }}
         >
-          <span style={{ fontWeight: "bold" }}>{course.id}</span>
+          <span style={{ fontWeight: "bold" }}>{course.classCode}</span>
         </div>
         <div>
           <button
             onClick={handleRemove}
             style={{
-              padding: "0 4px",
-              color: "#dc2626",
-              cursor: "pointer",
-              background: "none",
-              border: "none",
+                padding: "0 4px",
+                color: "#dc2626",
+                cursor: "pointer",
+                background: "none",
+                border: "none"
             }}
           >
             ×
@@ -114,30 +122,30 @@ export const SortableCourse = ({
         marginBottom: "8px",
         borderRadius: "8px",
         overflow: "hidden",
-        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+        boxShadow: "0 5px 8px rgba(0, 0, 0, 0.1)",
       }}
     >
-      <div
-        ref={setNodeRef}
-        {...attributes}
-        {...listeners}
-        style={{ ...style, padding: "8px", cursor: "move" }}
-      >
-        <span style={{ fontWeight: 'bold' }}>{course.classCode}</span>
-      </div>
-      <div style={{ padding: '8px', backgroundColor: 'white', color: '#374151' }}>
-        <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>
-          {course.title}
+        <div
+            ref={setNodeRef}
+            {...attributes}
+            {...listeners}
+            style={{...style, padding: "8px", cursor: "move"}}
+        >
+            <span style={{fontWeight: 'bold'}}>{course.classCode}</span>
         </div>
-        <div style={{ fontSize: '12px', color: '#2563eb' }}>
-          {course.courseType}
+        <div style={{padding: '8px', backgroundColor: 'white', color: '#374151'}}>
+        <div style={{fontSize: '14px', fontWeight: 600, marginBottom: '4px'}}>
+            {toTitleCase(course.title)}
+        </div>
+        <div style={{fontSize: '12px', color: '#2563eb'}}>
+            {course.courseType}
         </div>
         {status && (
-          <div style={{ fontSize: '12px', color: '#d97706', marginTop: '4px' }}>
-            {status}
-          </div>
-        )}
-      </div>
+            <div style={{fontSize: '12px', color: '#d97706', marginTop: '4px'}}>
+                {status}
+            </div>
+            )}
+        </div>
     </div>
   );
 };
