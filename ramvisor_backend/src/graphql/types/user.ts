@@ -2,6 +2,8 @@ import {booleanArg, extendType, floatArg, inputObjectType, intArg, list, nonNull
 import {loginResolve, logoutResolve} from "../resolvers/loginResolver";
 import {registerResolve} from "../resolvers/registerResolver";
 import {PrismaClient} from "@prisma/client";
+import {IMyContext} from "../../interface";
+import {authenticateUser} from "../../utils";
 
 export const user = objectType({
     name: "user",
@@ -16,12 +18,11 @@ export const user = objectType({
         t.float("gpa");
         t.float("attendancePercentage");
         t.float("assignmentCompletionPercentage");
-        t.int("degreeId");
         t.list.int("takenClassIds");
         t.list.field("tasks", {type: "task"});
         t.list.field("classSchedules", {type: "classSchedule"});
         t.list.field("degreePlanners", {type: "degreePlanner"});
-        t.field("degree", {type: "degree"});
+        t.list.field("degrees", {type: "degree"});
     },
 });
 
@@ -53,9 +54,12 @@ export const userQuery = extendType({
     definition(t) {
         t.field("getUser", {
             type: "user",
-            args: {id: nonNull(stringArg())},
-            resolve: (_, {id}, {prisma}: { prisma: PrismaClient }) =>
-                prisma.user.findUnique({where: {id}}),
+            resolve: (_, __, { prisma, req }: IMyContext) => {
+                const userId = authenticateUser(req.session);
+                return prisma.user.findUnique({where: {id: userId}, select: {
+                    id: true, email: true, degrees: true, tasks: true, takenClassIds: true, graduationSemesterName: true, university: true, yearInUniversity: true, gpa: true, attendancePercentage: true, assignmentCompletionPercentage: true, degreePlanners: true, isPremium: true
+                    }})
+            }
         });
 
         t.field("me", {
@@ -166,18 +170,37 @@ export const userMutation = extendType({
         t.field("updateUserProfile", {
             type: "user",
             args: {
-                id: nonNull(stringArg()),
                 university: stringArg(),
                 yearInUniversity: intArg(),
-                degreeId: intArg(),
+                degreeIds: list(intArg()),
                 questionnaireCompleted: booleanArg(),
             },
-            resolve: (_, args, {prisma}) =>
-                prisma.user.update({
-                    where: {id: args.id},
-                    data: args,
-                }),
+            resolve: (_, args, {prisma, req}: IMyContext) => {
+                const userId = authenticateUser(req.session);
+                let updateData: any = {};
+
+                if (args.university !== undefined && args.university !== null) {
+                    updateData.university = args.university;
+                }
+                if (args.yearInUniversity !== undefined && args.yearInUniversity !== null) {
+                    updateData.yearInUniversity = args.yearInUniversity;
+                }
+                if (args.questionnaireCompleted !== undefined && args.questionnaireCompleted !== null) {
+                    updateData.questionnaireCompleted = args.questionnaireCompleted;
+                }
+                if (args.degreeIds?.length > 0) {
+                    updateData.degrees = {
+                        connect: args.degreeIds.map((degreeId: number) => ({ id: degreeId }))
+                    };
+                }
+
+                return prisma.user.update({
+                    where: { id: userId },
+                    data: updateData
+                });
+            }
         });
+
 
         t.field("updateUserAcademicInfo", {
             type: "user",
