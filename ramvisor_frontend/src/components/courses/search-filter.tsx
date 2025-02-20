@@ -98,15 +98,22 @@ const CourseFilterPopover: React.FC<FilterPopoverProps> = ({
     return (
         <Popover
             open={open}
-            onOpenChange={onClose}
             content={filterContent}
             destroyTooltipOnHide={false}
             title="Filter Courses"
             trigger="click"
             placement="bottomRight"
+            onOpenChange={(visible) => {
+                if (!visible) {
+                    onClose();
+                }
+            }}
         >
             <div />
         </Popover>
+
+
+
     );
 };
 
