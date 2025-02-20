@@ -101,3 +101,37 @@ export const convertScheduleDays = (dayStr: string): string[] => {
     const dayMatches = dayStr.match(/Tu|Th|[MWF]/g) || [];
     return dayMatches.map(d => dayMappings[d] || d);
 };
+
+export const getAlphabetColor = (courseCode: string) => {
+    const colors: { [key: string]: { bg: string, text: string } } = {
+        'A': { bg: '#E3F2FD', text: '#1565C0' },   // Light Blue
+        'B': { bg: '#BBDEFB', text: '#1565C0' },   // Lighter Blue
+        'C': { bg: '#90CAF9', text: '#1565C0' },   // Soft Blue
+        'D': { bg: '#64B5F6', text: '#FFFFFF' },   // Medium Blue
+        'E': { bg: '#FFE0B2', text: '#E65100' },   // Light Orange
+        'F': { bg: '#FFCC80', text: '#E65100' },   // Soft Orange
+        'G': { bg: '#E1F5FE', text: '#0277BD' },   // Sky Blue
+        'H': { bg: '#B3E5FC', text: '#0277BD' },   // Lighter Sky Blue
+        'I': { bg: '#81D4FA', text: '#0277BD' },   // Medium Sky Blue
+        'J': { bg: '#FFE0B2', text: '#E65100' },   // Light Orange
+        'K': { bg: '#FFCCBC', text: '#BF360C' },   // Light Red
+        'L': { bg: '#FFAB91', text: '#BF360C' },   // Soft Red
+        'M': { bg: '#E3F2FD', text: '#1565C0' },   // Light Blue
+        'N': { bg: '#BBDEFB', text: '#1565C0' },   // Lighter Blue
+        'O': { bg: '#FFE0B2', text: '#E65100' },   // Light Orange
+        'P': { bg: '#FFCCBC', text: '#BF360C' },   // Light Red
+        'Q': { bg: '#E1F5FE', text: '#0277BD' },   // Sky Blue
+        'R': { bg: '#B3E5FC', text: '#0277BD' },   // Lighter Sky Blue
+        'S': { bg: '#90CAF9', text: '#1565C0' },   // Soft Blue
+        'T': { bg: '#FFE0B2', text: '#E65100' },   // Light Orange
+        'U': { bg: '#E3F2FD', text: '#1565C0' },   // Light Blue
+        'V': { bg: '#BBDEFB', text: '#1565C0' },   // Lighter Blue
+        'W': { bg: '#FFE0B2', text: '#E65100' },   // Light Orange
+        'X': { bg: '#FFCCBC', text: '#BF360C' },   // Light Red
+        'Y': { bg: '#E1F5FE', text: '#0277BD' },   // Sky Blue
+        'Z': { bg: '#B3E5FC', text: '#0277BD' },   // Lighter Sky Blue
+    };
+
+    const firstLetter = courseCode.charAt(0).toUpperCase();
+    return colors[firstLetter] || { bg: '#E3F2FD', text: '#1565C0' };
+};
