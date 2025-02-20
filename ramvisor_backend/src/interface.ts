@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { Session, SessionData } from "express-session";
-import {classColumns} from "./constants";
+import {classColumns, degreeColumns} from "./constants";
 
 declare module 'express-session' {
     interface SessionData {
@@ -21,7 +21,7 @@ export interface IMyContext {
     session: ISession;
 }
 
-export interface columnTypes {
+export interface classColumnTypes {
     [classColumns.ID]: number;
     [classColumns.CODE]: string;
     [classColumns.SUBJECT]: string;
@@ -44,19 +44,26 @@ export interface columnTypes {
     [classColumns.MIN_ENROLL]: number;
 }
 
+export interface degreeColumnTypes {
+    [degreeColumns.COURSE]: string;
+    [degreeColumns.COURSE_NAME]: string;
+    [degreeColumns.TYPE]: string;
+    [degreeColumns.IDEAs]: string;
+    [degreeColumns.PREREQUISITES]: string;
+    [degreeColumns.CREDIT_HOURS]: number;
+}
+
 export interface canvasClass {
     classCode: string;
     sectionId: string;
     semesterId: string;
     color: string;
 }
-export interface canvasTasks {
-    classCode: string;
-    assignment: {
-        dueDate: string;
-        stageId: number;
-        description: string;
-        title: string;
-    }[];
+
+export interface DegreeRequirement {
+    degreeId: number;
+    category: string;
+    classIds: number[];
+    reqType: string;
 }
 
