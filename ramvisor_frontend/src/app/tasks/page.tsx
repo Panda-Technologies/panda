@@ -94,8 +94,11 @@ const TasksPage: React.FC = () => {
 
     const taskId = active.id as number;
     const newStageId = over.id as number;
+    const currentStage = stages.find(stage =>
+        stage.tasks.some(task => task.id === taskId)
+    );
 
-    if (active.id !== over.id) {
+    if (currentStage?.id !== over.id) {
       pendingTasksRef.current.add(taskId);
       setStages(prevStages => {
         const updatedStages = prevStages.map(stage => ({
@@ -229,7 +232,7 @@ const TasksPage: React.FC = () => {
   // }
 
   return (
-    <div style={{ maxHeight: 'calc(100vh - 85px)', overflow: 'hidden' }}>
+    <div style={{ maxHeight: 'calc(100vh - 85px)', overflowY: 'hidden' }}>
       <KanbanBoardContainer>
         <KanbanBoard onDragEnd={handleOnDragEnd}>
           {stages.map((stage) => (
