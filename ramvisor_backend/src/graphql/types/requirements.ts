@@ -13,7 +13,7 @@ export const requirement = objectType({
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.string("category");
-    t.nonNull.boolean("isElective");
+    t.nonNull.string("reqType");
     t.nonNull.list.int("classIds");
     t.nonNull.int("degreeId");
   },
@@ -23,7 +23,7 @@ export const createRequirementInput = inputObjectType({
   name: "CreateRequirementInput",
   definition(t) {
     t.nonNull.string("category");
-    t.nonNull.boolean("isElective");
+    t.nonNull.string("reqType");
     t.nonNull.list.int("classIds");
     t.nonNull.int("degreeId");
   },
@@ -34,7 +34,7 @@ export const updateRequirementInput = inputObjectType({
   definition(t) {
     t.nonNull.int("id");
     t.string("category");
-    t.boolean("isElective");
+    t.string("reqType");
     t.list.int("classIds");
     t.int("degreeId");
   },
