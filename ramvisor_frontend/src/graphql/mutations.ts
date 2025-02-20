@@ -20,12 +20,15 @@ export const LOGOUT_MUTATION = gql`
 `;
 
 export const UPDATE_USER_PROFILE_MUTATION = gql`
-    mutation UpdateUserProfile($id: String!, $university: String!, $yearInUniversity: Int!, $degreeId: Int!) {
-        updateUserProfile(id: $id, university: $university, yearInUniversity: $yearInUniversity, degreeId: $degreeId) {
+    mutation UpdateUserProfile($university: String!, $yearInUniversity: Int!, $degreeIds: [Int]!) {
+        updateUserProfile(university: $university, yearInUniversity: $yearInUniversity, degreeIds: $degreeIds) {
             id
             university
             yearInUniversity
-            degreeId
+            degrees {
+                id
+                name
+            }
         }
     }
 `;
@@ -70,11 +73,7 @@ export const CREATE_CLASS_MUTATION = gql`
             title
             description
             category
-            dayOfWeek
-            startTime
-            endTime
             color
-            professor
             rateMyProfessorRating
             coreDegreeId
             electiveDegreeId
@@ -92,11 +91,7 @@ export const UPDATE_CLASS_MUTATION = gql`
             title
             description
             category
-            dayOfWeek
-            startTime
-            endTime
             color
-            professor
             rateMyProfessorRating
             coreDegreeId
             electiveDegreeId
@@ -300,7 +295,7 @@ export const DELETE_SEMESTER_MUTATION = gql`
 
 export const ADD_CLASS_TO_SEMESTER_MUTATION = gql`
     mutation AddClassToSemester($input: addClassToSemesterInput!) {
-        addClassTosemester(input: $input) {
+        addClassToSemester(input: $input) {
             id
             semesterId
             classId
@@ -334,6 +329,7 @@ export const CREATE_DEGREE_MUTATION = gql`
             id
             name
             coreCategories
+            gatewayCategories
             electiveCategories
             numberOfCores
             numberOfElectives
@@ -347,6 +343,7 @@ export const UPDATE_DEGREE_MUTATION = gql`
             id
             name
             coreCategories
+            gatewayCategories
             electiveCategories
             numberOfCores
             numberOfElectives
@@ -359,12 +356,6 @@ export const DELETE_DEGREE_MUTATION = gql`
         deleteDegree(input: $input) {
             id
         }
-    }
-`;
-
-export const CREATE_DEGREE_REQUIREMENTS_MUTATION = gql`
-    mutation CreateDegreeRequirements($degreeId: Int!) {
-        createDegreeRequirements(degreeId: $degreeId)
     }
 `;
 
@@ -403,33 +394,9 @@ export const DELETE_TASK_MUTATION = gql`
     }
 `;
 
-export const CREATE_REQUIREMENT_MUTATION = gql`
-    mutation CreateRequirement($data: CreateRequirementInput!) {
-        createRequirement(data: $data) {
-            id
-            category
-            isElective
-            classIds
-            degreeId
-        }
-    }
-`;
-
-export const UPDATE_REQUIREMENT_MUTATION = gql`
-    mutation UpdateRequirement($data: UpdateRequirementInput!) {
-        updateRequirement(data: $data) {
-            id
-            category
-            isElective
-            classIds
-            degreeId
-        }
-    }
-`;
-
 export const MARK_QUESTIONNAIRE_COMPLETED = gql`
-    mutation MarkQuestionnaireCompleted($userId: String!, $isQuestionnaireCompleted: Boolean) {
-        updateUserProfile(id: $userId, questionnaireCompleted: $isQuestionnaireCompleted) {
+    mutation MarkQuestionnaireCompleted($isQuestionnaireCompleted: Boolean) {
+        updateUserProfile(questionnaireCompleted: $isQuestionnaireCompleted) {
             id
             isQuestionnaireCompleted
         }

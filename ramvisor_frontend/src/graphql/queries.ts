@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 export const GET_USER_QUERY = gql`
-  query GetUser($id: String!) {
-    getUser(id: $id) {
+  query GetUser {
+    getUser {
       id
       email
       university
@@ -12,12 +12,13 @@ export const GET_USER_QUERY = gql`
       gpa
       attendancePercentage
       assignmentCompletionPercentage
-      degreeId
       takenClassIds
-      degree {
+      degrees {
         id
         name
+        type
         coreCategories
+        gatewayCategories
         electiveCategories
         numberOfCores
         numberOfElectives
@@ -38,9 +39,8 @@ export const ME = gql`
         gpa
         attendancePercentage
         assignmentCompletionPercentage
-        degreeId
         takenClassIds
-        degree {
+        degrees {
             id
             name
             }
@@ -188,8 +188,8 @@ export const GET_CLASS_SCHEDULE_ENTRIES_QUERY = gql`
 `;
 
 export const GET_DEGREE_PLANNERS_QUERY = gql`
-  query GetDegreePlanners($userId: String!) {
-    getdegreePlanners(userId: $userId) {
+  query GetDegreePlanners {
+    getDegreePlanners {
       id
       title
       userId
@@ -215,7 +215,7 @@ export const GET_DEGREE_PLANNERS_QUERY = gql`
 
 export const GET_SEMESTERS_QUERY = gql`
   query GetSemesters($plannerId: Int!) {
-    getsemesters(plannerId: $plannerId) {
+    getSemesters(plannerId: $plannerId) {
       id
       name
       credits
@@ -259,10 +259,11 @@ export const GET_SEMESTER_QUERY = gql`
 
 export const GET_ALL_DEGREES_QUERY = gql`
   query GetAllDegrees {
-    getAlldegrees {
+    getAllDegrees {
       id
       name
       coreCategories
+      gatewayCategories
       electiveCategories
       numberOfCores
       numberOfElectives
@@ -271,11 +272,12 @@ export const GET_ALL_DEGREES_QUERY = gql`
 `;
 
 export const GET_DEGREE_QUERY = gql`
-  query GetDegree($userId: String!) {
-    getDegree(userId: $userId) {
+  query GetDegree {
+    getDegree {
       id
       name
       coreCategories
+      gatewayCategories
       electiveCategories
       numberOfCores
       numberOfElectives
@@ -302,7 +304,7 @@ export const GET_REQUIREMENT_QUERY = gql`
     getRequirement(category: $category, degreeId: $degreeId) {
       id
       category
-      isElective
+      reqType
       classIds
       degreeId
     }
@@ -314,7 +316,7 @@ export const GET_REQUIREMENTS_QUERY = gql`
     getRequirements(degreeId: $degreeId) {
       id
       category
-      isElective
+      reqType
       classIds
       degreeId
     }
