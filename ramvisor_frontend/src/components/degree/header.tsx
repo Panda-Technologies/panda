@@ -9,7 +9,7 @@ type Props = {
   setShowNewPlannerModal: (isActive: boolean) => void;
   setShowAIPlanModal: (isActive: boolean) => void;
   resetPlanner: () => void;
-  getPlanners: () => DegreePlanner[] | [];
+  getPlanners: DegreePlanner[];
   loadPlanner: (selectedPlannerId: number) => void;
   activePlanner: DegreePlanner | null;
   setActivePlanner: (planner: DegreePlanner) => void;
@@ -22,9 +22,7 @@ const DegreeHeader = ({
   resetPlanner,
   getPlanners,
   loadPlanner,
-  gradSemesterId,
   activePlanner,
-  setActivePlanner,
 }: Props) => {
 
   return (
@@ -130,9 +128,9 @@ const DegreeHeader = ({
             aria-label="Select a planner"
           >
             <option value="">Select a planner</option>
-            {getPlanners().map((planner) => (
+            {getPlanners.map((planner) => (
               <option key={planner.id} value={planner.id.toString()}>
-                {planner.id.toString()}
+                {planner.title.toString()}
               </option>
             ))}
           </select>
