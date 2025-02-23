@@ -7,9 +7,37 @@ import { ApolloServer } from 'apollo-server-express';
 import { getSchema } from './graphql/schema';
 import { getMyPrismaClient } from './db';
 import { IMyContext } from './interface';
+import RedisStore from 'connect-redis';
+import Redis from "ioredis";
 
 const main = async () => {
     const app = express();
+
+    // 0. Redis configuration
+    const redisClient = new Redis({
+        host: process.env.REDIS_HOST || 'localhost',
+        port: Number(process.env.REDIS_PORT) || 6379,
+        maxRetriesPerRequest: 1,
+        enableOfflineQueue: false
+    });
+
+    const cleanup = async () => {
+        console.log('Cleaning up...');
+        await redisClient.quit();
+        process.exit(0);
+    };
+
+    process.on('SIGINT', cleanup);
+    process.on('SIGTERM', cleanup);
+
+    // Handle Redis connection errors
+    redisClient.on('error', (err) => {
+        console.error('Redis Client Error:', err);
+    });
+
+    redisClient.on('connect', () => {
+        console.log('Connected to Redis successfully');
+    });
 
     // 1. Basic middleware
     app.use(express.json());
@@ -30,7 +58,14 @@ const main = async () => {
         exposedHeaders: ['Set-Cookie']
     }));
 
-    // 3. Session configuration
+    // 3. Redis store configuration
+    const redisStore = new RedisStore({
+        client: redisClient,
+        prefix: "myapp:",
+        ttl: 14 * 24 * 60 * 60, // Session TTL (14 days)
+    });
+
+    // 3.1 Session configuration
     app.use(session({
         secret: process.env.SESSION_SECRET!,
         name: 'gql-api',
@@ -45,7 +80,7 @@ const main = async () => {
             maxAge: 24 * 60 * 60 * 1000 * 14, // 2 weeks
             domain: 'localhost',
         },
-        store: new session.MemoryStore(),
+        store: redisStore,
     }) as express.RequestHandler);
 
     // 4. Debug middleware
@@ -73,6 +108,28 @@ const main = async () => {
             session: req.session,
             cookies: req.cookies
         });
+    });
+
+    // Add session debugging middleware
+    app.use((req, _, next) => {
+        const debugSession = async () => {
+            try {
+                // Get raw Redis data for the session
+                const redisKey = `myapp:${req.sessionID}`;
+                const rawSession = await redisClient.get(redisKey);
+
+                console.log('\n=== Session Debug ===');
+                console.log('Session ID:', req.sessionID);
+                console.log('Session:', req.session);
+                console.log('Raw Redis Session:', rawSession);
+                console.log('TTL:', await redisClient.ttl(redisKey));
+            } catch (err) {
+                console.error('Session debug error:', err);
+            }
+        };
+
+        debugSession();
+        next();
     });
 
     // Mount API router at /api
@@ -108,26 +165,35 @@ const main = async () => {
 });
 
 // Add test endpoints for debugging
+    // Update test endpoints to work with Redis
     app.post('/test-set-session', (req, res) => {
         req.session.userId = 'test-user-id';
 
-        req.session.save((err) => {
+        req.session.save(async (err) => {
             if (err) {
                 console.error('Session save error:', err);
                 res.status(500).json({ error: 'Failed to save session' });
                 return;
             }
 
-            console.log('Session after save:', {
-                id: req.sessionID,
-                data: req.session
-            });
+            try {
+                const redisKey = `myapp:${req.sessionID}`;
+                const rawSession = await redisClient.get(redisKey);
+                const ttl = await redisClient.ttl(redisKey);
 
-            res.json({
-                message: 'Session data set',
-                sessionId: req.sessionID,
-                session: req.session
-            });
+                res.json({
+                    message: 'Session data set',
+                    sessionId: req.sessionID,
+                    session: req.session,
+                    redisData: {
+                        raw: rawSession,
+                        ttl: ttl
+                    }
+                });
+            } catch (err) {
+                console.error('Redis error:', err);
+                res.status(500).json({ error: 'Redis error' });
+            }
         });
     });
 
@@ -152,7 +218,8 @@ const main = async () => {
             req,
             res,
             prisma,
-            session: req.session
+            session: req.session,
+            redis: redisClient
         }),
         introspection: true,
     });
