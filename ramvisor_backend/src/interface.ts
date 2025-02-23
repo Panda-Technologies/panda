@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { Session, SessionData } from "express-session";
 import {classColumns, degreeColumns} from "./constants";
+import Redis from "ioredis";
 
 declare module 'express-session' {
     interface SessionData {
@@ -19,6 +20,7 @@ export interface IMyContext {
     res: Response;
     prisma: PrismaClient;
     session: ISession;
+    redis: Redis;
 }
 
 export interface classColumnTypes {
