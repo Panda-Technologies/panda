@@ -95,7 +95,6 @@ export type CreateClassMutation = {
       | "description"
       | "category"
       | "color"
-      | "rateMyProfessorRating"
       | "coreDegreeId"
       | "electiveDegreeId"
     >
@@ -118,7 +117,6 @@ export type UpdateClassMutation = {
       | "description"
       | "category"
       | "color"
-      | "rateMyProfessorRating"
       | "coreDegreeId"
       | "electiveDegreeId"
     >
@@ -924,7 +922,8 @@ export type GetRequirementQuery = {
 };
 
 export type GetRequirementsQueryVariables = Types.Exact<{
-  degreeId: Types.Scalars["Int"]["input"];
+  degreeId?: Types.InputMaybe<Types.Scalars["Int"]["input"]>;
+  degreeName?: Types.InputMaybe<Types.Scalars["String"]["input"]>;
 }>;
 
 export type GetRequirementsQuery = {
