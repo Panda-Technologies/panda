@@ -348,7 +348,7 @@ const CourseCalendar: React.FC<Props> = ({
                     (!courseFilter.dayOfWeek || item.sectionDay === processDays(courseFilter.dayOfWeek)) &&
                     (!filterStartTime || item.sectionStartTime >= filterStartTime) &&
                     (!filterEndTime || item.sectionEndTime <= filterEndTime) &&
-                    (!courseFilter.rating || item.rateMyProfessorRating >= courseFilter.rating) &&
+                    (!courseFilter.rating || (parseFloat(item.section?.rateMyProfessorRating ?? "-1.0")) >= courseFilter.rating) &&
                     (!courseFilter.credits || item.credits === courseFilter.credits)
                 );
             })

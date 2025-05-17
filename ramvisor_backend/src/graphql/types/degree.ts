@@ -116,16 +116,21 @@ export const degreeMutation = extendType({
                     degreeIntColumns
                 );
 
+                console.log(`Parsed ${degreeData.length} rows from CSV`);
+
                 const degree = await prisma.degree.create({
                     data: {
                         name: "Business Administration",
                         type: "B.S.B.A.",
                         coreCategories: ["Core"],
                         electiveCategories: ["Electives"],
+                        gatewayCategories: ["Gateway"],
                         numberOfCores: 23,
                         numberOfElectives: 19.5,
                     },
                 });
+
+                console.log(`Created degree with ID: ${degree.id}`);
 
                 const coreRequirement = await prisma.requirement.create({
                     data: {
@@ -154,30 +159,54 @@ export const degreeMutation = extendType({
                     }
                 });
 
+                // Track current requirement group and courses
                 let currentRequirement: DegreeRequirement | null = null;
                 let courseGroup: number[] = [];
 
-                for (let i = 0; i < degreeData.length; i++) {
-                    const row = degreeData[i];
-                    const course = row[degreeColumns.COURSE];
-                    const type = row[degreeColumns.TYPE];
+                // Track which courses belong to which groups to prevent duplicates
+                const courseAssignments: { [courseCode: string]: string } = {};
 
+                // Process the CSV row by row
+                for (let i = 0; i < degreeData.length; i++) {
+                    // Normalize the course and type strings to replace non-breaking spaces with a normal space
+                    const rawCourse = degreeData[i][degreeColumns.COURSE] || "";
+                    const course = rawCourse.replace(/\u00A0/g, " ").trim();
+                    const rawType = degreeData[i][degreeColumns.TYPE] || "";
+                    const type = rawType.replace(/\u00A0/g, " ").trim();
+
+                    console.log(`Processing row ${i}: Course="${course}", Type="${type}"`);
+
+                    // Skip header row
+                    if (course === "Course") {
+                        continue;
+                    }
+
+                    // Handle empty rows: finalize any active requirement group regardless of whether courses have been added
                     if (!course) {
-                        if (currentRequirement && courseGroup.length > 0) {
+                        if (currentRequirement) {
+                            console.log(`Finalizing group ${currentRequirement.category} due to empty row at line ${i}`);
                             await prisma.requirement.create({
                                 data: {
                                     ...currentRequirement,
                                     classIds: courseGroup,
                                 },
                             });
+                            // Always reset the tracking variables so that subsequent rows start fresh
                             courseGroup = [];
                             currentRequirement = null;
                         }
                         continue;
                     }
 
-                    if (course.toLowerCase().includes("choose")) {
-                        if (currentRequirement) {
+                    // Check if this is a special category definition (containing a choice pattern)
+                    const isCategoryDefinition =
+                        course.toLowerCase().includes("choose") ||
+                        (course.includes("(") && course.includes(")"));
+
+                    if (isCategoryDefinition) {
+                        // Finalize any previous requirement group before starting a new one.
+                        if (currentRequirement && courseGroup.length > 0) {
+                            console.log(`Finalizing previous group ${currentRequirement.category} before new category at line ${i}`);
                             await prisma.requirement.create({
                                 data: {
                                     ...currentRequirement,
@@ -187,53 +216,112 @@ export const degreeMutation = extendType({
                             courseGroup = [];
                         }
 
-                        const categoryName = course.split(" ")[0];
-                        const categoryChoose = course.split("(")[1].split(")")[0];
-                        const category = `${categoryName}; ${categoryChoose}`;
+                        // Extract category name and details
+                        let categoryName: string, chooseDetails: string;
+                        if (course.includes("(") && course.includes(")")) {
+                            // Format like "Category Name (choose X of Y)"
+                            categoryName = course.split("(")[0].trim();
+                            try {
+                                chooseDetails = course.split("(")[1].split(")")[0].trim();
+                            } catch (error) {
+                                chooseDetails = "choose 1";
+                            }
+                        } else if (course.toLowerCase().includes("choose")) {
+                            // Format like "Choose one from the following"
+                            const parts = course.split(" ");
+                            categoryName = parts[0].trim(); // First word as category name
+                            chooseDetails = course.substring(categoryName.length).trim();
+                        } else {
+                            // Other category definition format
+                            categoryName = course;
+                            chooseDetails = "choose 1";
+                        }
+                        const category = `${categoryName}; ${chooseDetails}`;
+                        console.log(`Identified new category: "${category}" with type "${type}"`);
+
+                        // Determine the requirement type based on the row's type
+                        const reqType = type?.toUpperCase() || "CORE";
+
+                        // Update the degree with this category in the appropriate list
+                        const categoryField =
+                            reqType === "ELECTIVE"
+                                ? "electiveCategories"
+                                : reqType === "GATEWAY"
+                                    ? "gatewayCategories"
+                                    : "coreCategories";
 
                         await prisma.degree.update({
                             where: { id: degree.id },
                             data: {
-                                [(type == 'Elective') ? "electiveCategories" : ((type == 'Gateway') ? "gatewayCategories" : "coreCategories")]: {
+                                [categoryField]: {
                                     push: category,
                                 },
                             },
                         });
 
+                        // Create a new requirement object for this category
                         currentRequirement = {
                             degreeId: degree.id,
-                            category: category,
+                            category,
                             classIds: [],
-                            reqType: type.toUpperCase(),
+                            reqType,
                         };
+
+                        console.log(`Started tracking new category: ${category} with type ${reqType}`);
                         continue;
                     }
 
+                    // Update regex to also allow non-breaking spaces
+                    const courseCodePattern = /^[A-Z]{3,4}[ \u00A0]+\d{3}[A-Z]?$/i;
+                    if (!courseCodePattern.test(course)) {
+                        console.log(`Skipping invalid course code: "${course}" at line ${i}`);
+                        continue;
+                    }
+
+                    // Find the class in the database using the sanitized course code
+                    console.log(`Looking up course in DB: "${course}"`);
                     const class_ = await prisma.class.findFirst({
-                        where: { classCode: course }
+                        where: { classCode: course },
                     });
 
-                    if (class_) {
-                        if (currentRequirement) {
-                            courseGroup.push(class_.id);
-                        } else {
-                            const targetRequirement = type?.toLowerCase() === "elective"
-                                ? electiveRequirement
-                                : (type?.toLowerCase() === "gateway" ? gatewayRequirement : coreRequirement);
+                    if (!class_) {
+                        console.log(`Class not found in database: "${course}"`);
+                        continue;
+                    }
 
-                            await prisma.requirement.update({
-                                where: { id: targetRequirement.id },
-                                data: {
-                                    classIds: {
-                                        push: class_.id,
-                                    },
-                                },
-                            });
-                        }
+                    // Check if course has already been assigned to prevent duplicates
+                    if (courseAssignments[course]) {
+                        console.log(`Course ${course} already assigned to ${courseAssignments[course]}`);
+                        continue;
+                    }
+
+                    // Handle course assignment
+                    if (currentRequirement) {
+                        console.log(`Adding "${course}" to group "${currentRequirement.category}" at line ${i}`);
+                        courseGroup.push(class_.id);
+                        courseAssignments[course] = currentRequirement.category;
+                    } else {
+                        // No current group, add to default requirement based on type
+                        const targetRequirement =
+                            type.toLowerCase() === "elective"
+                                ? electiveRequirement
+                                : type.toLowerCase() === "gateway"
+                                    ? gatewayRequirement
+                                    : coreRequirement;
+
+                        console.log(`Adding "${course}" to default ${type} requirement at line ${i}`);
+                        await prisma.requirement.update({
+                            where: { id: targetRequirement.id },
+                            data: {
+                                classIds: { push: class_.id },
+                            },
+                        });
+                        courseAssignments[course] = `default ${type}`;
                     }
                 }
 
-                if (currentRequirement && courseGroup.length > 0) {
+                if (currentRequirement) {
+                    console.log(`Finalizing final group ${currentRequirement.category} with ${courseGroup.length} courses`);
                     await prisma.requirement.create({
                         data: {
                             ...currentRequirement,
@@ -241,8 +329,9 @@ export const degreeMutation = extendType({
                         },
                     });
                 }
+
                 return true;
             },
-        });
+        })
     },
 });

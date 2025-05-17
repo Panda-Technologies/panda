@@ -3,26 +3,15 @@ export const NOT_AUTHORIZED = 'Not Authorized';
 export const NOT_FOUND = 'Not Found';
 export const INVALID_CREDENTIALS = 'Invalid Credentials';
 export enum classColumns {
-    ID = 'id',
-    CODE = 'code',
-    SUBJECT = 'subject',
-    CATALOG_NBR = 'catalog nbr',
-    SECTION = 'section',
-    CLASS_NBR = 'class nbr',
-    COURSE_TITLE = 'course title',
-    COMPONENT = 'component',
-    UNITS = 'units',
-    TOPICS = 'topics',
-    BUILDING = 'Bldg',
-    ROOM = 'room',
-    DAYS = 'days',
-    TIME = 'time',
-    INSTRUCTOR = 'Instructor',
-    ENROLL_CAP = 'Class Enrl Cap',
-    ENROLL_TOTAL = 'Class Enrl Tot',
-    WAIT_CAP = 'Class Wait Cap',
-    WAIT_TOTAL = 'Class Wait Tot',
-    MIN_ENROLL = 'Class Min Enrl',
+    CODE = 'course_code',
+    COURSE_TITLE = 'title',
+    ENROLL_TOTAL = 'available_seats',
+    ENROLL_CAP = 'total_seats',
+    INSTRUCTOR = 'instructor',
+    SCHEDULE = 'schedule',
+    BUILDING = 'location',
+    UNITS = 'credit_hours',
+    DAYS = 'date_range',
 }
 
 export enum degreeColumns {
@@ -35,16 +24,9 @@ export enum degreeColumns {
 }
 
 export const intColumns: string[] = [
-    classColumns.ID,
-    classColumns.CATALOG_NBR,
-    classColumns.SECTION,
-    classColumns.CLASS_NBR,
     classColumns.UNITS,
     classColumns.ENROLL_CAP,
     classColumns.ENROLL_TOTAL,
-    classColumns.WAIT_CAP,
-    classColumns.WAIT_TOTAL,
-    classColumns.MIN_ENROLL
 ];
 
 export const degreeIntColumns: string[] = [
@@ -52,26 +34,15 @@ export const degreeIntColumns: string[] = [
 ];
 
 export const classHeaders = [
-    'id',
-    'code',
-    'subject',
-    'catalog nbr',
-    'section',
-    'class nbr',
-    'course title',
-    'component',
-    'units',
-    'topics',
-    'Bldg',
-    'room',
-    'days',
-    'time',
-    'Instructor',
-    'Class Enrl Cap',
-    'Class Enrl Tot',
-    'Class Wait Cap',
-    'Class Wait Tot',
-    'Class Min Enrl',
+    'course_code',
+    'title',
+    'available_seats',
+    'total_seats',
+    'instructor',
+    'schedule',
+    'location',
+    'credit_hours',
+    'date_range',
 ];
 
 export const degreeHeaders = [

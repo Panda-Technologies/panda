@@ -1,12 +1,5 @@
-import { PrismaClient } from "@prisma/client";
-import {
-  extendType,
-  inputObjectType,
-  intArg,
-  nonNull,
-  objectType,
-  stringArg,
-} from "nexus";
+import {extendType, inputObjectType, intArg, nonNull, objectType, stringArg,} from "nexus";
+import {IMyContext} from "../../interface";
 
 export const requirement = objectType({
   name: "requirement",
@@ -16,6 +9,7 @@ export const requirement = objectType({
     t.nonNull.string("reqType");
     t.nonNull.list.int("classIds");
     t.nonNull.int("degreeId");
+    t.list.string("classNames")
   },
 });
 
@@ -52,7 +46,7 @@ export const requirementQuery = extendType({
       resolve: (
         _,
         { category, degreeId },
-        { prisma }: { prisma: PrismaClient }
+        { prisma }: IMyContext
       ) => {
         return prisma.requirement.findFirst({
           where: {category, degreeId},
@@ -63,14 +57,50 @@ export const requirementQuery = extendType({
     t.list.field("getRequirements", {
       type: "requirement",
       args: {
-        degreeId: nonNull(intArg()),
+        degreeId: intArg(),
+        degreeName: stringArg(),
       },
-      resolve: (
+      resolve: async (
         _,
-        { degreeId },
-        { prisma }: { prisma: PrismaClient }
+        { degreeId, degreeName },
+        { prisma }: IMyContext
       ) => {
-        return prisma.requirement.findMany({where: {degreeId}});
+        if (!degreeId && !degreeName) {
+          throw new Error("At least one of degreeId or degreeName must be provided");
+        }
+        if (degreeId) {
+          return prisma.requirement.findMany({where: {degreeId}});
+        }
+        const degree = await prisma.degree.findFirst({
+          where: {name: degreeName},
+        });
+        if (!degree) {
+          throw new Error("Degree not found");
+        }
+        const requirements = await prisma.requirement.findMany({where: {degreeId: degree.id}});
+
+        const classIds = requirements.map(req => req.classIds).flat();
+
+        const classes = await prisma.class.findMany({
+          where: {
+            id: {
+              in: classIds
+            }
+          },
+          select: {
+            id: true,
+            title: true,
+            classCode: true
+          }
+        });
+
+        const classMap = new Map(classes.map(c => [c.id, c]));
+
+        return requirements.map(req => {
+          const classNames = req.classIds.map(classId => classMap.get(classId)?.title || 'Unknown');
+
+          return {...req, classNames};
+        });
       },
     });
   },
@@ -84,7 +114,7 @@ export const requirementMutation = extendType({
       args: {
         data: nonNull(createRequirementInput),
       },
-      resolve: (_, { data }, { prisma }: { prisma: PrismaClient }) => {
+      resolve: (_, { data }, { prisma }: IMyContext) => {
         return prisma.requirement.create({data});
       },
     });
@@ -94,7 +124,7 @@ export const requirementMutation = extendType({
       args: {
         data: nonNull(updateRequirementInput),
       },
-      resolve: (_, { data }, { prisma }: { prisma: PrismaClient }) => {
+      resolve: (_, { data }, { prisma }: IMyContext) => {
         const { id } = data;
         return prisma.requirement.update({where: {id}, data});
       },

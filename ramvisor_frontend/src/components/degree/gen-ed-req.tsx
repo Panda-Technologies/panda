@@ -61,7 +61,7 @@
 //   };
 // }
 //
-// const genEdRequirements: GenEdRequirements = {
+// const genEdRequirements.ts: GenEdRequirements = {
 //   firstYearFoundations: {
 //     name: 'First Year Foundations',
 //     icon: Book,
@@ -107,7 +107,7 @@
 //
 //   const updateSatisfiedRequirements = () => {
 //     const newSatisfiedRequirements: {[key: string]: boolean} = {};
-//     Object.entries(genEdRequirements).forEach(([category, { requirements }]) => {
+//     Object.entries(genEdRequirements.ts).forEach(([category, { requirements }]) => {
 //       requirements.forEach(req => {
 //         if ('isCollapsible' in req) {
 //           req.subRequirements.forEach(subReq => {
@@ -282,7 +282,7 @@
 //       }}>
 //         Gen-Ed Requirements
 //       </h2>
-//       {Object.entries(genEdRequirements).map(([category, data]) =>
+//       {Object.entries(genEdRequirements.ts).map(([category, data]) =>
 //         renderRequirementCategory(category, data)
 //       )}
 //     </div>
