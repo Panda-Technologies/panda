@@ -13,7 +13,8 @@ type Class {
   description: String!
   electiveDegreeId: [Int]
   id: Int!
-  rateMyProfessorRating: Float!
+  ideaGenEd: [String]
+  prerequisites: [String]
   sections: [classSection]
   title: String!
 }
@@ -31,14 +32,23 @@ input CreateClassInput {
   coreDegreeId: Int!
   courseType: String!
   credits: Int!
-  dayOfWeek: String!
   description: String!
   electiveDegreeId: [Int]!
-  endTime: String!
-  professor: String!
-  rateMyProfessorRating: Float!
-  startTime: String!
+  ideaGenEd: [String]
+  prerequisites: [String]
   title: String!
+}
+
+input CreateGenEdCategoryInput {
+  name: String!
+}
+
+input CreateGenEdRequirementInput {
+  categoryId: Int!
+  code: String!
+  hours: String!
+  name: String!
+  subTypes: [String]
 }
 
 input CreateRequirementInput {
@@ -46,6 +56,22 @@ input CreateRequirementInput {
   classIds: [Int]!
   degreeId: Int!
   reqType: String!
+}
+
+type GenEdCategory {
+  id: Int!
+  name: String!
+  requirements: [GenEdRequirement]
+}
+
+type GenEdRequirement {
+  category: GenEdCategory
+  categoryId: Int!
+  code: String!
+  hours: String!
+  id: Int!
+  name: String!
+  subTypes: [String]!
 }
 
 input LoginInput {
@@ -61,6 +87,8 @@ type Mutation {
   createDegree(input: createDegreeInput!): degree
   createDegreeAndRequirements: Boolean
   createDegreePlanner(input: createDegreePlannerInput!): degreePlanner
+  createGenEdCategory(data: CreateGenEdCategoryInput!): GenEdCategory
+  createGenEdRequirement(data: CreateGenEdRequirementInput!): GenEdRequirement
   createRequirement(data: CreateRequirementInput!): requirement
   createSemester(input: createSemesterInput!): semester
   createTask(input: createTaskInput): task
@@ -68,9 +96,12 @@ type Mutation {
   deleteClassSchedule(id: Int!): classSchedule
   deleteDegree(input: deleteDegreeInput!): degree
   deleteDegreePlanner(id: Int!): degreePlanner
+  deleteGenEdCategory(id: Int!): GenEdCategory
+  deleteGenEdRequirement(id: Int!): GenEdRequirement
   deleteSemester(id: Int!): semester
   deleteTask(input: deleteTaskInput): task
   generateClassesFromScrape: Class
+  generateSectionsFromScrape: Class
   importCanvasClasses(input: importCanvasClassesInput!): Class
   importCanvasTasks(input: importCanvasTasksInput): task
   login(input: LoginInput!): String
@@ -80,10 +111,13 @@ type Mutation {
   removeClassFromSemester(input: removeClassFromSemesterInput!): semesterEntry
   resetClassSchedule(input: resetClassScheduleInput!): classSchedule
   resetDegreePlanner(input: resetDegreePlannerInput!): degreePlanner
+  seedGenEdRequirements: Boolean
   setUserGraduationSemester(input: graduationSemesterInput!): user
   updateClass(input: UpdateClassInput!): Class
   updateClassSchedule(input: updateClassScheduleInput!): classSchedule
   updateDegree(input: updateDegreeInput!): degree
+  updateGenEdCategory(data: UpdateGenEdCategoryInput!): GenEdCategory
+  updateGenEdRequirement(data: UpdateGenEdRequirementInput!): GenEdRequirement
   updatePremiumStatus(id: String!, isPremium: Boolean!): user
   updateRequirement(data: UpdateRequirementInput!): requirement
   updateSemester(input: updateSemesterInput!): semester
@@ -95,16 +129,22 @@ type Mutation {
 type Query {
   classTaken(input: classTakenInput!): classTakenResult
   getAllDegrees: [degree]
+  getAllGenEdCategories: [GenEdCategory]
+  getAllGenEdRequirements: [GenEdRequirement]
   getClass(id: Int!): Class
   getClassScheduleEntries(classScheduleId: Int!): [classScheduleEntry]
   getClassSchedules: [classSchedule]
   getClasses: [Class]
   getDegree: degree
   getDegreePlanners: [degreePlanner]
+  getGenEdCategory(id: Int!): GenEdCategory
+  getGenEdCategoryByName(name: String!): GenEdCategory
+  getGenEdRequirementByCode(code: String!): GenEdRequirement
+  getGenEdRequirementsByCategory(categoryId: Int!): [GenEdRequirement]
   getGraduationSemester(id: String!): String
   getPremiumStatus(id: String!): Boolean
   getRequirement(category: String!, degreeId: Int!): [requirement]
-  getRequirements(degreeId: Int!): [requirement]
+  getRequirements(degreeId: Int, degreeName: String): [requirement]
   getSemester(id: Int!): semester
   getSemesters(plannerId: Int!): [semester]
   getTasks: [task]
@@ -124,15 +164,24 @@ input UpdateClassInput {
   coreDegreeId: Int
   courseType: String
   credits: Int
-  dayOfWeek: String
   description: String
   electiveDegreeId: [Int]
-  endTime: String
   id: Int!
-  professor: String
-  rateMyProfessorRating: Float
-  startTime: String
   title: String
+}
+
+input UpdateGenEdCategoryInput {
+  id: Int!
+  name: String
+}
+
+input UpdateGenEdRequirementInput {
+  categoryId: Int
+  code: String
+  hours: String
+  id: Int!
+  name: String
+  subTypes: [String]
 }
 
 input UpdateRequirementInput {
@@ -177,10 +226,13 @@ type classSection {
   dayOfWeek: String!
   endTime: String!
   id: Int!
+  location: String!
   professor: String!
   rateMyProfessorRating: String
   section: Int!
   startTime: String!
+  totalAvailable: Int!
+  totalCapacity: Int!
 }
 
 input classTakenInput {
@@ -295,6 +347,7 @@ input removeClassFromSemesterInput {
 type requirement {
   category: String!
   classIds: [Int]!
+  classNames: [String]
   degreeId: Int!
   id: Int!
   reqType: String!

@@ -32,13 +32,12 @@ model user {
   attendancePercentage           Float?
   assignmentCompletionPercentage Float?
   tasks                          task[]
-  classSchedule                  classSchedule[]
+  classSchedules                 classSchedule[]
   degreePlanners                 degreePlanner[]
   takenClassIds                  Int[]
   degrees                        degree[]
   questionnaireCompleted         Boolean         @default(false)
 
-  // New: Relation to the Class model (many-to-many)
   classes        classSection[]
   completedTasks completedTasks[]
 
@@ -107,6 +106,7 @@ model Class {
   title            String
   color            String
   ideaGenEd        String[]
+  prerequisites    String[]
   coreDegreeId     Int[]
   electiveDegreeId Int[]
   sections         classSection[]
@@ -124,6 +124,9 @@ model classSection {
   rateMyProfessorRating Float
   dayOfWeek             String
   startTime             String
+  totalAvailable        Int
+  totalCapacity         Int
+  location              String
   endTime               String
   class                 Class    @relation(fields: [classId], references: [id])
   user                  user[]
@@ -133,13 +136,35 @@ model classSection {
 }
 
 model requirement {
-  id       Int    @id @unique @default(autoincrement())
-  degreeId Int
-  reqType  String
-  category String
-  classIds Int[]
+  id         Int      @id @unique @default(autoincrement())
+  degreeId   Int
+  reqType    String
+  category   String
+  classIds   Int[]
+  classNames String[]
 
   @@map("requirements")
+}
+
+model GenEdCategory {
+  id           Int                @id @default(autoincrement())
+  name         String
+  requirements GenEdRequirement[]
+
+  @@map("gen_ed_categories")
+}
+
+model GenEdRequirement {
+  id         Int           @id @default(autoincrement())
+  code       String
+  name       String
+  hours      String
+  categoryId Int
+  category   GenEdCategory @relation(fields: [categoryId], references: [id])
+
+  subTypes String[]
+
+  @@map("gen_ed_requirements")
 }
 
 model degreePlanner {
@@ -189,4 +214,18 @@ model degree {
   user               user[]
 
   @@map("degrees")
+}
+
+model chatHistory {
+  id          Int         @id @unique @default(autoincrement())
+  role        String
+  content     String
+  classes     Int[]
+  sections    Int[]
+  chatSession chatSession @relation(fields: [id], references: [id])
+}
+
+model chatSession {
+  id          Int           @id @unique @default(autoincrement())
+  chatHistory chatHistory[]
 }

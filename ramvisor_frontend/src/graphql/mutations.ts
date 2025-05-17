@@ -74,7 +74,6 @@ export const CREATE_CLASS_MUTATION = gql`
             description
             category
             color
-            rateMyProfessorRating
             coreDegreeId
             electiveDegreeId
         }
@@ -92,7 +91,6 @@ export const UPDATE_CLASS_MUTATION = gql`
             description
             category
             color
-            rateMyProfessorRating
             coreDegreeId
             electiveDegreeId
         }

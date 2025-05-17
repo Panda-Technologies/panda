@@ -38,7 +38,6 @@ export type Class = {
   description: Scalars["String"]["output"];
   electiveDegreeId?: Maybe<Array<Maybe<Scalars["Int"]["output"]>>>;
   id: Scalars["Int"]["output"];
-  rateMyProfessorRating: Scalars["Float"]["output"];
   sections?: Maybe<Array<Maybe<ClassSection>>>;
   title: Scalars["String"]["output"];
 };
@@ -71,11 +70,6 @@ export type CreateRequirementInput = {
   classIds: Array<InputMaybe<Scalars["Int"]["input"]>>;
   degreeId: Scalars["Int"]["input"];
   reqType: Scalars["String"]["input"];
-};
-
-export type DegreePlannerDegreeInput = {
-  degreeId: Scalars["Int"]["input"];
-  title: Scalars["String"]["input"];
 };
 
 export type LoginInput = {
@@ -308,7 +302,8 @@ export type QueryGetRequirementArgs = {
 };
 
 export type QueryGetRequirementsArgs = {
-  degreeId: Scalars["Int"]["input"];
+  degreeId?: InputMaybe<Scalars["Int"]["input"]>;
+  degreeName?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type QueryGetSemesterArgs = {
@@ -413,7 +408,8 @@ export type CreateDegreeInput = {
 };
 
 export type CreateDegreePlannerInput = {
-  degree: DegreePlannerDegreeInput;
+  degreeId: Scalars["Int"]["input"];
+  title: Scalars["String"]["input"];
 };
 
 export type CreateSemesterInput = {

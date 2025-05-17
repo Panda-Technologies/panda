@@ -41,7 +41,6 @@ export type Class = {
   description: Scalars["String"]["output"];
   electiveDegreeId?: Maybe<Array<Maybe<Scalars["Int"]["output"]>>>;
   id: Scalars["Int"]["output"];
-  rateMyProfessorRating: Scalars["Float"]["output"];
   sections?: Maybe<Array<Maybe<ClassSection>>>;
   title: Scalars["String"]["output"];
 };
@@ -74,11 +73,6 @@ export type CreateRequirementInput = {
   classIds: Array<InputMaybe<Scalars["Int"]["input"]>>;
   degreeId: Scalars["Int"]["input"];
   reqType: Scalars["String"]["input"];
-};
-
-export type DegreePlannerDegreeInput = {
-  degreeId: Scalars["Int"]["input"];
-  title: Scalars["String"]["input"];
 };
 
 export type LoginInput = {
@@ -313,7 +307,8 @@ export type QueryGetRequirementArgs = {
 };
 
 export type QueryGetRequirementsArgs = {
-  degreeId: Scalars["Int"]["input"];
+  degreeId?: InputMaybe<Scalars["Int"]["input"]>;
+  degreeName?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type QueryGetSemesterArgs = {
@@ -422,7 +417,8 @@ export type CreateDegreeInput = {
 };
 
 export type CreateDegreePlannerInput = {
-  degree: DegreePlannerDegreeInput;
+  degreeId: Scalars["Int"]["input"];
+  title: Scalars["String"]["input"];
 };
 
 export type CreateSemesterInput = {
@@ -745,7 +741,6 @@ export type CreateClassMutation = {
     description: string;
     category: string;
     color: string;
-    rateMyProfessorRating: number;
     coreDegreeId: Array<number | null>;
     electiveDegreeId?: Array<number | null> | null;
   } | null;
@@ -767,7 +762,6 @@ export type UpdateClassMutation = {
     description: string;
     category: string;
     color: string;
-    rateMyProfessorRating: number;
     coreDegreeId: Array<number | null>;
     electiveDegreeId?: Array<number | null> | null;
   } | null;
@@ -1531,7 +1525,8 @@ export type GetRequirementQuery = {
 };
 
 export type GetRequirementsQueryVariables = Exact<{
-  degreeId: Scalars["Int"]["input"];
+  degreeId?: InputMaybe<Scalars["Int"]["input"]>;
+  degreeName?: InputMaybe<Scalars["String"]["input"]>;
 }>;
 
 export type GetRequirementsQuery = {
@@ -2081,10 +2076,6 @@ export const CreateClassDocument = {
                 { kind: "Field", name: { kind: "Name", value: "color" } },
                 {
                   kind: "Field",
-                  name: { kind: "Name", value: "rateMyProfessorRating" },
-                },
-                {
-                  kind: "Field",
                   name: { kind: "Name", value: "coreDegreeId" },
                 },
                 {
@@ -2149,10 +2140,6 @@ export const UpdateClassDocument = {
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "category" } },
                 { kind: "Field", name: { kind: "Name", value: "color" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "rateMyProfessorRating" },
-                },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "coreDegreeId" },
@@ -4926,10 +4913,15 @@ export const GetRequirementsDocument = {
             kind: "Variable",
             name: { kind: "Name", value: "degreeId" },
           },
-          type: {
-            kind: "NonNullType",
-            type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+          type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "degreeName" },
           },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
         },
       ],
       selectionSet: {
@@ -4945,6 +4937,14 @@ export const GetRequirementsDocument = {
                 value: {
                   kind: "Variable",
                   name: { kind: "Name", value: "degreeId" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "degreeName" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "degreeName" },
                 },
               },
             ],

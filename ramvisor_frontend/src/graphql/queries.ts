@@ -312,8 +312,8 @@ export const GET_REQUIREMENT_QUERY = gql`
 `;
 
 export const GET_REQUIREMENTS_QUERY = gql`
-  query GetRequirements($degreeId: Int!) {
-    getRequirements(degreeId: $degreeId) {
+  query GetRequirements($degreeId: Int, $degreeName: String) {
+    getRequirements(degreeId: $degreeId, degreeName: $degreeName) {
       id
       category
       reqType
