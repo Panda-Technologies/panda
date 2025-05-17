@@ -1,9 +1,29 @@
 import {extendType, inputObjectType, intArg, nonNull, objectType} from "nexus";
-import {PrismaClient} from "@prisma/client";
-import {getEndTime, getStartTime, parseCSV, processComponent, processInstructor} from "../../utils";
-import {classHeaders, intColumns} from "../../constants";
+import {classColumns, classHeaders, intColumns} from "../../constants";
 import {canvasClass, classColumnTypes, IMyContext} from "../../interface";
+import {extractDayCode, parseCSV, processInstructorName, processTime} from "../../utils";
+import * as fs from 'fs';
+import * as path from 'path';
 
+// Define interfaces for the class data
+interface ClassData {
+  classCode: string;
+  credits: number;
+  courseType?: string;
+  title: string;
+  category?: string;
+  description?: string;
+  ideaGenEd?: string[];
+  prerequisites?: (string | string[])[];
+  color?: string;
+}
+
+interface TimeData {
+  startTime: string;
+  endTime: string;
+}
+
+// The rest of the file remains unchanged up to the classMutation
 export const Class = objectType({
   name: 'Class',
   definition(t) {
@@ -15,8 +35,9 @@ export const Class = objectType({
     t.nonNull.string('description');
     t.nonNull.string('category');
     t.nonNull.string('color');
-    t.nonNull.float('rateMyProfessorRating');
     t.nonNull.list.int('coreDegreeId');
+    t.list.string('ideaGenEd');
+    t.list.string('prerequisites');
     t.list.int('electiveDegreeId');
     t.list.field('sections', { type: 'classSection' });
     t.list.field('classSchedules', { type: 'classSchedule' });
@@ -30,6 +51,9 @@ export const classSection = objectType({
     t.nonNull.int('section');
     t.nonNull.int('classId');
     t.nonNull.string('dayOfWeek');
+    t.nonNull.int('totalAvailable')
+    t.nonNull.int('totalCapacity');
+    t.nonNull.string('location');
     t.nonNull.string('startTime');
     t.nonNull.string('endTime');
     t.nonNull.string('professor');
@@ -47,12 +71,9 @@ export const CreateClassInput = inputObjectType({
     t.nonNull.string('title');
     t.nonNull.string('category');
     t.nonNull.string('description');
-    t.nonNull.string('dayOfWeek');
-    t.nonNull.string('startTime');
-    t.nonNull.string('endTime');
     t.nonNull.string('color');
-    t.nonNull.string('professor');
-    t.nonNull.float('rateMyProfessorRating');
+    t.list.string('ideaGenEd');
+    t.list.string('prerequisites');
     t.nonNull.int('coreDegreeId');
     t.nonNull.list.int('electiveDegreeId');
   },
@@ -67,32 +88,27 @@ export const UpdateClassInput = inputObjectType({
     t.int('credits');
     t.string('title');
     t.string('category');
-    t.string('dayOfWeek');
     t.string('description');
-    t.string('startTime');
-    t.string('endTime');
     t.string('color');
-    t.string('professor');
-    t.float('rateMyProfessorRating');
     t.int('coreDegreeId');
     t.list.int('electiveDegreeId');
   },
 });
 
 export const listClassInput = inputObjectType({
-    name: 'listClassInput',
-    definition(t) {
-        t.nonNull.string('classCode');
-        t.nonNull.string('color');
-        t.nonNull.string('sectionId');
-        t.nonNull.string('semesterId');
-    },
+  name: 'listClassInput',
+  definition(t) {
+    t.nonNull.string('classCode');
+    t.nonNull.string('color');
+    t.nonNull.string('sectionId');
+    t.nonNull.string('semesterId');
+  },
 })
 
 export const importCanvasClassesInput = inputObjectType({
   name: 'importCanvasClassesInput',
   definition(t) {
-   t.list.field('courseInput', { type: 'listClassInput' });
+    t.list.field('courseInput', { type: 'listClassInput' });
   },
 });
 
@@ -125,6 +141,44 @@ export const classQuery = extendType({
   },
 });
 
+// Helper function to create a section for a class
+async function createClassSection(
+    tx: any,
+    classId: number,
+    section: number,
+    dayCode: string,
+    times: TimeData,
+    totalAvailable: number,
+    totalCapacity: number,
+    location: string,
+    professorName: string
+): Promise<any> {
+  return await tx.classSection.create({
+    data: {
+      classId: classId,
+      section: section,
+      dayOfWeek: dayCode,
+      startTime: times.startTime,
+      endTime: times.endTime,
+      totalAvailable: totalAvailable,
+      totalCapacity: totalCapacity,
+      location: location,
+      professor: professorName,
+      rateMyProfessorRating: 0.0
+    }
+  });
+}
+
+// Helper function to create a unique section key
+function createSectionKey(
+    section: number,
+    dayCode: string,
+    startTime: string,
+    endTime: string,
+    professor: string
+): string {
+  return `${section}-${dayCode}-${startTime}-${endTime}-${professor}`;
+}
 
 export const classMutation = extendType({
   type: 'Mutation',
@@ -134,130 +188,236 @@ export const classMutation = extendType({
       args: {
         input: nonNull(CreateClassInput),
       },
-      resolve: (_, { input }, { prisma }) => prisma.class.create({ data: input })
+      resolve: (_, { input }, { prisma }: IMyContext) => prisma.class.create({ data: input })
     });
 
+    // Refactored function to generate classes from JSON file
     t.field('generateClassesFromScrape', {
       type: 'Class',
-      resolve: async (_, __, { prisma }: { prisma: PrismaClient }) => {
-        const classes = await parseCSV<classColumnTypes>('../big_pdf_lessons.csv', classHeaders, intColumns);
+      resolve: async (_, __, { prisma }: IMyContext) => {
+        try {
+          // Read classes.json file
+          const filePath = path.join(process.cwd(), 'classes.json');
+          const classesData: ClassData[] = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
-        const processTime = (timeStr: string): { startTime: string, endTime: string } => {
-          if (!timeStr || timeStr.trim().includes("TBA") || timeStr.trim().includes("NULL")) {
-            return { startTime: '00:00', endTime: '00:00' };
+          console.log(`Read ${classesData.length} classes from classes.json`);
+
+          // Process in batches
+          const batchSize = 50;
+          let processedCount = 0;
+
+          // Map to track successfully added classes
+          const addedClasses = new Map<string, number>();
+
+          for (let i = 0; i < classesData.length; i += batchSize) {
+            const batch = classesData.slice(i, i + batchSize);
+
+            await prisma.$transaction(async (tx) => {
+              for (const classData of batch) {
+                try {
+                  // Skip if no class code
+                  if (!classData.classCode) {
+                    console.log("Skipping class with no class code");
+                    continue;
+                  }
+
+                  // Check if class already exists
+                  const existingClass = await tx.class.findFirst({
+                    where: { classCode: classData.classCode }
+                  });
+
+                  if (!existingClass) {
+                    // Create new class with proper defaults
+                    const courseType = classData.courseType || 'LECTURE';
+                    const category = classData.category || 'General';
+                    const description = classData.description || 'No description available';
+
+                    // Ensure ideaGenEd and prerequisites are arrays
+                    const ideaGenEd = Array.isArray(classData.ideaGenEd) ? classData.ideaGenEd : [];
+
+                    // Process prerequisites to ensure they're in the right format
+                    let prerequisites: string[] = [];
+                    if (Array.isArray(classData.prerequisites)) {
+                      // If prerequisites is already an array of arrays, convert to JSON strings
+                      prerequisites = classData.prerequisites.map(pathway =>
+                          Array.isArray(pathway) ? JSON.stringify(pathway) : pathway as string
+                      );
+                    }
+
+                    const newClass = await tx.class.create({
+                      data: {
+                        classCode: classData.classCode,
+                        credits: classData.credits,
+                        courseType: courseType,
+                        title: classData.title,
+                        category: category,
+                        description: description,
+                        color: classData.color || 'blue', // Default to blue if no color provided
+                        ideaGenEd: ideaGenEd,
+                        prerequisites: prerequisites,
+                        coreDegreeId: [],
+                        electiveDegreeId: []
+                      }
+                    });
+
+                    addedClasses.set(classData.classCode, newClass.id);
+                    processedCount++;
+
+                    if (processedCount % 100 === 0) {
+                      console.log(`Processed ${processedCount} classes`);
+                    }
+                  } else {
+                    // Class already exists, just add to tracking map
+                    addedClasses.set(classData.classCode, existingClass.id);
+                  }
+                } catch (error) {
+                  console.error(`Error processing class ${classData.classCode}:`, error);
+                }
+              }
+            });
+
+            console.log(`Processed batch ending at index ${i + batch.length}`);
           }
-          try {
-            return {
-              startTime: getStartTime(timeStr),
-              endTime: getEndTime(timeStr)
-            };
-          } catch (error) {
-            console.error(`Error processing time: ${timeStr}`);
-            return { startTime: '00:00', endTime: '00:00' };
-          }
-        };
+
+          console.log(`Successfully processed ${processedCount} new classes`);
+
+          // Return the first class as a sample of what was created
+          return prisma.class.findFirst({
+            include: { sections: true }
+          });
+        } catch (error) {
+          console.error('Error generating classes from JSON:', error);
+          throw error;
+        }
+      }
+    });
+
+    // Refactored function to generate sections from CSV, ensuring it only adds sections to existing classes
+    t.field('generateSectionsFromScrape', {
+      type: 'Class',
+      resolve: async (_, __, { prisma }: IMyContext) => {
+        // Parse the CSV file using the utility function
+        const classes = await parseCSV<classColumnTypes>('UNC Courses.csv', classHeaders, intColumns);
+
+        // Track processed classes to avoid duplicates
         const processedClasses = new Map<string, boolean>();
         const batchSize = 100;
         let currentBatch: typeof classes = [];
+        let sectionsCreated = 0;
+        let sectionsSkipped = 0;
 
-        const createSectionKey = (
-            section: number | undefined,
-            days: string | undefined,
-            timeStr: string | undefined,
-            professor: string | undefined
-        ): string => {
-          const times = processTime(timeStr || '');
-          return `${section || 0}-${days?.trim() || 'TBA'}-${times.startTime}-${times.endTime}-${processInstructor(professor || '')}`;
-        };
-
+        // Process each batch of classes
         const processBatch = async (batch: typeof classes) => {
           await prisma.$transaction(async (tx) => {
             for (const entry of batch) {
-              if (!entry.code) continue;
+              // Skip if no course code
+              if (!entry[classColumns.CODE]) continue;
 
-              if (processedClasses.has(entry.code)) {
+              try {
+                // Parse course code to extract section, properly handling honors courses
+                const courseCodeMatch = entry[classColumns.CODE].match(/([A-Z]+\s\d+[A-Z]*)-(\d+)/);
+                if (!courseCodeMatch) {
+                  console.log(`Skipping invalid course code: ${entry[classColumns.CODE]}`);
+                  continue;
+                }
+
+                const baseCode = courseCodeMatch[1];
+                const section = parseInt(courseCodeMatch[2], 10);
+
+                // Find the existing class first, we don't create classes in this function
                 const existingClass = await tx.class.findFirst({
-                  where: { classCode: entry.code },
+                  where: { classCode: baseCode },
                   include: { sections: true }
                 });
 
-                if (existingClass) {
+                if (!existingClass) {
+                  console.log(`Skipping section for non-existent class: ${baseCode}`);
+                  sectionsSkipped++;
+                  continue;
+                }
+
+                // Get data from the correct columns based on the CSV structure
+                const instructorRaw = entry[classColumns.INSTRUCTOR] || '';
+                const scheduleRaw = entry[classColumns.SCHEDULE] || '';
+                const totalAvailable = entry[classColumns.ENROLL_TOTAL];
+                const totalCapacity = entry[classColumns.ENROLL_CAP];
+                const location = entry[classColumns.BUILDING].toLowerCase() === "unknown" ? "TBA" : entry[classColumns.BUILDING];
+
+                // Process the data correctly
+                const professorName = processInstructorName(instructorRaw);
+                const dayCode = extractDayCode(scheduleRaw);
+                const times = processTime(scheduleRaw);
+
+                // Check if we've already processed this class
+                if (processedClasses.has(baseCode)) {
+                  // Check if this section already exists
                   const existingSectionKeys = new Set(
-                      existingClass.sections.map(section =>
+                      existingClass.sections.map(s =>
                           createSectionKey(
-                              section.section,
-                              section.dayOfWeek,
-                              `${section.startTime}-${section.endTime}`,
-                              section.professor
+                              s.section,
+                              s.dayOfWeek,
+                              s.startTime,
+                              s.endTime,
+                              s.professor
                           )
                       )
                   );
 
                   const newSectionKey = createSectionKey(
-                      entry.section,
-                      entry.days,
-                      entry.time,
-                      entry.Instructor
+                      section,
+                      dayCode,
+                      times.startTime,
+                      times.endTime,
+                      professorName
                   );
 
+                  // Add new section if it doesn't already exist
                   if (!existingSectionKeys.has(newSectionKey)) {
-                    const times = processTime(entry.time);
-                    await tx.classSection.create({
-                      data: {
-                        classId: existingClass.id,
-                        section: entry.section || 0,
-                        dayOfWeek: entry.days?.trim() || 'TBA',
-                        startTime: times.startTime,
-                        endTime: times.endTime,
-                        professor: processInstructor(entry.Instructor),
-                        rateMyProfessorRating: 0.0
-                      }
-                    });
-                    console.log(`Added new section ${newSectionKey} to class ${entry.code}`);
+                    await createClassSection(
+                        tx,
+                        existingClass.id,
+                        section,
+                        dayCode,
+                        times,
+                        totalAvailable,
+                        totalCapacity,
+                        location,
+                        professorName
+                    );
+
+                    sectionsCreated++;
+                    console.log(`Added new section ${newSectionKey} to class ${baseCode}`);
                   } else {
-                    console.log(`Skipping duplicate section ${newSectionKey} for class ${entry.code}`);
+                    console.log(`Skipping duplicate section ${newSectionKey} for class ${baseCode}`);
                   }
+                } else {
+                  // This is the first time we're seeing this class
+                  await createClassSection(
+                      tx,
+                      existingClass.id,
+                      section,
+                      dayCode,
+                      times,
+                      totalAvailable,
+                      totalCapacity,
+                      location,
+                      professorName
+                  );
+
+                  sectionsCreated++;
+                  processedClasses.set(baseCode, true);
+                  console.log(`Added initial section ${section} to class ${baseCode}`);
                 }
-                continue;
-              }
-
-              try {
-                const newClass = await tx.class.create({
-                  data: {
-                    classCode: entry.code.trim(),
-                    courseType: processComponent(entry.component),
-                    credits: entry.units || 0,
-                    title: entry['course title']?.trim() || '',
-                    category: entry.subject?.trim() || 'General',
-                    description: entry.topics?.trim() || 'No description available',
-                    color: 'blue',
-                    coreDegreeId: [],
-                    electiveDegreeId: []
-                  }
-                });
-
-                const times = processTime(entry.time);
-                await tx.classSection.create({
-                  data: {
-                    classId: newClass.id,
-                    section: entry.section || 0,
-                    dayOfWeek: entry.days?.trim() || 'TBA',
-                    startTime: times.startTime,
-                    endTime: times.endTime,
-                    professor: processInstructor(entry.Instructor),
-                    rateMyProfessorRating: 0.0
-                  }
-                });
-
-                processedClasses.set(entry.code, true);
-                console.log(`Created new class ${entry.code} with initial section`);
               } catch (error) {
-                console.error(`Error processing class ${entry.code}:`, error);
+                console.error(`Error processing class ${entry[classColumns.CODE]}:`, error);
               }
             }
+          }, {
+            timeout: 30000
           });
         };
 
+        // Process all classes in batches
         for (let i = 0; i < classes.length; i++) {
           currentBatch.push(classes[i]);
 
@@ -268,6 +428,10 @@ export const classMutation = extendType({
           }
         }
 
+        console.log(`Total sections created: ${sectionsCreated}`);
+        console.log(`Total sections skipped (missing classes): ${sectionsSkipped}`);
+
+        // Return the first class as a sample of what was created
         return prisma.class.findFirst({
           include: { sections: true }
         });
