@@ -57,7 +57,7 @@ export const userQuery = extendType({
             resolve: (_, __, { prisma, req }: IMyContext) => {
                 const userId = authenticateUser(req.session);
                 return prisma.user.findUnique({where: {id: userId}, select: {
-                    id: true, email: true, degrees: true, tasks: true, takenClassIds: true, graduationSemesterName: true, university: true, yearInUniversity: true, gpa: true, attendancePercentage: true, assignmentCompletionPercentage: true, degreePlanners: true, isPremium: true
+                    id: true, email: true, degrees: true, tasks: true, takenClassIds: true, classSchedules: true, graduationSemesterName: true, university: true, yearInUniversity: true, gpa: true, attendancePercentage: true, assignmentCompletionPercentage: true, degreePlanners: true, isPremium: true
                     }})
             }
         });
